@@ -1,0 +1,14 @@
+1419946660664	Move compilation units
+1419946680951	Copy compilation units
+1419946707666	Copy compilation unit
+1419946726268	Rename type 'TestReference'
+1419946867480	Rename type 'TestReference'
+1419950225912	Rename local variable 'isServingPeer'
+1419950283672	Rename type 'TestMethod'
+1419950300311	Rename type 'TestContentDistributionMethod'
+1419975286339	Delete element
+1419975581562	Rename local variable 'isVisible'
+1419975607187	Rename local variable 'isServingContent'
+1419975634511	Rename local variable 'isUpdatesP2P'
+1419975645324	Rename local variable 'isUpdatesPVS'
+1419976985958	Rename enum constant 'Socket'

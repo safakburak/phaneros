@@ -1,0 +1,5 @@
+1413020151535	Rename method 'setFrowardController'
+1413020158536	Rename type 'IForwardController'
+1413020173635	Rename local variable 'controller'
+1413020605273	Rename local variable 'controller'
+1413020793902	Rename type 'IForwardDecider'
