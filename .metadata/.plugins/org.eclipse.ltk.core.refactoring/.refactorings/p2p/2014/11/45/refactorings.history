@@ -1,4 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<session version="1.0">
-<refactoring comment="Rename type &apos;p2p.network.AbstractMessage&apos; to &apos;IMessage&apos;&#x0A;- Original project: &apos;p2p&apos;&#x0A;- Original element: &apos;p2p.network.AbstractMessage&apos;&#x0A;- Renamed element: &apos;p2p.network.IMessage&apos;&#x0A;- Update references to refactored element&#x0A;- Update textual occurrences in comments and strings" description="Rename type &apos;AbstractMessage&apos;" flags="589830" id="org.eclipse.jdt.ui.rename.type" input="/src&lt;p2p.network{AbstractMessage.java[AbstractMessage" matchStrategy="1" name="IMessage" qualified="false" references="true" similarDeclarations="false" stamp="1415050106950" textual="false" version="1.0"/>
-</session>
