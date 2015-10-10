@@ -10,6 +10,7 @@ import planet.util.PropertiesWrapper;
  * @author <a href="mailto: jordi.pujol@estudiants.urv.es">Jordi Pujol</a>
  * Date: 05/07/2004
  */
+@SuppressWarnings("serial")
 public class ChordProperties implements OverlayProperties {
 
 	/* *********************** CHORD PROPERTIES ***********************/

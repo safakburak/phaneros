@@ -1,6 +1,4 @@
 package planet.chord;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.math.BigInteger;
 import java.util.Collection;
 import java.util.HashSet;
@@ -23,9 +21,6 @@ import planet.commonapi.exception.InitializationException;
 import planet.commonapi.results.ResultsConstraint;
 import planet.commonapi.results.ResultsEdge;
 import planet.generic.commonapi.factory.GenericFactory;
-import planet.generic.commonapi.message.DataMessage;
-import planet.scribe.ScribeContent;
-import planet.scribe.messaging.PublishMessage;
 import planet.simulate.Globals;
 import planet.simulate.Logger;
 import planet.simulate.MessageListener;
