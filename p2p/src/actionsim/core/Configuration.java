@@ -1,9 +1,9 @@
 package actionsim.core;
 
-public class SimulationConfiguration {
+public class Configuration {
 
 	// milliseconds
-	public static float simulationStepSize = 100;
+	public static float simulationStepLength = 100;
 	
 	public static float connectionCost = 250;
 	

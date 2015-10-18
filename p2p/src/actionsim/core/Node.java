@@ -7,18 +7,21 @@ import java.util.Queue;
 public class Node {
 
 	private final float NEAR_ZERO = 0.0000001f;
+
+	private long serial;
 	
-	private int nodeId;
+
+	private List<Node> connections = new LinkedList<Node>();
 	
 	private Queue<Message> inbox = new LinkedList<Message>();
 	
 	private Queue<Message> outbox = new LinkedList<Message>();
 	
+	
 	private Queue<Action> actions = new LinkedList<Action>();
 	
 	private Queue<Action> completedActions = new LinkedList<Action>();
 	
-	private List<Node> connections = new LinkedList<Node>();
 	
 	private float bandwidth = 0; // kilobytes per second
 	
@@ -29,9 +32,9 @@ public class Node {
 	private float remainingCpuBudget = 0;
 	
 	
-	public Node(int nodeId) {
+	protected Node(long serial) {
 		
-		this.nodeId = nodeId;
+		this.serial = serial;
 	}
 	
 	final void deliverMessages(float deltaTime) {
@@ -49,11 +52,9 @@ public class Node {
 				
 				remainingKilobytes -= message.getSize();
 				
-				Node nextNode = message.getNextNode();
+				Node receiver = message.getReceiver();
 				
-				message.setNextNode(message.getReceiver());
-				
-				nextNode.outbox.add(message);
+				receiver.inbox.add(message);
 			}
 			else {
 				
@@ -72,22 +73,6 @@ public class Node {
 				
 				MessageReceiveAction messageReceiveAction = new MessageReceiveAction(message);
 				doAction(messageReceiveAction);
-			}
-			else {
-				
-				Node[] nextNodes = calculateNextNodes(message);
-				
-				if(nextNodes != null) {
-					
-					for(Node nextNode : nextNodes) {
-
-						Message copy = message.copy();
-						
-						copy.setNextNode(nextNode);
-						
-						outbox.add(copy);
-					}
-				}
 			}
 		}
 	}
@@ -166,9 +151,9 @@ public class Node {
 	
 	// public interface
 	
-	public final int getNodeId() {
+	public final long getSerial() {
 		
-		return nodeId;
+		return serial;
 	}
 	
 	public final void send(Message message) {
@@ -254,20 +239,5 @@ public class Node {
 	
 	public void process(Action[] completedActions, float deltaTime) {
 		
-	}
-	
-	protected Node[] calculateNextNodes(Message message) {
-		
-		return null;
-	}
-	
-	@Override
-	public String toString() {
-		
-		String result = new String();
-		result += "Node: " + nodeId + "\n"; 
-		result += "Connections: " + connections.size() + "\n"; 
-		
-		return result;
 	}
 }

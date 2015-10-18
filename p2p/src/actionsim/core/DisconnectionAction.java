@@ -7,7 +7,7 @@ public class DisconnectionAction extends Action {
 	
 	public DisconnectionAction(Node from, Node to) {
 		
-		super(SimulationConfiguration.disconnectionCost);
+		super(Configuration.disconnectionCost);
 		
 		this.from = from;
 		this.to = to;

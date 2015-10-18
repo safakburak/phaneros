@@ -1,6 +1,5 @@
 package actionsim.core;
 
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -8,34 +7,37 @@ public class Simulation {
 
 	private List<Node> nodes = new ArrayList<Node>();
 
-	private float simStepSize = SimulationConfiguration.simulationStepSize;
+	private float stepLength = Configuration.simulationStepLength;
 	
-	private volatile boolean simStopFlag = false;
+	private long currentStep = 0;
 	
-	private Thread simThread = null;
-	
-	
-	@SuppressWarnings("unchecked")
-	public <T extends Node> T createNode () {
+	public Node createNode (Class<? extends Node> clazz) {
 		
-		Method me;
-		T result = null;
+		Node result = null;
 		
 		try {
-			me = getClass().getMethod("createNode");
-			result = (T) me.getReturnType().getConstructor(int.class).newInstance(nodes.size());
 			
-			synchronized (nodes) {
-				
-				nodes.add(result);
-			}
+			result = clazz.getConstructor(long.class).newInstance(nodes.size());
 		} 
 		catch (Exception e) {
 			
 			e.printStackTrace();
 		}
+
+		nodes.add(result);
+
 		
 		return result;
+	}
+
+	public void iterate(float duration) {
+		
+		int iterations = (int) (duration / stepLength);
+		
+		while(iterations-- > 0) {
+
+			step();
+		}
 	}
 
 	public void iterate(int iterations) {
@@ -46,60 +48,42 @@ public class Simulation {
 		}
 	}
 	
-	public void start() {
-
-		stop();
-		
-		simThread = new Thread(new Runnable() {
-			
-			public void run() {
-				
-				while(simStopFlag == false) {
-					
-					step();
-				}
-			}
-		});
-		
-		simThread.start();
-	}
-	
-	public void stop() {
-		
-		if(simThread != null) {
-			
-			simStopFlag = true;
-			
-			try {
-				
-				simThread.join();
-			} 
-			catch (InterruptedException e) {
-				
-				e.printStackTrace();
-			}
-		}
-	}
-	
 	private void step() {
 		
 		synchronized (nodes) {
 			
 			for(Node node : nodes) {
 				
-				node.processMessages(simStepSize);
+				node.processMessages(stepLength);
 			}
 			
 			for(Node node : nodes) {
 				
-				node.processActions(simStepSize);
+				node.processActions(stepLength);
 			}
 			
 			for(Node node : nodes) {
 				
-				node.deliverMessages(simStepSize);
+				node.deliverMessages(stepLength);
 			}
 			
 		}
+		
+		currentStep++;
+	}
+	
+	public void setLength(long length) {
+		
+		this.stepLength = length;
+	}
+
+	public long getCurrentStep() {
+		
+		return currentStep;
+	}
+	
+	public float getCurrentTime() {
+		
+		return currentStep * stepLength;
 	}
 }

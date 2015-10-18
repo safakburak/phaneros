@@ -8,7 +8,7 @@ public class ConnectionAction extends Action {
 	
 	public ConnectionAction(Node from, Node to) {
 		
-		super(SimulationConfiguration.connectionCost);
+		super(Configuration.connectionCost);
 		
 		this.from = from;
 		this.to = to;

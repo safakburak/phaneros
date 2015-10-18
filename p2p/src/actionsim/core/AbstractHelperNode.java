@@ -2,21 +2,17 @@ package actionsim.core;
 
 public abstract class AbstractHelperNode extends Node {
 
-	public AbstractHelperNode(int nodeId) {
+	public AbstractHelperNode(long serial) {
 		
-		super(nodeId);
+		super(serial);
 	}
 	
-	@Override
-	protected Node[] calculateNextNodes(Message message) {
-		
-		return super.calculateNextNodes(message);
-	}
-
 	@Override
 	public void process(Action[] completedActions, float deltaTime) {
 
 		processActions(completedActions);
+		
+		update(deltaTime);
 	}
 	
 	private void processActions(Action[] actions) {
@@ -33,7 +29,9 @@ public abstract class AbstractHelperNode extends Node {
 			}
 			else if(action instanceof MessageReceiveAction) {
 
-				onMessage(((MessageReceiveAction)action).getMessage());
+				Message message = ((MessageReceiveAction)action).getMessage();
+				
+				onMessage(message);
 			}
 			else {
 				
@@ -42,14 +40,14 @@ public abstract class AbstractHelperNode extends Node {
 		}
 	}
 	
-	protected abstract void onConnect(Node node);
+	protected void onConnect(Node node) {};
 	
-	protected abstract void onDisconnect(Node node);
+	protected void onDisconnect(Node node) {};
 	
-	protected abstract void onMessage(Message message);
+	protected void onMessage(Object message) {};
 	
-	protected abstract void onActionComplete(Action action);
+	protected void onActionComplete(Action action) {};
 	
-	protected abstract void update(float deltaTime);
+	protected void update(float deltaTime) {};
 	
 }
