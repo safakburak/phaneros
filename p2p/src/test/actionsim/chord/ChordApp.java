@@ -1,43 +1,48 @@
 package test.actionsim.chord;
 
-import java.util.ArrayList;
-
 import actionsim.chord.ChordMessage;
 import actionsim.chord.ChordNode;
 import actionsim.core.Simulation;
+import actionsim.logger.Logger;
 
 public class ChordApp {
 
 	public static void main(String[] args) {
 
+		Logger.init(System.out);
+		
 		Simulation simulation = new Simulation();
 		
-		ArrayList<ChordNode> nodes = new ArrayList<ChordNode>();
+		ChordNode seed = (ChordNode) simulation.createNode(ChordNode.class);
+		seed.createNetwork();
 		
 		for(int i = 0; i < 1000; i++) {
 			
 			ChordNode node = (ChordNode) simulation.createNode(ChordNode.class);
-			node.joinNetwork();
-			
-			nodes.add(node);
+			node.joinNetwork(seed.getChordId());
+			simulation.iterate(5);
 		}
 		
-		simulation.iterate(5000);
+		simulation.iterate(300);
+
+//		System.out.println(seed.gather().size());
 		
+
+		int messageCount = 10000;
 		
-//		System.out.println("*******************");
-//		node.listRecursive();
-		
-		ChordNode nodeA = nodes.get(50);
-		ChordNode nodeB = nodes.get(750);
-		
-		System.out.println(nodeA.getChordId());
-		System.out.println(nodeB.getChordId());
-		
-		ChordMessage message = new ChordMessage(nodeA.getChordId(), nodeB.getChordId(), null);
-		nodeA.send(message);
+		while(messageCount-- > 0) {
+			
+			ChordNode nodeA = simulation.getNode((int) (Math.random() * simulation.getNodeCount()));
+			ChordNode nodeB = simulation.getNode((int) (Math.random() * simulation.getNodeCount()));
+			
+			ChordMessage message = new ChordMessage(nodeA.getChordId(), nodeB.getChordId());
+			nodeA.sendChordMessage(message);
+			
+			simulation.iterate(10);
+		}
 		
 		simulation.iterate(100);
 		
+		System.out.println(ChordNode.totalHops / 10000.0);
 	}
 }

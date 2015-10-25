@@ -8,8 +8,8 @@ public class ChordConfiguration {
 	
 	public static float chordMessageSize = 2;
 	
-	public static float stabilizePeriod = 500;
+	public static float stabilizePeriod = 1000;
 	
-	public static float fixFingersPeriod = 500;
+	public static float fixFingersPeriod = 1000;
 	
 }

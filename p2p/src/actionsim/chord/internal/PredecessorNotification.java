@@ -1,11 +1,12 @@
 package actionsim.chord.internal;
 
 import actionsim.chord.ChordId;
+import actionsim.chord.ChordMessage;
 
-public class PredecessorNotification extends BaseMessage {
+public class PredecessorNotification extends ChordMessage {
 
-	public PredecessorNotification(ChordId source, ChordId destination) {
+	public PredecessorNotification(ChordId origin, ChordId target) {
 
-		super(source, destination);
+		super(origin, target);
 	}
 }

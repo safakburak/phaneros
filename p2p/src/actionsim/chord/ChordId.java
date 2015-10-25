@@ -140,25 +140,49 @@ public class ChordId implements Comparable<ChordId> {
 	}
 	
 	/**
-	 * Circular inclusion test.
-	 * 
 	 * @param left
 	 * @param right
-	 * @param id
-	 * @return id ∈ (left, right]
+	 * @return id ∈ (left, right)
 	 */
-	public boolean isBetweenCw(ChordId left, ChordId right) {
-		
-		if((left.lt(right) && gt(left) && lte(right))) {
+	public boolean isIn(ChordId left, ChordId right) {
 
-			return true;
-		}
-		else if (left.gt(right) && ((gt(left) && lte(ChordId.MAX)) || (gt(ChordId.MIN) && lte(right)))) {
-			
-			return true;
-		}
+		return isIn(left, right, false);
+	}
+	
+	/**
+	 * @param left
+	 * @param right
+	 * @param rightClosed
+	 * @return id ∈ (left, right] or id ∈ (left, right)
+	 */
+	public boolean isIn(ChordId left, ChordId right, boolean rightClosed) {
 		
-		return false; 
+		if(rightClosed) {
+			
+			if((left.lt(right) && gt(left) && lte(right))) {
+
+				return true;
+			}
+			else if (left.gt(right) && ((gt(left) && lte(ChordId.MAX)) || (gt(ChordId.MIN) && lte(right)))) {
+				
+				return true;
+			}
+			
+			return false; 
+		}
+		else {
+			
+			if((left.lt(right) && gt(left) && lt(right))) {
+
+				return true;
+			}
+			else if (left.gt(right) && ((gt(left) && lte(ChordId.MAX)) || (gte(ChordId.MIN) && lt(right)))) {
+				
+				return true;
+			}
+			
+			return false;
+		}
 	}
 	
 	@Override

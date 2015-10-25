@@ -1,18 +1,48 @@
 package actionsim.chord;
 
-import actionsim.chord.internal.BaseMessage;
+import java.util.ArrayList;
 
-public class ChordMessage extends BaseMessage {
+public class ChordMessage {
 
-	private Object payload;
+	private ChordId origin;
 	
-	public ChordMessage(ChordId source, ChordId destination, Object payload) {
-		
-		super(source, destination);
+	private ChordId target;
+	
+	private ArrayList<ChordId> hopHistory = new ArrayList<ChordId>();
+	
+	public ChordMessage(ChordId origin, ChordId target) {
+
+		this.origin = origin;
+		setTarget(target);
 	}
 	
-	public Object getPayload() {
+	public ChordId getOrigin() {
 		
-		return payload;
+		return origin;
+	}
+	
+	public ChordId getTarget() {
+		
+		return target;
+	}
+	
+	public void hop(ChordId id) {
+		
+		hopHistory.add(id);
+	}
+	
+	public int getHopCount() {
+		
+		return hopHistory.size();
+	}
+	
+	public void setTarget(ChordId target) {
+		
+		this.target = target;
+	}
+	
+	public void setOrigin(ChordId origin) {
+		
+		this.origin = origin;
 	}
 }

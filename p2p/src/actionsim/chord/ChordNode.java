@@ -1,7 +1,7 @@
 package actionsim.chord;
 
+import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.concurrent.ConcurrentHashMap;
 
 import actionsim.chord.internal.PredecessorNotification;
@@ -10,7 +10,7 @@ import actionsim.chord.internal.PredecessorResponse;
 import actionsim.chord.internal.SuccessorQuery;
 import actionsim.chord.internal.SuccessorResponse;
 import actionsim.core.AbstractHelperNode;
-import actionsim.core.Message;
+import actionsim.logger.Logger;
 
 public class ChordNode extends AbstractHelperNode {
 
@@ -23,27 +23,19 @@ public class ChordNode extends AbstractHelperNode {
 	
 	
 	private ChordId me;
-	
 	private ChordId predecessor;
-	
 	private ChordId successor;
 	
+	private ChordId[] fingerKeys = new ChordId[ChordConfiguration.chordIdBits];
 	private ChordId[] fingers = new ChordId[ChordConfiguration.chordIdBits];
-	private ChordId[] fingerSuccessors = new ChordId[ChordConfiguration.chordIdBits];
-	
-	private LinkedList<SuccessorQuery> forwardedQueries = new LinkedList<SuccessorQuery>();
-
 	
 	private float stabilizeTime = 0;
-
 	private float fixFingersTime = 0;
-	
-	
 	private int fixFingerIndex = 0;
 	
-	
 //	private HashMap<ChordId, Object> entries = new HashMap<ChordId, Object>();
-	
+
+	private ArrayList<MapEntry> waitingQueries = new ArrayList<MapEntry>();
 	
 	public ChordNode(long serial) {
 		
@@ -51,73 +43,57 @@ public class ChordNode extends AbstractHelperNode {
 		
 		me = new ChordId("Node" + serial);
 		
-		for(int i = 0; i < fingerSuccessors.length; i++) {
-			
-			fingers[i] = me.addPowerOfTwo(i);
-		}
-		
 		chordNodes.put(me, this);
+		
+		for(int i = 0; i < fingerKeys.length; i++) {
+			
+			fingerKeys[i] = me.addPowerOfTwo(i);
+		}
 	}
 	
-	private ChordId closestPrecedingFinger(ChordId id) {
+	private ChordId findCpf(ChordId id) {
 		
-		ChordId right = me;
-		
-		for(int i = fingerSuccessors.length - 1; i >= 0; i--) {
+		for(int i = fingers.length - 1; i >= 0; i--) {
 			
-			ChordId left = fingerSuccessors[i];
-			
-			if(left != null && right != null && id.isBetweenCw(left, right)) {
+			if(fingers[i] != null && fingers[i].isIn(me, id, true)) {
 				
-				return left;
-			}
-			else {
-				
-				right = left;
+				return fingers[i];
 			}
 		}
 		
 		return me;
 	}
 	
-	private void join(ChordId seed) {
-		
-		if(seed == null) {
-
-			setPredecessor(me);
-			setSuccessor(me);
-			
-			for(int i = 0; i < fingerSuccessors.length; i++) {
-				
-				fingerSuccessors[i] = me;
-			}
-		}
-		else {
-			
-			send(new SuccessorQuery(me, seed, me));
-		}
-	}
-	
 	@Override
-	protected void onMessage(Object message) {
+	protected void onMessage(Object envelopeMessage) {
 	
-		if(message instanceof SuccessorQuery) {
+		ChordEnvelope envelope = (ChordEnvelope) envelopeMessage;
+		
+		ChordMessage message = envelope.getPayload();
+		
+		if(message.getTarget().equals(me) == false) {
+			
+			//message is not for me, forward it 
+			sendChordMessage(message);
+		}
+		else if(message instanceof SuccessorQuery) {
 
 			SuccessorQuery query = (SuccessorQuery) message;
-			
-			if (successor == null || successor.equals(me)) {
+
+			if (successor == null) {
 				
-				send(new SuccessorResponse(me, ((SuccessorQuery) message).getSource(), query.getKey(), me));
 			}
-			else if(query.getKey().isBetweenCw(me, successor)) {
+			else if(query.getKey().isIn(me, successor, true) || me.equals(successor)) {
 				
-				send(new SuccessorResponse(me, ((SuccessorQuery) message).getSource(), query.getKey(), successor));
+				sendChordMessage(query.getOrigin(), new SuccessorResponse(me, query.getOrigin(), query.getKey(), successor));
 			}
 			else {
 				
-				forwardedQueries.add(query);
+				waitingQueries.add(new MapEntry(query.getKey(), query.getOrigin()));
 				
-				send(new SuccessorQuery(me, closestPrecedingFinger(query.getKey()), query.getKey()));
+				query.setOrigin(me);
+				query.setTarget(findCpf(query.getKey()));
+				sendChordMessage(query);
 			}
 		}
 		else if(message instanceof SuccessorResponse) {
@@ -130,27 +106,26 @@ public class ChordNode extends AbstractHelperNode {
 				setSuccessor(response.getSuccessor());
 			}
 			
-			// if successor of any forwarded queries
-			Iterator<SuccessorQuery> itr = forwardedQueries.iterator();
+			// if successor of any of the fingers
+			for(int i = 0; i < fingerKeys.length; i++) {
+				
+				if(fingerKeys[i].equals(response.getKey())) {
+					
+					fingers[i] = response.getSuccessor();
+				}
+			}
+			
+			// return to waiting queries 
+			Iterator<MapEntry> itr = waitingQueries.iterator();
 			
 			while(itr.hasNext()) {
 				
-				SuccessorQuery query = itr.next();
+				MapEntry entry = itr.next();
 				
-				if (query.getKey().equals(response.getKey())) {
+				if(entry.key.equals(response.getKey())) {
 					
-					send(new SuccessorResponse(me, query.getSource(), query.getKey(), response.getSuccessor()));
-					
+					sendChordMessage(entry.value, new SuccessorResponse(me, entry.value, entry.key, response.getSuccessor()));
 					itr.remove();
-				} 
-			}
-			
-			// if successor of any of the fingers
-			for(int i = 0; i < fingerSuccessors.length; i++) {
-				
-				if(fingers[i].equals(response.getKey())) {
-					
-					fingerSuccessors[i] = response.getSuccessor();
 				}
 			}
 		}
@@ -160,14 +135,14 @@ public class ChordNode extends AbstractHelperNode {
 			
 			if(predecessor != null) {
 				
-				send(new PredecessorResponse(me, query.getSource(), predecessor));
+				sendChordMessage(query.getOrigin(), new PredecessorResponse(me, query.getOrigin(), predecessor));
 			}
 		}
 		else if(message instanceof PredecessorResponse) {
 			
 			PredecessorResponse response = (PredecessorResponse) message; 
 			
-			if(response.getPredecessor().isBetweenCw(me, successor)) {
+			if(response.getPredecessor().isIn(me, successor)) {
 
 				setSuccessor(response.getPredecessor());
 			}
@@ -176,29 +151,22 @@ public class ChordNode extends AbstractHelperNode {
 			
 			PredecessorNotification notification = (PredecessorNotification) message;
 			
-			if (predecessor == null || predecessor.equals(me) || notification.getSource().isBetweenCw(predecessor, me)) {
+			if (predecessor == null || notification.getOrigin().isIn(predecessor, me)) {
 				
-				setPredecessor(notification.getSource());
+				setPredecessor(notification.getOrigin());
 				
 				// only handles the join of second node
-				if(successor.equals(me)) {
+				if(successor != null && successor.equals(me)) {
 					
 					setSuccessor(predecessor);
 				}
 			}
 		}
-		else if(message instanceof ChordMessage) {
+		else {
 			
-			ChordMessage chordMessage = (ChordMessage) message;
-			
-			if(chordMessage.getDestination().equals(me)) {
-				
-				onChordMessage(chordMessage);
-			}
-			else {
-
-				send(new ChordMessage(me, closestPrecedingFinger(chordMessage.getDestination()), chordMessage.getPayload()));
-			}
+			// not an internal message. 
+			// should be handled by application.
+			onChordMessage(message);
 		}
 	}
 
@@ -207,10 +175,12 @@ public class ChordNode extends AbstractHelperNode {
 		if(successor.equals(this.successor) == false) {
 			
 			this.successor = successor;
-			fingerSuccessors[0] = successor;
+			fingers[0] = successor;
 			
-			send(new PredecessorQuery(me, successor));
-			send(new PredecessorNotification(me, successor));
+			if(me.equals(successor) == false) {
+				
+				sendChordMessage(new PredecessorNotification(me, successor));
+			}
 		}
 	}
 	
@@ -245,9 +215,9 @@ public class ChordNode extends AbstractHelperNode {
 	
 	private void stabilize() {
 		
-		if(successor != null) {
+		if(successor != null && me.equals(successor) == false) {
 			
-			send(new PredecessorQuery(me, successor));
+			sendChordMessage(new PredecessorQuery(me, successor));
 		}
 	}
 	
@@ -261,17 +231,16 @@ public class ChordNode extends AbstractHelperNode {
 			fixFingerIndex++;
 		}
 		
-		if (successor == null) {
+		if(successor == null) {
 			
-			fingerSuccessors[fixFingerIndex] = me;
 		}
-		else if(fingers[fixFingerIndex].isBetweenCw(me, successor)) {
+		else if(fingerKeys[fixFingerIndex].isIn(me, successor, true)) {
 			
-			fingerSuccessors[fixFingerIndex] = successor;
+			fingers[fixFingerIndex] = successor;
 		}
-		else {
+		else if(me.equals(successor) == false) {
 			
-			send(new SuccessorQuery(me, successor, fingers[fixFingerIndex]));
+			sendChordMessage(new SuccessorQuery(me, successor, fingerKeys[fixFingerIndex]));
 		}
 	}
 	
@@ -283,9 +252,29 @@ public class ChordNode extends AbstractHelperNode {
 		return me;
 	}
 	
-	public void onChordMessage(ChordMessage message) {
+	public void sendChordMessage(ChordId to, ChordMessage message) {
 		
-		System.out.println("Chord message arrived!");
+		message.hop(me);
+		
+		ChordEnvelope envelope = new ChordEnvelope(me, to, message);
+		
+		send(envelope);
+	}
+	
+	public void sendChordMessage(ChordMessage message) {
+		
+		message.hop(me);
+		
+		ChordEnvelope envelope = new ChordEnvelope(me, findCpf(message.getTarget()), message);
+		
+		send(envelope);
+	}
+	
+	public static long totalHops = 0;
+	
+	public void onChordMessage(ChordMessage message) {
+
+		totalHops += message.getHopCount();
 	}
 	
 	public void setEntry(ChordId key, Object value) {
@@ -296,26 +285,16 @@ public class ChordNode extends AbstractHelperNode {
 		
 	}
 	
-	public void joinNetwork() {
+	public void createNetwork() {
 		
-		if(chordNodes.size() == 1) {
-			
-			join(null);
-		}
-		else {
-			
-			ChordId seed;
-
-			do {
-				
-				int seedIndex = (int) (Math.random() * (chordNodes.size() - 1) + 0.5);
-				seed = (ChordId) chordNodes.keySet().toArray()[seedIndex];
-				
-			} while(seed.equals(me));
-			
-			
-			join(seed);
-		}
+		predecessor = null;
+		successor = me;
+	}
+	
+	public void joinNetwork(ChordId seed) {
+		
+		predecessor = null;
+		sendChordMessage(seed, new SuccessorQuery(me, seed, me));
 	}
 	
 	public void leaveNetwork() {
@@ -325,6 +304,54 @@ public class ChordNode extends AbstractHelperNode {
 	@Override
 	public String toString() {
 		
-		return me + "(" + getSerial() + ")";
+		String result = "";
+		result += "Node: " + me + "\n";
+		result += "Succ: " + successor + "\n";
+		result += "Pred: " + predecessor + "\n";
+		
+		return result;
+	}
+	
+	
+	public void report(int n) {
+
+		if (n == 0) {
+			
+			return;
+		}
+		
+		Logger.log(toString());
+		
+		if(successor != null) {
+			
+			node(successor).report(n - 1);
+		}
+	}
+	
+	public ArrayList<ChordNode> gather() {
+		
+		ArrayList<ChordNode> result = new ArrayList<ChordNode>();
+		
+		gather(result);
+		
+		return result;
+	}
+	
+	private void gather(ArrayList<ChordNode> list) {
+		
+		if(successor == null) {
+			
+			Logger.log("Dead end!");
+			Logger.log(this);
+		}
+		
+		if(list.contains(this)) {
+			
+			return;
+		}
+		
+		list.add(this);
+		
+		node(successor).gather(list);
 	}
 }

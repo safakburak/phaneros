@@ -86,4 +86,16 @@ public class Simulation {
 		
 		return currentStep * stepLength;
 	}
+	
+	public int getNodeCount() {
+		
+		return nodes.size();
+	}
+	
+	public <T> T getNode(int index) {
+		
+		Node node = nodes.get(index);
+		
+		return (T) node;
+	}
 }
