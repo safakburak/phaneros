@@ -1,5 +1,6 @@
 package test.actionsim.chord;
 
+import actionsim.chord.ChordId;
 import actionsim.chord.ChordMessage;
 import actionsim.chord.ChordNode;
 import actionsim.core.Simulation;
@@ -24,25 +25,36 @@ public class ChordApp {
 		}
 		
 		simulation.iterate(300);
-
+//
+//		
 //		System.out.println(seed.gather().size());
+//
+//		int messageCount = 100000;
+//		
+//		while(messageCount-- > 0) {
+//			
+//			ChordNode nodeA = simulation.getNode((int) (Math.random() * simulation.getNodeCount()));
+//			ChordNode nodeB = simulation.getNode((int) (Math.random() * simulation.getNodeCount()));
+//			
+//			ChordMessage message = new ChordMessage(nodeA.getChordId(), nodeB.getChordId());
+//			nodeA.sendChordMessage(message);
+//			
+//			simulation.iterate(10);
+//		}
+//		
+//		simulation.iterate(100);
 		
-
-		int messageCount = 10000;
+		ChordNode nodeA = simulation.getNode(122);
+		ChordNode nodeB = simulation.getNode(721);
 		
-		while(messageCount-- > 0) {
-			
-			ChordNode nodeA = simulation.getNode((int) (Math.random() * simulation.getNodeCount()));
-			ChordNode nodeB = simulation.getNode((int) (Math.random() * simulation.getNodeCount()));
-			
-			ChordMessage message = new ChordMessage(nodeA.getChordId(), nodeB.getChordId());
-			nodeA.sendChordMessage(message);
-			
-			simulation.iterate(10);
-		}
+		ChordId topic = new ChordId("topic");
+		
+		nodeA.setEntry(topic, 100);
 		
 		simulation.iterate(100);
 		
-		System.out.println(ChordNode.totalHops / 10000.0);
+		nodeB.requestEntry(topic);
+		
+		simulation.iterate(100);
 	}
 }

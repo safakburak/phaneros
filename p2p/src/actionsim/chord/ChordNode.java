@@ -1,9 +1,13 @@
 package actionsim.chord;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.concurrent.ConcurrentHashMap;
 
+import actionsim.chord.internal.EntryQuery;
+import actionsim.chord.internal.EntryResponse;
+import actionsim.chord.internal.EntryUpdate;
 import actionsim.chord.internal.PredecessorNotification;
 import actionsim.chord.internal.PredecessorQuery;
 import actionsim.chord.internal.PredecessorResponse;
@@ -33,7 +37,7 @@ public class ChordNode extends AbstractHelperNode {
 	private float fixFingersTime = 0;
 	private int fixFingerIndex = 0;
 	
-//	private HashMap<ChordId, Object> entries = new HashMap<ChordId, Object>();
+	private HashMap<ChordId, Object> entries = new HashMap<ChordId, Object>();
 
 	private ArrayList<MapEntry> waitingQueries = new ArrayList<MapEntry>();
 	
@@ -162,6 +166,45 @@ public class ChordNode extends AbstractHelperNode {
 				}
 			}
 		}
+		else if(message instanceof EntryUpdate) {
+			
+			EntryUpdate update = (EntryUpdate) message;
+			
+			ChordId cpf = findCpf(update.getKey());
+			
+			if(cpf.equals(me)) {
+				
+				entries.put(update.getKey(), update.getValue());
+			}
+			else {
+				
+				update.setTarget(cpf);
+				sendChordMessage(update);
+			}
+		}
+		else if(message instanceof EntryQuery) {
+			
+			EntryQuery query = (EntryQuery) message;
+			
+			ChordId cpf = findCpf(query.getKey());
+			
+			if(cpf.equals(me)) {
+				
+				sendChordMessage(new EntryResponse(me, query.getOrigin(), query.getKey(), entries.get(query.getKey())));
+			}
+			else {
+			
+				query.setTarget(cpf);
+				sendChordMessage(query);
+			}
+			
+		}
+		else if(message instanceof EntryResponse) {
+			
+			EntryResponse response = (EntryResponse) message;
+			
+			onChordMessage(response);
+		}
 		else {
 			
 			// not an internal message. 
@@ -270,19 +313,38 @@ public class ChordNode extends AbstractHelperNode {
 		send(envelope);
 	}
 	
-	public static long totalHops = 0;
-	
 	public void onChordMessage(ChordMessage message) {
 
-		totalHops += message.getHopCount();
+		
 	}
 	
 	public void setEntry(ChordId key, Object value) {
 		
+		ChordId cpf = findCpf(key);
+		
+		if(cpf.equals(me)) {
+
+			entries.put(key, value);
+		}
+		else {
+			
+			sendChordMessage(new EntryUpdate(me, cpf, key, value));
+		}
 	}
 	
-	public void getEntry(ChordId key) {
+	public void requestEntry(ChordId key) {
 		
+		ChordId cpf = findCpf(key);
+		
+		if(cpf.equals(me)) {
+
+			Object value = entries.get(key);
+			onChordMessage(new EntryResponse(me, me, key, value));
+		}
+		else {
+			
+			sendChordMessage(new EntryQuery(me, cpf, key));
+		}
 	}
 	
 	public void createNetwork() {
