@@ -51,4 +51,9 @@ public class ChordMessage {
 		
 		return getClass().getSimpleName() + " from: " + getFrom() + " to: " + getTo() + " hops: " + getHopCount();
 	}
+	
+	public float getSize() {
+		
+		return 1;
+	}
 }

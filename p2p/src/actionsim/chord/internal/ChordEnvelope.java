@@ -37,4 +37,10 @@ public class ChordEnvelope extends Message {
 		
 		return payload;
 	}
+	
+	@Override
+	public float getSize() {
+		
+		return super.getSize() + 0 + payload.getSize();
+	}
 }

@@ -26,6 +26,6 @@ public class Message {
 	
 	public float getSize() {
 		
-		return 1;
+		return 0;
 	}
 }

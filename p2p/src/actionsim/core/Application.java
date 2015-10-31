@@ -17,4 +17,5 @@ public interface Application {
 	public void onMessage(Object message);
 	
 	public void onStep(Action[] completedActions, float deltaTime);
+	
 }

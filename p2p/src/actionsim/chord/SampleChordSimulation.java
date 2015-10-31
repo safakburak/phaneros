@@ -1,11 +1,9 @@
-package test.actionsim.chord;
+package actionsim.chord;
 
-import actionsim.chord.ChordMessage;
-import actionsim.chord.ChordNode;
 import actionsim.core.Simulation;
 import actionsim.logger.Logger;
 
-public class ChordSimulation {
+public class SampleChordSimulation {
 
 	public static void main(String[] args) {
 

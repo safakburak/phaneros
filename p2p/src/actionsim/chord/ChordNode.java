@@ -84,8 +84,13 @@ public class ChordNode extends DefaultApplication {
 		
 		if(message.getTo().equals(me) == false) {
 			
-			//message is not for me, forward it 
-			sendMessage(message);
+			ChordId nextHop = findCpf(message.getTo());
+			
+			if(application.onForward(message, nextHop)) {
+				
+				//message is not for me, forward it 
+				sendMessage(nextHop, message);
+			}
 		}
 		else if(message instanceof SuccessorQuery) {
 
@@ -304,11 +309,19 @@ public class ChordNode extends DefaultApplication {
 	
 	public void sendMessage(ChordId to, ChordMessage message) {
 		
-		message.hop(me);
+		if(to.equals(me)) {
+			
+			application.onMessage(message);
+		}
+		else {
+			
+			message.hop(me);
+			
+			ChordEnvelope envelope = new ChordEnvelope(node, node(to).node, message);
+			
+			node.send(envelope);
+		}
 		
-		ChordEnvelope envelope = new ChordEnvelope(node, node(to).node, message);
-		
-		node.send(envelope);
 	}
 	
 	public void sendMessage(ChordMessage message) {
