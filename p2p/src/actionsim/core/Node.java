@@ -9,7 +9,8 @@ public class Node {
 	private final float NEAR_ZERO = 0.0000001f;
 
 	private long serial;
-	
+
+	private Application application;
 
 	private List<Node> connections = new LinkedList<Node>();
 	
@@ -70,9 +71,8 @@ public class Node {
 			Message message = inbox.poll();
 			
 			if(message.getReceiver() == this) {
-				
-				MessageReceiveAction messageReceiveAction = new MessageReceiveAction(message);
-				doAction(messageReceiveAction);
+
+				application.onMessage(message);
 			}
 		}
 	}
@@ -100,15 +100,6 @@ public class Node {
 					
 					action.run();
 					
-					if(action instanceof ConnectionAction) {
-						
-						handleConnect((ConnectionAction) action);
-					}
-					else if (action instanceof DisconnectionAction) {
-						
-						handleDisconnect((DisconnectionAction) action);
-					}
-						
 					completedActions.add(action);
 				}
 				else {
@@ -122,34 +113,44 @@ public class Node {
 			completedActionsArr = completedActions.toArray(completedActionsArr);
 		}
 		
-		process(completedActionsArr, deltaTime);
+		application.onStep(completedActionsArr, deltaTime);
 	}
 	
-	private void handleConnect(ConnectionAction connectionAction) {
+	private boolean canConnectTo(Node node) {
 		
-		if(canConnectTo(connectionAction.getTo()) 
-			&& connectionAction.getTo().canConnectFrom(this)) {
+		if(application == null) {
 			
-			connections.add(connectionAction.getTo());
-			connectionAction.getTo().connections.add(this);
-			connectionAction.setResult(true);
-			
+			return true;
 		}
 		else {
 			
-			connectionAction.setResult(false);
+			return application.canConnectTo(node);
 		}
 	}
 	
-	private void handleDisconnect(DisconnectionAction disconnectionAction) {
+	private boolean canConnectFrom(Node node) {
 		
-		connections.remove(disconnectionAction.getTo());
-		
-		disconnectionAction.getTo().connections.remove(this);
+		if(application == null) {
+			
+			return true;
+		}
+		else {
+			
+			return application.canConnectFrom(node);
+		}
 	}
 	
-	
 	// public interface
+
+	public Application getApplication() {
+		
+		return application;
+	}
+	
+	public void setApplication(Application application) {
+		
+		this.application = application;
+	}
 	
 	public final long getSerial() {
 		
@@ -166,29 +167,29 @@ public class Node {
 		return connections.contains(node);
 	}
 	
-	public final void requestConnectionTo(Node node) {
+	public final void connect(Node node) {
 
 		if(connections.contains(node) == false) {
 			
-			ConnectionAction request = new ConnectionAction(this, node);
-			
-			doAction(request);
+			if(canConnectTo(node) && node.canConnectFrom(this)) {
+				
+				connections.add(node);
+				application.onConnect(node);
+				
+				node.connect(this);
+			}
 		}
 	}
 	
-	public final void requestDisconnectionFrom(Node node) {
+	public final void disconnect(Node node) {
 		
 		if(connections.contains(node)) {
 			
-			DisconnectionAction request = new DisconnectionAction(this, node);
+			connections.remove(node);
+			application.onDisconnect(node);
 			
-			doAction(request);
+			node.disconnect(this);
 		}
-	}
-
-	public final float getBandwidth() {
-		
-		return bandwidth;
 	}
 
 	public final void setBandwidth(float bandwidth) {
@@ -196,48 +197,16 @@ public class Node {
 		this.bandwidth = bandwidth;
 	}
 	
-	public final float getCpuBudget() {
-		
-		return cpuBudgetPerStep;
-	}
-
 	public final void setCpuBudget(float cpuBudget) {
 		
 		this.cpuBudgetPerStep = cpuBudget;
 	}
 	
-	public final void doAction(Action action) {
+	public final void act(Action action) {
 		
 		synchronized (actions) {
 			
 			actions.add(action);
 		}
-	}
-
-	
-	// expected to be overridden by implementers
-	
-	public boolean canConnectTo(Node node) {
-		
-		return true;
-	}
-	
-	public boolean canConnectFrom(Node node) {
-		
-		return true;
-	}
-	
-	public boolean canDeliverTo(Node node, Message message) {
-		
-		return true;
-	}
-	
-	public boolean canDeliverFrom(Node node, Message message) {
-		
-		return true;
-	}
-	
-	public void process(Action[] completedActions, float deltaTime) {
-		
 	}
 }

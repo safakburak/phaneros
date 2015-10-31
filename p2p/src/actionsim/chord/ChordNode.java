@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.concurrent.ConcurrentHashMap;
 
+import actionsim.chord.internal.ChordEnvelope;
 import actionsim.chord.internal.EntryQuery;
 import actionsim.chord.internal.EntryResponse;
 import actionsim.chord.internal.EntryUpdate;
@@ -13,10 +14,12 @@ import actionsim.chord.internal.PredecessorQuery;
 import actionsim.chord.internal.PredecessorResponse;
 import actionsim.chord.internal.SuccessorQuery;
 import actionsim.chord.internal.SuccessorResponse;
-import actionsim.core.AbstractHelperNode;
+import actionsim.core.Action;
+import actionsim.core.DefaultApplication;
+import actionsim.core.Node;
 import actionsim.logger.Logger;
 
-public class ChordNode extends AbstractHelperNode {
+public class ChordNode extends DefaultApplication {
 
 	private static ConcurrentHashMap<ChordId, ChordNode> chordNodes = new ConcurrentHashMap<ChordId, ChordNode>();
 
@@ -25,6 +28,9 @@ public class ChordNode extends AbstractHelperNode {
 		return chordNodes.get(id);
 	}
 	
+	private Node node;
+	
+	private ChordApplication application = new DefaultChordApplication();
 	
 	private ChordId me;
 	private ChordId predecessor;
@@ -41,11 +47,12 @@ public class ChordNode extends AbstractHelperNode {
 
 	private ArrayList<MapEntry> waitingQueries = new ArrayList<MapEntry>();
 	
-	public ChordNode(long serial) {
+	public ChordNode(Node node) {
+
+		this.node = node;
+		this.node.setApplication(this);
 		
-		super(serial);
-		
-		me = new ChordId("Node" + serial);
+		me = new ChordId("Node" + node.getSerial());
 		
 		chordNodes.put(me, this);
 		
@@ -69,16 +76,16 @@ public class ChordNode extends AbstractHelperNode {
 	}
 	
 	@Override
-	protected void onMessage(Object envelopeMessage) {
+	public void onMessage(Object envelopeMessage) {
 	
 		ChordEnvelope envelope = (ChordEnvelope) envelopeMessage;
 		
 		ChordMessage message = envelope.getPayload();
 		
-		if(message.getTarget().equals(me) == false) {
+		if(message.getTo().equals(me) == false) {
 			
 			//message is not for me, forward it 
-			sendChordMessage(message);
+			sendMessage(message);
 		}
 		else if(message instanceof SuccessorQuery) {
 
@@ -89,15 +96,15 @@ public class ChordNode extends AbstractHelperNode {
 			}
 			else if(query.getKey().isIn(me, successor, true) || me.equals(successor)) {
 				
-				sendChordMessage(query.getOrigin(), new SuccessorResponse(me, query.getOrigin(), query.getKey(), successor));
+				sendMessage(query.getFrom(), new SuccessorResponse(me, query.getFrom(), query.getKey(), successor));
 			}
 			else {
 				
-				waitingQueries.add(new MapEntry(query.getKey(), query.getOrigin()));
+				waitingQueries.add(new MapEntry(query.getKey(), query.getFrom()));
 				
 				query.setOrigin(me);
 				query.setTarget(findCpf(query.getKey()));
-				sendChordMessage(query);
+				sendMessage(query);
 			}
 		}
 		else if(message instanceof SuccessorResponse) {
@@ -128,7 +135,7 @@ public class ChordNode extends AbstractHelperNode {
 				
 				if(entry.key.equals(response.getKey())) {
 					
-					sendChordMessage(entry.value, new SuccessorResponse(me, entry.value, entry.key, response.getSuccessor()));
+					sendMessage(entry.value, new SuccessorResponse(me, entry.value, entry.key, response.getSuccessor()));
 					itr.remove();
 				}
 			}
@@ -139,7 +146,7 @@ public class ChordNode extends AbstractHelperNode {
 			
 			if(predecessor != null) {
 				
-				sendChordMessage(query.getOrigin(), new PredecessorResponse(me, query.getOrigin(), predecessor));
+				sendMessage(query.getFrom(), new PredecessorResponse(me, query.getFrom(), predecessor));
 			}
 		}
 		else if(message instanceof PredecessorResponse) {
@@ -155,9 +162,9 @@ public class ChordNode extends AbstractHelperNode {
 			
 			PredecessorNotification notification = (PredecessorNotification) message;
 			
-			if (predecessor == null || notification.getOrigin().isIn(predecessor, me)) {
+			if (predecessor == null || notification.getFrom().isIn(predecessor, me)) {
 				
-				setPredecessor(notification.getOrigin());
+				setPredecessor(notification.getFrom());
 				
 				// only handles the join of second node
 				if(successor != null && successor.equals(me)) {
@@ -175,13 +182,11 @@ public class ChordNode extends AbstractHelperNode {
 			if(cpf.equals(me)) {
 				
 				entries.put(update.getKey(), update.getValue());
-				
-				System.out.println("update: " + update.getHopCount());
 			}
 			else {
 				
 				update.setTarget(cpf);
-				sendChordMessage(cpf, update);
+				sendMessage(cpf, update);
 			}
 		}
 		else if(message instanceof EntryQuery) {
@@ -192,14 +197,12 @@ public class ChordNode extends AbstractHelperNode {
 			
 			if(cpf.equals(me)) {
 				
-				sendChordMessage(new EntryResponse(me, query.getOrigin(), query.getKey(), entries.get(query.getKey())));
-				
-				System.out.println("query: " + query.getHopCount());
+				sendMessage(new EntryResponse(me, query.getFrom(), query.getKey(), entries.get(query.getKey())));
 			}
 			else {
 			
 				query.setTarget(cpf);
-				sendChordMessage(cpf, query);
+				sendMessage(cpf, query);
 			}
 			
 		}
@@ -207,15 +210,13 @@ public class ChordNode extends AbstractHelperNode {
 			
 			EntryResponse response = (EntryResponse) message;
 			
-			onChordMessage(response);
-			
-			System.out.println("response: " + response.getHopCount());
+			application.onEntryValue(response.getKey(), response.getValue());
 		}
 		else {
 			
 			// not an internal message. 
-			// should be handled by application.
-			onChordMessage(message);
+			// should be handled by upper application.
+			application.onMessage(message);
 		}
 	}
 
@@ -228,7 +229,7 @@ public class ChordNode extends AbstractHelperNode {
 			
 			if(me.equals(successor) == false) {
 				
-				sendChordMessage(new PredecessorNotification(me, successor));
+				sendMessage(new PredecessorNotification(me, successor));
 			}
 		}
 	}
@@ -239,7 +240,7 @@ public class ChordNode extends AbstractHelperNode {
 	}
 	
 	@Override
-	protected void update(float deltaTime) {
+	public void onStep(Action[] completedActions, float deltaTime) {
 		
 		stabilizeTime += deltaTime;
 		
@@ -266,7 +267,7 @@ public class ChordNode extends AbstractHelperNode {
 		
 		if(successor != null && me.equals(successor) == false) {
 			
-			sendChordMessage(new PredecessorQuery(me, successor));
+			sendMessage(new PredecessorQuery(me, successor));
 		}
 	}
 	
@@ -289,39 +290,30 @@ public class ChordNode extends AbstractHelperNode {
 		}
 		else if(me.equals(successor) == false) {
 			
-			sendChordMessage(new SuccessorQuery(me, successor, fingerKeys[fixFingerIndex]));
+			sendMessage(new SuccessorQuery(me, successor, fingerKeys[fixFingerIndex]));
 		}
 	}
 	
 	
 	// public interface
 	
-	public ChordId getChordId() {
+	public ChordId getId() {
 		
 		return me;
 	}
 	
-	public void sendChordMessage(ChordId to, ChordMessage message) {
+	public void sendMessage(ChordId to, ChordMessage message) {
 		
 		message.hop(me);
 		
-		ChordEnvelope envelope = new ChordEnvelope(me, to, message);
+		ChordEnvelope envelope = new ChordEnvelope(node, node(to).node, message);
 		
-		send(envelope);
+		node.send(envelope);
 	}
 	
-	public void sendChordMessage(ChordMessage message) {
+	public void sendMessage(ChordMessage message) {
 		
-		message.hop(me);
-		
-		ChordEnvelope envelope = new ChordEnvelope(me, findCpf(message.getTarget()), message);
-		
-		send(envelope);
-	}
-	
-	public void onChordMessage(ChordMessage message) {
-
-		
+		sendMessage(findCpf(message.getTo()), message);
 	}
 	
 	public void setEntry(ChordId key, Object value) {
@@ -334,7 +326,7 @@ public class ChordNode extends AbstractHelperNode {
 		}
 		else {
 			
-			sendChordMessage(new EntryUpdate(me, cpf, key, value));
+			sendMessage(new EntryUpdate(me, cpf, key, value));
 		}
 	}
 	
@@ -345,11 +337,11 @@ public class ChordNode extends AbstractHelperNode {
 		if(cpf.equals(me)) {
 
 			Object value = entries.get(key);
-			onChordMessage(new EntryResponse(me, me, key, value));
+			application.onEntryValue(key, value);
 		}
 		else {
 			
-			sendChordMessage(new EntryQuery(me, cpf, key));
+			sendMessage(new EntryQuery(me, cpf, key));
 		}
 	}
 	
@@ -362,7 +354,7 @@ public class ChordNode extends AbstractHelperNode {
 	public void joinNetwork(ChordId seed) {
 		
 		predecessor = null;
-		sendChordMessage(seed, new SuccessorQuery(me, seed, me));
+		sendMessage(seed, new SuccessorQuery(me, seed, me));
 	}
 	
 	public void leaveNetwork() {

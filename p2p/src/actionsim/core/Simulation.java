@@ -11,18 +11,9 @@ public class Simulation {
 	
 	private long currentStep = 0;
 	
-	public Node createNode (Class<? extends Node> clazz) {
+	public Node createNode () {
 		
-		Node result = null;
-		
-		try {
-			
-			result = clazz.getConstructor(long.class).newInstance(nodes.size());
-		} 
-		catch (Exception e) {
-			
-			e.printStackTrace();
-		}
+		Node result = new Node(nodes.size());
 
 		nodes.add(result);
 
@@ -92,10 +83,8 @@ public class Simulation {
 		return nodes.size();
 	}
 	
-	public <T> T getNode(int index) {
+	public Node getNode(int index) {
 		
-		Node node = nodes.get(index);
-		
-		return (T) node;
+		return nodes.get(index);
 	}
 }

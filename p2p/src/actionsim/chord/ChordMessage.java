@@ -4,26 +4,26 @@ import java.util.ArrayList;
 
 public class ChordMessage {
 
-	private ChordId origin;
+	private ChordId from;
 	
-	private ChordId target;
+	private ChordId to;
 	
 	private ArrayList<ChordId> hopHistory = new ArrayList<ChordId>();
 	
 	public ChordMessage(ChordId origin, ChordId target) {
 
-		this.origin = origin;
+		this.from = origin;
 		setTarget(target);
 	}
 	
-	public ChordId getOrigin() {
+	public ChordId getFrom() {
 		
-		return origin;
+		return from;
 	}
 	
-	public ChordId getTarget() {
+	public ChordId getTo() {
 		
-		return target;
+		return to;
 	}
 	
 	public void hop(ChordId id) {
@@ -38,11 +38,17 @@ public class ChordMessage {
 	
 	public void setTarget(ChordId target) {
 		
-		this.target = target;
+		this.to = target;
 	}
 	
 	public void setOrigin(ChordId origin) {
 		
-		this.origin = origin;
+		this.from = origin;
+	}
+	
+	@Override
+	public String toString() {
+		
+		return getClass().getSimpleName() + " from: " + getFrom() + " to: " + getTo() + " hops: " + getHopCount();
 	}
 }
