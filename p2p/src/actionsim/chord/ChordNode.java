@@ -175,11 +175,13 @@ public class ChordNode extends AbstractHelperNode {
 			if(cpf.equals(me)) {
 				
 				entries.put(update.getKey(), update.getValue());
+				
+				System.out.println("update: " + update.getHopCount());
 			}
 			else {
 				
 				update.setTarget(cpf);
-				sendChordMessage(update);
+				sendChordMessage(cpf, update);
 			}
 		}
 		else if(message instanceof EntryQuery) {
@@ -191,11 +193,13 @@ public class ChordNode extends AbstractHelperNode {
 			if(cpf.equals(me)) {
 				
 				sendChordMessage(new EntryResponse(me, query.getOrigin(), query.getKey(), entries.get(query.getKey())));
+				
+				System.out.println("query: " + query.getHopCount());
 			}
 			else {
 			
 				query.setTarget(cpf);
-				sendChordMessage(query);
+				sendChordMessage(cpf, query);
 			}
 			
 		}
@@ -204,6 +208,8 @@ public class ChordNode extends AbstractHelperNode {
 			EntryResponse response = (EntryResponse) message;
 			
 			onChordMessage(response);
+			
+			System.out.println("response: " + response.getHopCount());
 		}
 		else {
 			

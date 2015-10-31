@@ -44,17 +44,22 @@ public class ChordApp {
 //		
 //		simulation.iterate(100);
 		
-		ChordNode nodeA = simulation.getNode(122);
-		ChordNode nodeB = simulation.getNode(721);
+		ChordNode nodeC = simulation.getNode((int) (Math.random() * simulation.getNodeCount()));
+		ChordNode nodeA = simulation.getNode((int) (Math.random() * simulation.getNodeCount()));
+		ChordNode nodeB = simulation.getNode((int) (Math.random() * simulation.getNodeCount()));
 		
 		ChordId topic = new ChordId("topic");
 		
 		nodeA.setEntry(topic, 100);
 		
-		simulation.iterate(100);
+		simulation.iterate(15);
+		
+		nodeC.setEntry(topic, 101);
+		
+		simulation.iterate(15);
 		
 		nodeB.requestEntry(topic);
 		
-		simulation.iterate(100);
+		simulation.iterate(15);
 	}
 }
