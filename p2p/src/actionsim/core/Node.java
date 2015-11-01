@@ -53,7 +53,7 @@ public class Node {
 				
 				remainingKilobytes -= message.getSize();
 				
-				Node receiver = message.getReceiver();
+				Node receiver = message.getTo();
 				
 				receiver.inbox.add(message);
 			}
@@ -70,7 +70,7 @@ public class Node {
 			
 			Message message = inbox.poll();
 			
-			if(message.getReceiver() == this) {
+			if(message.getTo() == this) {
 
 				application.onMessage(message);
 			}

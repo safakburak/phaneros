@@ -27,7 +27,7 @@ public class Logger {
 		
 		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd_HHmmss");
 		
-		File logFile = new File(dateFormat.format(new Date()) + ".log");
+		File logFile = new File("log/" + dateFormat.format(new Date()) + ".log");
 		
 		try {
 			

@@ -10,10 +10,10 @@ public class ChordMessage {
 	
 	private ArrayList<ChordId> hopHistory = new ArrayList<ChordId>();
 	
-	public ChordMessage(ChordId origin, ChordId target) {
+	public ChordMessage(ChordId from, ChordId to) {
 
-		this.from = origin;
-		setTarget(target);
+		this.from = from;
+		setTo(to);
 	}
 	
 	public ChordId getFrom() {
@@ -36,12 +36,12 @@ public class ChordMessage {
 		return hopHistory.size();
 	}
 	
-	public void setTarget(ChordId target) {
+	public void setTo(ChordId target) {
 		
 		this.to = target;
 	}
 	
-	public void setOrigin(ChordId origin) {
+	public void setFrom(ChordId origin) {
 		
 		this.from = origin;
 	}

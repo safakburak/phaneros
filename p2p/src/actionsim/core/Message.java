@@ -2,26 +2,26 @@ package actionsim.core;
 
 public class Message {
 
-	private Node sender;
+	private Node from;
 	
-	private Node receiver;
+	private Node to;
 	
 	
-	public Message(Node sender, Node receiver) {
+	public Message(Node from, Node to) {
 		
-		this.sender = sender;
+		this.from = from;
 		
-		this.receiver = receiver;
+		this.to = to;
 	}
 	
-	public Node getSender() {
+	public Node getFrom() {
 		
-		return sender;
+		return from;
 	}
 	
-	public Node getReceiver() {
+	public Node getTo() {
 		
-		return receiver;
+		return to;
 	}
 	
 	public float getSize() {

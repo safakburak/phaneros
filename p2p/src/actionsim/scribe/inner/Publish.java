@@ -5,27 +5,19 @@ import actionsim.chord.ChordMessage;
 
 public class Publish extends ChordMessage {
 
-	private ChordId publisher;
-	
 	private ChordId topic;
 	
 	private Object value;
 	
-	public Publish(ChordId publisher, ChordId key, Object value) {
+	public Publish(ChordId from, ChordId to, ChordId topic, Object value) {
 		
-		super(publisher, key);
+		super(from, to);
 		
-		this.publisher = publisher;
-		this.topic = key;
+		this.topic = topic;
 		this.value = value;
 	}
 	
-	public ChordId getPublisher() {
-		
-		return publisher;
-	}
-	
-	public ChordId getKey() {
+	public ChordId getTopic() {
 		
 		return topic;
 	}

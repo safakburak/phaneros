@@ -45,10 +45,16 @@ public class ChordId implements Comparable<ChordId> {
 		
 		String result = "";
 		
-		for(int i = (bytes.length - 1); i >= 0 ; i--) {
+		for(int i = 0; i < bytes.length ; i++) {
 			
 			String byteText = Integer.toHexString(bytes[i] - 128);
-			result = byteText.substring(byteText.length() - 2) + result;
+			
+			while (byteText.length() < 2) {
+			
+				byteText = "0" + byteText;
+			}
+			
+			result += byteText.substring(byteText.length() - 2);
 		}
 		
 		return result;

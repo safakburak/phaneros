@@ -7,7 +7,7 @@ public class SampleChordSimulation {
 
 	public static void main(String[] args) {
 
-		Logger.init(System.out);
+		Logger.init();
 		
 		Simulation simulation = new Simulation();
 		
@@ -23,23 +23,23 @@ public class SampleChordSimulation {
 		
 		simulation.iterate(300);
 
+		seed.report(1001);
 		
-		System.out.println(seed.gather().size());
-
-		int messageCount = 10000;
+		int messageCount = 1000;
 		
-		while(messageCount-- > 0) {
-			
-			ChordNode nodeA = (ChordNode) simulation.getNode((int) (Math.random() * simulation.getNodeCount())).getApplication();
-			ChordNode nodeB = (ChordNode) simulation.getNode((int) (Math.random() * simulation.getNodeCount())).getApplication();
-			
-			ChordMessage message = new ChordMessage(nodeA.getId(), nodeB.getId());
-			nodeA.sendMessage(message);
-			
-			simulation.iterate(10);
-		}
+//		while(messageCount-- > 0) {
+//			
+//			ChordNode nodeA = (ChordNode) simulation.getNode((int) (Math.random() * simulation.getNodeCount())).getApplication();
+//			ChordNode nodeB = (ChordNode) simulation.getNode((int) (Math.random() * simulation.getNodeCount())).getApplication();
+//			
+//			ChordMessage message = new ChordMessage(nodeA.getId(), nodeB.getId());
+//			nodeA.send(message);
+//			
+//			simulation.iterate(10);
+//		}
+//		
+//		simulation.iterate(100);
 		
-		simulation.iterate(100);
 		
 //		ChordNode nodeA = (ChordNode) simulation.getNode((int) (Math.random() * simulation.getNodeCount())).getApplication();
 //		ChordNode nodeB = (ChordNode) simulation.getNode((int) (Math.random() * simulation.getNodeCount())).getApplication();
