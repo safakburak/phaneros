@@ -6,9 +6,6 @@ import java.util.Iterator;
 import java.util.concurrent.ConcurrentHashMap;
 
 import actionsim.chord.internal.ChordEnvelope;
-import actionsim.chord.internal.EntryQuery;
-import actionsim.chord.internal.EntryResponse;
-import actionsim.chord.internal.EntryUpdate;
 import actionsim.chord.internal.PredecessorNotification;
 import actionsim.chord.internal.PredecessorQuery;
 import actionsim.chord.internal.PredecessorResponse;
@@ -16,7 +13,6 @@ import actionsim.chord.internal.SuccessorQuery;
 import actionsim.chord.internal.SuccessorResponse;
 import actionsim.core.Action;
 import actionsim.core.DefaultApplication;
-import actionsim.core.Message;
 import actionsim.core.Node;
 import p2p.log.Logger;
 
@@ -198,45 +194,6 @@ public class ChordNode extends DefaultApplication {
 						}
 					}
 				}
-				else if(chordMessage instanceof EntryUpdate) {
-					
-					EntryUpdate update = (EntryUpdate) chordMessage;
-					
-					ChordId cpf = findCpf(update.getKey());
-					
-					if(cpf.equals(me)) {
-						
-						entries.put(update.getKey(), update.getValue());
-					}
-					else {
-						
-						update.setTo(cpf);
-						send(cpf, update);
-					}
-				}
-				else if(chordMessage instanceof EntryQuery) {
-					
-					EntryQuery query = (EntryQuery) chordMessage;
-					
-					ChordId cpf = findCpf(query.getKey());
-					
-					if(cpf.equals(me)) {
-						
-						send(new EntryResponse(me, query.getFrom(), query.getKey(), entries.get(query.getKey())));
-					}
-					else {
-					
-						query.setTo(cpf);
-						send(cpf, query);
-					}
-					
-				}
-				else if(chordMessage instanceof EntryResponse) {
-					
-					EntryResponse response = (EntryResponse) chordMessage;
-					
-					application.onEntryValue(response.getKey(), response.getValue());
-				}
 				else {
 					
 					// not an internal chordMessage. 
@@ -354,35 +311,6 @@ public class ChordNode extends DefaultApplication {
 			
 			ChordId nextNode = findCpf(chordMessage.getTo());
 			send(nextNode, chordMessage);
-		}
-	}
-	
-	public void setEntry(ChordId key, Object value) {
-		
-		ChordId cpf = findCpf(key);
-		
-		if(cpf.equals(me)) {
-
-			entries.put(key, value);
-		}
-		else {
-			
-			send(new EntryUpdate(me, cpf, key, value));
-		}
-	}
-	
-	public void requestEntry(ChordId key) {
-		
-		ChordId cpf = findCpf(key);
-		
-		if(cpf.equals(me)) {
-
-			Object value = entries.get(key);
-			application.onEntryValue(key, value);
-		}
-		else {
-			
-			send(new EntryQuery(me, cpf, key));
 		}
 	}
 	
