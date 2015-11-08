@@ -3,7 +3,7 @@ package actionsim.chord.internal;
 import actionsim.chord.ChordId;
 import actionsim.chord.ChordMessage;
 
-public class PredecessorResponse extends ChordMessage {
+public class PredecessorResponse extends ChordMessage implements InternalMessage {
 
 	private ChordId predecessor;
 	

@@ -25,7 +25,7 @@ public class DefaultApplication implements Application {
 	}
 
 	@Override
-	public void onMessage(Object message) {
+	public void onMessage(Message message) {
 		
 	}
 

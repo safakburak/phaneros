@@ -6,12 +6,13 @@ public class Message {
 	
 	private Node to;
 	
+	private Object payload;
 	
-	public Message(Node from, Node to) {
+	public Message(Node from, Node to, Object payload) {
 		
 		this.from = from;
-		
 		this.to = to;
+		this.payload = payload;
 	}
 	
 	public Node getFrom() {
@@ -22,6 +23,11 @@ public class Message {
 	public Node getTo() {
 		
 		return to;
+	}
+	
+	public Object getPayload() {
+		
+		return payload;
 	}
 	
 	public float getSize() {

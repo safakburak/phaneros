@@ -14,7 +14,7 @@ public interface Application {
 	
 	public void onDisconnect(Node node);
 	
-	public void onMessage(Object message);
+	public void onMessage(Message message);
 	
 	public void onStep(Action[] completedActions, float deltaTime);
 	

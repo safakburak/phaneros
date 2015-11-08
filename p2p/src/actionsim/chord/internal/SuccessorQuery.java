@@ -3,7 +3,7 @@ package actionsim.chord.internal;
 import actionsim.chord.ChordId;
 import actionsim.chord.ChordMessage;
 
-public class SuccessorQuery extends ChordMessage {
+public class SuccessorQuery extends ChordMessage implements InternalMessage {
 
 	private ChordId key;
 	

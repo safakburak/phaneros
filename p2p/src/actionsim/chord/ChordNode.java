@@ -5,7 +5,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.concurrent.ConcurrentHashMap;
 
-import actionsim.chord.internal.ChordEnvelope;
 import actionsim.chord.internal.PredecessorNotification;
 import actionsim.chord.internal.PredecessorQuery;
 import actionsim.chord.internal.PredecessorResponse;
@@ -13,6 +12,7 @@ import actionsim.chord.internal.SuccessorQuery;
 import actionsim.chord.internal.SuccessorResponse;
 import actionsim.core.Action;
 import actionsim.core.DefaultApplication;
+import actionsim.core.Message;
 import actionsim.core.Node;
 import p2p.log.Logger;
 
@@ -75,13 +75,11 @@ public class ChordNode extends DefaultApplication {
 	}
 	
 	@Override
-	public void onMessage(Object message) {
+	public void onMessage(Message message) {
 
-		if(message instanceof ChordEnvelope) {
+		if(message.getPayload() instanceof ChordMessage) {
 			
-			ChordEnvelope chordEnvelope = (ChordEnvelope) message;
-			
-			ChordMessage chordMessage = chordEnvelope.getPayload();
+			ChordMessage chordMessage = (ChordMessage) message.getPayload();
 			
 			if(!chordMessage.getTo().equals(me)) {
 				
@@ -295,9 +293,7 @@ public class ChordNode extends DefaultApplication {
 		
 		chordMessage.hop(me);
 		
-		ChordEnvelope envelope = new ChordEnvelope(node, node(to).node, chordMessage);
-		
-		node.send(envelope);
+		node.send(new Message(node, node(to).node, chordMessage));
 	}
 	
 	public void send(ChordMessage chordMessage) {
