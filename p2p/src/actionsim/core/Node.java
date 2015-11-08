@@ -8,7 +8,7 @@ public class Node {
 
 	private final float NEAR_ZERO = 0.0000001f;
 
-	private long serial;
+	private String id;
 
 	private Application application;
 
@@ -33,9 +33,9 @@ public class Node {
 	private float remainingCpuBudget = 0;
 	
 	
-	protected Node(long serial) {
+	protected Node(String id) {
 		
-		this.serial = serial;
+		this.id = id;
 	}
 	
 	final void deliverMessages(float deltaTime) {
@@ -152,9 +152,9 @@ public class Node {
 		this.application = application;
 	}
 	
-	public final long getSerial() {
+	public final String getId() {
 		
-		return serial;
+		return id;
 	}
 	
 	public final void send(Message message) {

@@ -25,14 +25,16 @@ public class ContentServer
 	public ContentServer(String id, Region resRegion) 
 	{
 		mId = id;
-		
 		mResRegion = resRegion;
+		
+		mEndPoint = EndPointFactory.createEndPoint(mId);
+	}
+	
+	public void start() {
 		
 		mPatchCache = new Cache(1000, new LruDisposer());
 		
 		mPatchFetcher = new PatchFetcher(mPatchCache, new DiskPatchSource());
-		
-		mEndPoint = EndPointFactory.createEndPoint(mId);
 		
 		mRequestHandler = new RequestHandler(mEndPoint, mPatchCache, mPatchFetcher, mResRegion);
 	}

@@ -9,32 +9,33 @@ import p2p.log.Logger;
 import p2p.log.Stats;
 import p2p.network.EndPointFactory;
 import p2p.network.EndPointFactory.EndPointType;
-import p2p.network.planetsim.PSimNetwork;
+import p2p.network.actionsim.ActionSimNetwork;
 
-public class TestMethod 
+public class TestMethodActionSim 
 {
 	public static void main(String[] args) 
 	{
 		Logger.init();
 		Stats.start();
 		
-		EndPointFactory.setEndPointType(EndPointType.PSim);
+		EndPointFactory.setEndPointType(EndPointType.ActionSim);
 		
-		PSimNetwork.initialize();
+		ActionSimNetwork.initialize();
 		
-		ContentServer server = new ContentServer("server", null);
+		ContentServer contentServer = new ContentServer("server", null);
 		
 		ArrayList<Peer> peers = new ArrayList<Peer>();
 		
-		peers.add(new Peer("client", true, true, true, true));
+		peers.add(new Peer("client_0", true, true, true, true));
 		
-		for(int i = 0; i < 99; i++)
+		for(int i = 1; i < 400; i++)
 		{
-			peers.add(new Peer("client" + i, false, true, true, true));
+			peers.add(new Peer("client_" + i, false, true, true, true));
 		}
 		
+		ActionSimNetwork.simulation.iterate(300);
 		
-		server.start();
+		contentServer.start();
 		
 		for(Peer peer : peers) {
 			

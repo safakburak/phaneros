@@ -11,9 +11,14 @@ public class Simulation {
 	
 	private long currentStep = 0;
 	
-	public Node createNode () {
+	public Node createNode() {
 		
-		Node result = new Node(nodes.size());
+		return createNode("Action Node" + nodes.size());
+	}
+	
+	public Node createNode (String id) {
+		
+		Node result = new Node(id);
 
 		nodes.add(result);
 

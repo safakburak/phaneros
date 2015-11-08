@@ -18,6 +18,11 @@ public class UpdateServer
 		
 		mEndPoint = EndPointFactory.createEndPoint(mId);
 
+	}
+	
+	public void start() {
+		
+
 		mEndPoint.addMessageListener(PositionUpdate.class, new IMessageListener<PositionUpdate>() {
 			@Override
 			public void onMessage(PositionUpdate message, String source) 

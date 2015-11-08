@@ -1,5 +1,7 @@
 package p2p.test.updatedissemination;
 
+import java.util.ArrayList;
+
 import p2p.application.contentserver.ContentServer;
 import p2p.application.loop.Loop;
 import p2p.application.peer.Peer;
@@ -13,20 +15,30 @@ public class TestNaivePeerToPeer
 {
 	public static void main(String[] args) 
 	{
-		Logger.start("Update Naive P2P");
+		Logger.init();
 		Stats.start();
 		
 		EndPointFactory.setEndPointType(EndPointType.PSim);
 		
 		PSimNetwork.initialize();
 		
-		new ContentServer("server", null);
+		ContentServer server = new ContentServer("server", null);
 		
-		new Peer("client", true, true, true, false);
+		ArrayList<Peer> peers = new ArrayList<Peer>();
+		
+		peers.add(new Peer("client", true, true, true, false));
 		
 		for(int i = 0; i < 99; i++)
 		{
-			new Peer("client" + i, false, true, true, false);
+			peers.add(new Peer("client" + i, false, true, true, false));
+		}
+		
+		
+		server.start();
+		
+		for(Peer peer : peers) {
+			
+			peer.start();
 		}
 		
 		Loop.start();

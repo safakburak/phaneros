@@ -1,7 +1,6 @@
 package actionsim.chord;
 
-import actionsim.core.Message;
-import actionsim.logger.Logger;
+import p2p.log.Logger;
 
 public class DefaultChordApplication implements ChordApplication {
 
@@ -12,15 +11,16 @@ public class DefaultChordApplication implements ChordApplication {
 		this.id = id;
 	}
 	
-	@Override
-	public void onMessage(ChordMessage message) {
-
-		Logger.log(id + " received: \n\t" + message);
-	}
+	public static float totalHops = 0;
+	public static float totalMessages = 0;
 	
 	@Override
-	public void onMessage(Message message) {
+	public void onChordMessage(ChordMessage message) {
+
+		Logger.log(id + " received: \n\t" + message);
 		
+		totalHops += message.getHopCount();
+		totalMessages++;
 	}
 	
 	@Override

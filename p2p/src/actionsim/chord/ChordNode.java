@@ -18,7 +18,7 @@ import actionsim.core.Action;
 import actionsim.core.DefaultApplication;
 import actionsim.core.Message;
 import actionsim.core.Node;
-import actionsim.logger.Logger;
+import p2p.log.Logger;
 
 public class ChordNode extends DefaultApplication {
 
@@ -53,7 +53,7 @@ public class ChordNode extends DefaultApplication {
 		this.node = node;
 		this.node.setApplication(this);
 		
-		me = new ChordId("Node" + node.getSerial());
+		me = new ChordId(node.getId());
 		
 		application = new DefaultChordApplication(me);
 		
@@ -91,7 +91,7 @@ public class ChordNode extends DefaultApplication {
 				
 				if(chordMessage.getTo().isIn(predecessor, me, true)) {
 					
-					application.onMessage(chordMessage);
+					application.onChordMessage(chordMessage);
 				}
 				else if(chordMessage.getTo().isIn(me, successor, true)) {
 					
@@ -241,13 +241,9 @@ public class ChordNode extends DefaultApplication {
 					
 					// not an internal chordMessage. 
 					// should be handled by upper application.
-					application.onMessage(chordMessage);
+					application.onChordMessage(chordMessage);
 				}
 			}
-		}
-		else {
-
-			application.onMessage((Message)message);
 		}
 	}
 

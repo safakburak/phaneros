@@ -1,5 +1,7 @@
 package p2p.test.updatedissemination;
 
+import java.util.ArrayList;
+
 import p2p.application.contentserver.ContentServer;
 import p2p.application.loop.Loop;
 import p2p.application.peer.Peer;
@@ -13,20 +15,30 @@ public class TestMethod
 {
 	public static void main(String[] args) 
 	{
-		Logger.start("Update P2P PVS");
+		Logger.init();
 		Stats.start();
 		
 		EndPointFactory.setEndPointType(EndPointType.PSim);
 		
 		PSimNetwork.initialize();
 		
-		new ContentServer("server", null);
+		ContentServer server = new ContentServer("server", null);
 		
-		new Peer("client", true, true, true, true);
+		ArrayList<Peer> peers = new ArrayList<Peer>();
+		
+		peers.add(new Peer("client", true, true, true, true));
 		
 		for(int i = 0; i < 99; i++)
 		{
-			new Peer("client" + i, false, true, true, true);
+			peers.add(new Peer("client" + i, false, true, true, true));
+		}
+		
+		
+		server.start();
+		
+		for(Peer peer : peers) {
+			
+			peer.start();
 		}
 		
 		Loop.start();

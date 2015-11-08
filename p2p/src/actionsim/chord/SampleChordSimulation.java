@@ -1,13 +1,13 @@
 package actionsim.chord;
 
 import actionsim.core.Simulation;
-import actionsim.logger.Logger;
+import p2p.log.Logger;
 
 public class SampleChordSimulation {
 
 	public static void main(String[] args) {
 
-		Logger.init();
+		Logger.init(System.out);
 		
 		Simulation simulation = new Simulation();
 		
@@ -27,18 +27,20 @@ public class SampleChordSimulation {
 		
 		int messageCount = 1000;
 		
-//		while(messageCount-- > 0) {
-//			
-//			ChordNode nodeA = (ChordNode) simulation.getNode((int) (Math.random() * simulation.getNodeCount())).getApplication();
-//			ChordNode nodeB = (ChordNode) simulation.getNode((int) (Math.random() * simulation.getNodeCount())).getApplication();
-//			
-//			ChordMessage message = new ChordMessage(nodeA.getId(), nodeB.getId());
-//			nodeA.send(message);
-//			
-//			simulation.iterate(10);
-//		}
-//		
-//		simulation.iterate(100);
+		while(messageCount-- > 0) {
+			
+			ChordNode nodeA = (ChordNode) simulation.getNode((int) (Math.random() * simulation.getNodeCount())).getApplication();
+			ChordNode nodeB = (ChordNode) simulation.getNode((int) (Math.random() * simulation.getNodeCount())).getApplication();
+			
+			ChordMessage message = new ChordMessage(nodeA.getId(), nodeB.getId());
+			nodeA.send(message);
+			
+			simulation.iterate(10);
+		}
+		
+		simulation.iterate(100);
+		
+		System.out.println(DefaultChordApplication.totalHops / DefaultChordApplication.totalMessages);
 		
 		
 //		ChordNode nodeA = (ChordNode) simulation.getNode((int) (Math.random() * simulation.getNodeCount())).getApplication();

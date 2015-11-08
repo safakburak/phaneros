@@ -1,5 +1,8 @@
 package actionsim.chord;
 
+import java.math.BigDecimal;
+import java.util.HashMap;
+
 import org.apache.commons.codec.digest.DigestUtils;
 
 public class ChordId implements Comparable<ChordId> {
@@ -21,24 +24,28 @@ public class ChordId implements Comparable<ChordId> {
 	
 	private byte[] bytes;
 	
-	private String text = "";
+	private String hexText = "";
+	
+	private String keyText;
 	
 	public ChordId(String keyText) {
 
+		this.keyText = keyText;
+		
 		byte[] allBytes = DigestUtils.sha1(keyText); //20 bytes
 		
 		bytes = new byte[ChordConfiguration.chordIdBytes];
 
 		System.arraycopy(allBytes, 0, bytes, 0, ChordConfiguration.chordIdBytes);
 		
-		this.text = toHexText(bytes);
+		this.hexText = toHexText(bytes);
 	}
 	
 	private ChordId(byte[] bytes) {
 		
 		this.bytes = bytes;
 		
-		this.text = toHexText(bytes);
+		this.hexText = toHexText(bytes);
 	}
 	
 	private String toHexText(byte[] bytes) {
@@ -198,8 +205,19 @@ public class ChordId implements Comparable<ChordId> {
 	}
 	
 	@Override
+	public int hashCode() {
+		
+		return hexText.hashCode();
+	}
+	
+	@Override
 	public String toString() {
 		
-		return text;
+		return keyText;
+	}
+	
+	public String getKeyText() {
+		
+		return keyText;
 	}
 }

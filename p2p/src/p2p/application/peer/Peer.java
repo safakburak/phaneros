@@ -48,10 +48,30 @@ public class Peer
 	
 	private Renderer mRenderer;
 	
+	private boolean displayGui; 
+	private boolean p2pContentDistribute;
+	private boolean p2pUpdates;
+	private boolean pvsUpdates;
+	
 	public Peer(String id, boolean displayGui, boolean p2pContentDistribute, boolean p2pUpdates, boolean pvsUpdates) 
 	{
 		mId = id;
+		mEndPoint = EndPointFactory.createEndPoint(mId);
 		
+		this.displayGui = displayGui;
+		this.p2pContentDistribute = p2pContentDistribute;
+		this.p2pUpdates = p2pUpdates;
+		this.pvsUpdates = pvsUpdates;
+	}
+
+	public String getId() 
+	{
+		return mId;
+	}
+	
+	public void start() {
+		
+
 		mVisibility = Visibility.sVisibilityMap;
 		
 		mPatchCache = new Cache(20, new LruDisposer());
@@ -63,7 +83,6 @@ public class Peer
 		currentPatch = new IntPair(patchX, patchY);
 		isUserControl = false;
 		
-		mEndPoint = EndPointFactory.createEndPoint(mId);
 		
 		mFetchingManager = new FetchingManager(this, mEndPoint, mPatchCache, mVisibility, p2pContentDistribute);
 		
@@ -99,10 +118,5 @@ public class Peer
 				mUpdateManager.update(deltaTime);
 			}
 		});
-	}
-
-	public String getId() 
-	{
-		return mId;
 	}
 }

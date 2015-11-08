@@ -1,5 +1,6 @@
 package p2p.network;
 
+import p2p.network.actionsim.ActionSimNetwork;
 import p2p.network.inhouse.socket.MessageEndPoint;
 import p2p.network.inhouse.trivial.TrivialEndPoint;
 import p2p.network.planetsim.PSimNetwork;
@@ -12,7 +13,8 @@ public class EndPointFactory
 	{
 		PSim,
 		Trivial,
-		SocketServer
+		SocketServer,
+		ActionSim
 	}
 	
 	public static void setEndPointType(EndPointType endPointType)
@@ -33,6 +35,9 @@ public class EndPointFactory
 			case SocketServer:
 				return new MessageEndPoint(id);
 	
+			case ActionSim:
+				return ActionSimNetwork.getEndPoint(id);	
+				
 			default:
 				return null;
 		}

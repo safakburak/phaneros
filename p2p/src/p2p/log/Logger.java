@@ -1,40 +1,60 @@
 package p2p.log;
 
 import java.io.File;
-import java.io.FileWriter;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-public class Logger 
-{
-	private static FileWriter sWriter;
+public class Logger {
 
-	public static void start(String suffix)
-	{
-		try 
-		{
-			SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss");
-			File file = new File("../log/" + dateFormat.format(new Date()) + "_" + suffix + ".txt");
-			file.createNewFile();
-			sWriter = new FileWriter(file);
-		} 
-		catch (IOException e) 
-		{
-			e.printStackTrace();
-		}
+	private static Logger instance;
+	
+	private PrintStream stream;
+	
+	public Logger(PrintStream stream) {
+		
+		this.stream = stream;
 	}
 	
-	public static void log(String msg)
-	{
-		try 
-		{
-			sWriter.write(msg + "\n");
-			sWriter.flush();
-		} 
-		catch (IOException e) 
-		{
+	public void println(String message) {
+		
+		this.stream.println(message);
+	} 
+	
+	public static void init() {
+		
+		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd_HHmmss");
+		
+		File logFile = new File("log/" + dateFormat.format(new Date()) + ".log");
+		
+		try {
+			
+			logFile.createNewFile();
+			instance = new Logger(new PrintStream(new FileOutputStream(logFile)));
+			
+		} catch (IOException e) {
+			
 			e.printStackTrace();
+			
+			init(System.out);
 		}
+		
+	}
+	
+	public static void init(PrintStream stream) {
+		
+		instance = new Logger(stream);
+	}
+	
+	public static void log(String message) {
+		
+		instance.println(message);
+	}
+	
+	public static void log(Object obj) {
+		
+		instance.println(obj.toString());
 	}
 }
