@@ -27,7 +27,7 @@ public class TestServerClient
 		
 		peers.add(new Peer("client", true, false, false, false));
 		
-		for(int i = 0; i < 99; i++)
+		for(int i = 0; i < 400; i++)
 		{
 			peers.add(new Peer("client" + i, false, false, false, false));
 		}

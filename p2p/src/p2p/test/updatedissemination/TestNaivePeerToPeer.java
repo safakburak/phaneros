@@ -9,7 +9,7 @@ import p2p.log.Logger;
 import p2p.log.Stats;
 import p2p.network.EndPointFactory;
 import p2p.network.EndPointFactory.EndPointType;
-import p2p.network.planetsim.PSimNetwork;
+import p2p.network.actionsim.ActionSimNetwork;
 
 public class TestNaivePeerToPeer 
 {
@@ -18,9 +18,9 @@ public class TestNaivePeerToPeer
 		Logger.init();
 		Stats.start();
 		
-		EndPointFactory.setEndPointType(EndPointType.PSim);
+		EndPointFactory.setEndPointType(EndPointType.ActionSim);
 		
-		PSimNetwork.initialize();
+		ActionSimNetwork.initialize();
 		
 		ContentServer server = new ContentServer("server", null);
 		
@@ -28,11 +28,12 @@ public class TestNaivePeerToPeer
 		
 		peers.add(new Peer("client", true, true, true, false));
 		
-		for(int i = 0; i < 99; i++)
+		for(int i = 0; i < 400; i++)
 		{
 			peers.add(new Peer("client" + i, false, true, true, false));
 		}
 		
+		ActionSimNetwork.simulation.iterate(300);
 		
 		server.start();
 		

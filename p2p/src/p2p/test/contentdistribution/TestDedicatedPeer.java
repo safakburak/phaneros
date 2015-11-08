@@ -10,7 +10,7 @@ import p2p.log.Logger;
 import p2p.log.Stats;
 import p2p.network.EndPointFactory;
 import p2p.network.EndPointFactory.EndPointType;
-import p2p.network.planetsim.PSimNetwork;
+import p2p.network.actionsim.ActionSimNetwork;
 
 public class TestDedicatedPeer 
 {
@@ -20,9 +20,9 @@ public class TestDedicatedPeer
 		Logger.init();
 		Stats.start();
 		
-		EndPointFactory.setEndPointType(EndPointType.PSim);
+		EndPointFactory.setEndPointType(EndPointType.ActionSim);
 		
-		PSimNetwork.initialize();
+		ActionSimNetwork.initialize();
 		
 		ContentServer server1 = new ContentServer("server1", new Region(0, 0, 50, 50));
 		ContentServer server2 = new ContentServer("server2", new Region(50, 0, 50, 50));
@@ -33,10 +33,12 @@ public class TestDedicatedPeer
 		
 		peers.add(new Peer("client_0", true, false, true, true));
 		
-		for(int i = 1; i < 100; i++)
+		for(int i = 1; i < 400; i++)
 		{
 			peers.add(new Peer("client_" + i, false, false, true, true));
 		}
+		
+		ActionSimNetwork.simulation.iterate(300);
 		
 		server1.start();
 		server2.start();
