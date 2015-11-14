@@ -34,4 +34,10 @@ public class Message {
 		
 		return 0;
 	}
+	
+	@Override
+	public String toString() {
+		
+		return "message from " + from + " to " + to;
+	}
 }

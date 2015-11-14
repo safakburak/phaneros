@@ -1,16 +1,13 @@
 package actionsim.chord.internal;
 
 import actionsim.chord.ChordId;
-import actionsim.chord.ChordMessage;
 
-public class SuccessorQuery extends ChordMessage implements InternalMessage {
+public class SuccessorQuery extends AbstractMessage implements InternalMessage {
 
 	private ChordId key;
 	
 	
-	public SuccessorQuery(ChordId origin, ChordId target, ChordId key) {
-		
-		super(origin, target);
+	public SuccessorQuery(ChordId key) {
 		
 		this.key = key;
 	}

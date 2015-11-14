@@ -1,7 +1,6 @@
 package actionsim.chord;
 
-import java.math.BigDecimal;
-import java.util.HashMap;
+import java.nio.ByteBuffer;
 
 import org.apache.commons.codec.digest.DigestUtils;
 
@@ -38,38 +37,29 @@ public class ChordId implements Comparable<ChordId> {
 
 		System.arraycopy(allBytes, 0, bytes, 0, ChordConfiguration.chordIdBytes);
 		
-		this.hexText = toHexText(bytes);
+		this.hexText = Integer.toHexString(ByteBuffer.wrap(bytes).getInt());
+		
+		while(hexText.length() < 8) {
+			
+			hexText = "0" + hexText;
+		}
 	}
 	
 	private ChordId(byte[] bytes) {
 		
 		this.bytes = bytes;
 		
-		this.hexText = toHexText(bytes);
-	}
-	
-	private String toHexText(byte[] bytes) {
+		this.hexText = Integer.toHexString(ByteBuffer.wrap(bytes).getInt());
 		
-		String result = "";
-		
-		for(int i = 0; i < bytes.length ; i++) {
+		while(hexText.length() < 8) {
 			
-			String byteText = Integer.toHexString(bytes[i] - 128);
-			
-			while (byteText.length() < 2) {
-			
-				byteText = "0" + byteText;
-			}
-			
-			result += byteText.substring(byteText.length() - 2);
+			hexText = "0" + hexText;
 		}
-		
-		return result;
 	}
 	
 	public boolean gt(ChordId otherId) {
 	
-		return compareTo(otherId) == 1;
+		return compareTo(otherId) > 0;
 	}
 	
 	public boolean gte(ChordId otherId) {
@@ -79,7 +69,7 @@ public class ChordId implements Comparable<ChordId> {
 	
 	public boolean lt(ChordId otherId) {
 		
-		return compareTo(otherId) == -1;
+		return compareTo(otherId) < 0;
 	}
 	
 	public boolean lte(ChordId otherId) {
@@ -213,11 +203,16 @@ public class ChordId implements Comparable<ChordId> {
 	@Override
 	public String toString() {
 		
-		return keyText;
+		return keyText == null ? hexText : keyText;
 	}
 	
 	public String getKeyText() {
 		
 		return keyText;
+	}
+	
+	public String getHexText() {
+		
+		return hexText;
 	}
 }

@@ -9,13 +9,22 @@ import java.util.Date;
 
 public class Logger {
 
+	public final static int TRACE	= 4;
+	public final static int INFO	= 3;
+	public final static int WARNING	= 2;
+	public final static int ERROR	= 1;
+	
 	private static Logger instance;
+	
 	
 	private PrintStream stream;
 	
-	public Logger(PrintStream stream) {
+	private int level;
+	
+	public Logger(PrintStream stream, int level) {
 		
 		this.stream = stream;
+		this.level = level;
 	}
 	
 	public void println(String message) {
@@ -23,7 +32,7 @@ public class Logger {
 		this.stream.println(message);
 	} 
 	
-	public static void init() {
+	public static void init(int level) {
 		
 		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd_HHmmss");
 		
@@ -32,29 +41,45 @@ public class Logger {
 		try {
 			
 			logFile.createNewFile();
-			instance = new Logger(new PrintStream(new FileOutputStream(logFile)));
+			instance = new Logger(new PrintStream(new FileOutputStream(logFile)), level);
 			
 		} catch (IOException e) {
 			
 			e.printStackTrace();
 			
-			init(System.out);
+			init(System.out, level);
 		}
 		
 	}
 	
-	public static void init(PrintStream stream) {
+	public static void init(PrintStream stream, int level) {
 		
-		instance = new Logger(stream);
+		instance = new Logger(stream, level);
+	}
+	
+	public static void log(String message, int level) {
+		
+		if(level <= instance.level) {
+			
+			instance.println(message);
+		}
+	}
+	
+	public static void log(Object obj, int level) {
+
+		if(level <= instance.level) {
+
+			instance.println(obj.toString());
+		}
 	}
 	
 	public static void log(String message) {
 		
-		instance.println(message);
+		log(message, INFO);
 	}
 	
 	public static void log(Object obj) {
 		
-		instance.println(obj.toString());
+		log(obj, INFO);
 	}
 }

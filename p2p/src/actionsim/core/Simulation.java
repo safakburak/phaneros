@@ -13,7 +13,14 @@ public class Simulation {
 	
 	public Node createNode() {
 		
-		return createNode("Action Node" + nodes.size());
+		String serial = nodes.size() + "";
+		
+		while(serial.length() < 4) {
+			
+			serial = "0" + serial;
+		}
+		
+		return createNode("N" + serial);
 	}
 	
 	public Node createNode (String id) {

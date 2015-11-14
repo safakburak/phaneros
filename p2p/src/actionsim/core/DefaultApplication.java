@@ -27,6 +27,7 @@ public class DefaultApplication implements Application {
 	@Override
 	public void onMessage(Message message) {
 		
+//		System.out.println(message);
 	}
 
 	@Override

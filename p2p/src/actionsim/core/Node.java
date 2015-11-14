@@ -10,7 +10,7 @@ public class Node {
 
 	private String id;
 
-	private Application application;
+	private Application application = new DefaultApplication();
 
 	private List<Node> connections = new LinkedList<Node>();
 	
@@ -208,5 +208,11 @@ public class Node {
 			
 			actions.add(action);
 		}
+	}
+	
+	@Override
+	public String toString() {
+		
+		return id;
 	}
 }
