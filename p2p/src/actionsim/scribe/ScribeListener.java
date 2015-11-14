@@ -5,7 +5,7 @@ import actionsim.chord.ChordMessage;
 
 public interface ScribeListener {
 
-	public void onScribeMessage(ChordId topic, ChordId origin, Object message);
+	public void onScribeMessage(ChordId topic, Object message);
 	
 	public void onChordMessage(ChordMessage message);
 	

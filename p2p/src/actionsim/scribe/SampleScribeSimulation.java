@@ -3,7 +3,6 @@ package actionsim.scribe;
 import java.util.ArrayList;
 
 import actionsim.chord.ChordId;
-import actionsim.core.Node;
 import actionsim.core.Simulation;
 import p2p.log.Logger;
 
@@ -11,7 +10,8 @@ public class SampleScribeSimulation {
 
 	public static void main(String[] args) {
 		
-		Logger.init(System.out);
+//		Logger.init(System.out, Logger.INFO);
+		Logger.init(Logger.INFO);
 		
 		Simulation simulation = new Simulation();
 		
@@ -19,11 +19,7 @@ public class SampleScribeSimulation {
 		
 		for(int i = 0; i < 1000; i++) {
 			
-			Node node = simulation.createNode();
-			
-			ScribeNode scribeNode = new ScribeNode(node);
-			
-			nodes.add(scribeNode);
+			ScribeNode scribeNode = new ScribeNode(simulation.createNode());
 			
 			if(i == 0) {
 				
@@ -34,29 +30,32 @@ public class SampleScribeSimulation {
 				scribeNode.getChordNode().joinNetwork(nodes.get(0).getChordNode().getId());
 			}
 			
-			//stabilize network
-			simulation.iterate(5);
+			nodes.add(scribeNode);
+			
+			simulation.iterate(10);
 		}
 		
-		simulation.iterate(300);
+		simulation.iterate(50);
+		
+		Logger.setLevel(Logger.TRACE);
 		
 //		nodes.get(0).getChordNode().report(nodes.size());
 		
-		ScribeNode nodeA = nodes.get((int) (Math.random() * nodes.size()));
-		ScribeNode nodeB = nodes.get((int) (Math.random() * nodes.size()));
-		ScribeNode nodeC = nodes.get((int) (Math.random() * nodes.size()));
-		ScribeNode nodeD = nodes.get((int) (Math.random() * nodes.size()));
-		
 		ChordId topic = new ChordId("topic");
 		
-		nodeA.subscribe(topic);
-		nodeB.subscribe(topic);
-		nodeC.subscribe(topic);
-		nodeD.subscribe(topic);
+		nodes.get((int) (Math.random() * nodes.size())).subscribe(topic);
+		nodes.get((int) (Math.random() * nodes.size())).subscribe(topic);
+		nodes.get((int) (Math.random() * nodes.size())).subscribe(topic);
+		nodes.get((int) (Math.random() * nodes.size())).subscribe(topic);
+		nodes.get((int) (Math.random() * nodes.size())).subscribe(topic);
+		nodes.get((int) (Math.random() * nodes.size())).subscribe(topic);
+		nodes.get((int) (Math.random() * nodes.size())).subscribe(topic);
 		
 		simulation.iterate(10);
 		
-		nodeD.publish(topic, "Hello World! I'm Alive!");
+		ScribeNode publisher = nodes.get((int) (Math.random() * nodes.size()));
+		publisher.subscribe(topic);
+		publisher.publish(topic, "Hello World! I'm Alive!");
 		
 		simulation.iterate(20);
 	}

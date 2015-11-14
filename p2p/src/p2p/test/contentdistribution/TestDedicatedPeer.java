@@ -17,7 +17,7 @@ public class TestDedicatedPeer
 	public static void main(String[] args) 
 	{
 		
-		Logger.init();
+		Logger.init(Logger.INFO);
 		Stats.start();
 		
 		EndPointFactory.setEndPointType(EndPointType.ActionSim);

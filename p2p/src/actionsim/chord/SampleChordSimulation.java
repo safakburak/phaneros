@@ -37,7 +37,7 @@ public class SampleChordSimulation {
 		simulation.iterate(50);
 		
 		
-//		int messageCount = 10000;
+//		int messageCount = 1000;
 //		
 //		long start = System.currentTimeMillis();
 //		

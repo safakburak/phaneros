@@ -82,4 +82,9 @@ public class Logger {
 		
 		log(obj, INFO);
 	}
+	
+	public static void setLevel(int level) {
+		
+		instance.level = level;
+	}
 }

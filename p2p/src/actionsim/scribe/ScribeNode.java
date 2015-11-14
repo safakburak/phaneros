@@ -7,11 +7,11 @@ import actionsim.chord.ChordApplication;
 import actionsim.chord.ChordId;
 import actionsim.chord.ChordMessage;
 import actionsim.chord.ChordNode;
+import actionsim.chord.internal.AbstractMessage;
 import actionsim.core.Node;
 import actionsim.scribe.inner.Publish;
 import actionsim.scribe.inner.Subscribe;
 import actionsim.scribe.inner.Unsubscribe;
-import p2p.log.Logger;
 
 public class ScribeNode implements ChordApplication {
 
@@ -28,20 +28,23 @@ public class ScribeNode implements ChordApplication {
 		chordNode = new ChordNode(node);
 
 		chordNode.setApplication(this);
+		
+		listener = new DefaultScribeListener(chordNode.getId());
 	}
 
 	@Override
-	public void onChordMessage(ChordMessage message) {
+	public void onChordMessage(AbstractMessage message) {
 
 		if (message instanceof Publish) {
 
 			Publish publish = (Publish) message;
 
-//			Logger.log(chordNode.getId() + " received: " + publish);
-
 			if (subscriptions.contains(publish.getTopic())) {
 
-				onScribeMessage(publish.getTopic(), publish.getOrigin(), ((Publish) message).getValue());
+				if (listener != null) {
+
+					listener.onScribeMessage(publish.getTopic(), ((Publish) message).getValue());
+				}
 			}
 
 			ArrayList<ChordId> children = routes.get(publish.getTopic());
@@ -50,11 +53,11 @@ public class ScribeNode implements ChordApplication {
 
 				for (ChordId child : children) {
 
-					chordNode.send(child, new Publish(publish.getOrigin(), chordNode.getId(), child, publish.getTopic(),
-							publish.getValue()));
+					chordNode.send(child, new Publish(child, publish.getTopic(), publish.getValue()));
 				}
 			}
-		} else if (message instanceof Subscribe) {
+		} 
+		else if (message instanceof Subscribe) {
 
 			Subscribe subscribe = (Subscribe) message;
 
@@ -66,51 +69,63 @@ public class ScribeNode implements ChordApplication {
 				routes.put(subscribe.getTopic(), children);
 			}
 
-			if (children.contains(subscribe.getFrom()) == false) {
-
-				children.add(subscribe.getFrom());
+			if(subscribe.getLastHop() == null) {
+				//subscribing to topic owned by me
 			}
-		} else if (message instanceof Unsubscribe) {
+			else {
+				
+				if (children.contains(subscribe.getLastHop()) == false) {
+					
+					children.add(subscribe.getLastHop());
+				}
+			}
+			
+		} 
+		else if (message instanceof Unsubscribe) {
 
 			Unsubscribe unsubscribe = (Unsubscribe) message;
 
 			if (routes.containsKey(unsubscribe.getTopic())) {
 
-				routes.get(unsubscribe.getTopic()).remove(unsubscribe.getSubscriber());
+				routes.get(unsubscribe.getTopic()).remove(unsubscribe.getLastHop());
 			}
-		} else {
+			
+		} 
+		else {
 
-			listener.onChordMessage(message);
+			listener.onChordMessage((ChordMessage) message);
 		}
 	}
 
 	@Override
-	public boolean onForward(ChordMessage message, ChordId to) {
+	public boolean beforeForward(AbstractMessage message, ChordId to) {
 
 		if (message instanceof Publish) {
 
-//			Logger.log(chordNode.getId() + " received: " + message);
-
 			return true;
+			
 		} else if (message instanceof Subscribe) {
 
 			Subscribe subscribe = (Subscribe) message;
 
-			if (routes.containsKey(subscribe.getTopic()) == false) {
-
-				routes.put(subscribe.getTopic(), new ArrayList<ChordId>());
-			}
-
+			
 			ArrayList<ChordId> children = routes.get(subscribe.getTopic());
-
-			if (children.contains(subscribe.getFrom()) == false) {
-
-				children.add(subscribe.getFrom());
+			
+			if (children == null) {
+				
+				children = new ArrayList<ChordId>();
+				routes.put(subscribe.getTopic(), children);
 			}
 
-			chordNode.send(new Subscribe(chordNode.getId(), subscribe.getTopic()));
+			if (children.contains(subscribe.getLastHop()) == false) {
+
+				children.add(subscribe.getLastHop());
+			}
+
+			chordNode.send(new Subscribe(subscribe.getTopic()));
 
 			return false;
+			
 		} else if (message instanceof Unsubscribe) {
 
 			Unsubscribe unsubscribe = (Unsubscribe) message;
@@ -119,11 +134,11 @@ public class ScribeNode implements ChordApplication {
 
 			if (children != null) {
 
-				children.remove(unsubscribe.getSubscriber());
+				children.remove(unsubscribe.getLastHop());
 
 				if (children.size() == 0) {
 
-					chordNode.send(new Unsubscribe(chordNode.getId(), unsubscribe.getTopic()));
+					chordNode.send(new Unsubscribe(unsubscribe.getTopic()));
 				}
 			}
 
@@ -150,31 +165,21 @@ public class ScribeNode implements ChordApplication {
 			subscriptions.add(topic);
 		}
 
-		chordNode.send(new Subscribe(chordNode.getId(), topic));
+		chordNode.send(new Subscribe(topic));
 	}
 
 	public void unsubscribe(ChordId topic) {
 
 		subscriptions.remove(topic);
 
-		chordNode.send(new Unsubscribe(chordNode.getId(), topic));
+		chordNode.send(new Unsubscribe(topic));
 	}
 
 	public void publish(ChordId topic, Object value) {
 
-		Publish publish = new Publish(chordNode.getId(), chordNode.getId(), topic, topic, value);
+		Publish publish = new Publish(topic, value);
 
 		chordNode.send(publish);
-
-//		Logger.log(chordNode.getId() + " published: " + publish);
-	}
-
-	private void onScribeMessage(ChordId topic, ChordId origin, Object value) {
-
-		if (listener != null) {
-
-			listener.onScribeMessage(topic, origin, value);
-		}
 	}
 
 	public void setListener(ScribeListener listener) {

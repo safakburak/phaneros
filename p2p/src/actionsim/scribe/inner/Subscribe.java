@@ -7,9 +7,9 @@ public class Subscribe extends ChordMessage {
 
 	private ChordId topic;
 	
-	public Subscribe(ChordId subscriber, ChordId topic) {
+	public Subscribe(ChordId topic) {
 		
-		super(subscriber, topic);
+		super(topic);
 		
 		this.topic = topic;
 	}

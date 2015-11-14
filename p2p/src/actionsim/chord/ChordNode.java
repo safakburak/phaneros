@@ -89,7 +89,7 @@ public class ChordNode extends DefaultApplication {
 			}
 			else if(abstractMessage instanceof ChordMessage) {
 
-				handleChordMessage((ChordMessage) abstractMessage);
+				handleChordMessage((ChordMessage) abstractMessage, false);
 			}
 			else {
 				
@@ -102,7 +102,7 @@ public class ChordNode extends DefaultApplication {
 		}
 	}
 	
-	private void handleChordMessage(ChordMessage chordMessage) {
+	private void handleChordMessage(ChordMessage chordMessage, boolean noCheck) {
 		
 		if(chordMessage.getTo().isIn(predecessor, me, true)) {
 			
@@ -110,7 +110,7 @@ public class ChordNode extends DefaultApplication {
 		}
 		else if(chordMessage.getTo().isIn(me, successor, true)) {
 			
-			if(application.beforeForward(chordMessage, successor)) {
+			if(noCheck || application.beforeForward(chordMessage, successor)) {
 				
 				send(successor, chordMessage);
 			}
@@ -119,7 +119,7 @@ public class ChordNode extends DefaultApplication {
 
 			ChordId nextNode = findCpf(chordMessage.getTo());
 			
-			if(application.beforeForward(chordMessage, nextNode)) {
+			if(noCheck || application.beforeForward(chordMessage, nextNode)) {
 				
 				send(nextNode, chordMessage);
 			}
@@ -295,7 +295,7 @@ public class ChordNode extends DefaultApplication {
 	
 	public void send(ChordMessage chordMessage) {
 		
-		handleChordMessage(chordMessage);
+		handleChordMessage(chordMessage, true);
 	}
 	
 	public void send(ChordId to, AbstractMessage chordMessage) {
@@ -342,37 +342,5 @@ public class ChordNode extends DefaultApplication {
 			
 			node(successor).report(n - 1);
 		}
-	}
-	
-	public ArrayList<ChordNode> gather() {
-		
-		ArrayList<ChordNode> result = new ArrayList<ChordNode>();
-		
-		gather(result);
-		
-		return result;
-	}
-	
-	private void gather(ArrayList<ChordNode> list) {
-		
-		if(successor == null) {
-			
-			Logger.log("Dead end!");
-			Logger.log(this);
-		}
-		
-		if(list.contains(this)) {
-			
-			return;
-		}
-		
-		list.add(this);
-		
-		node(successor).gather(list);
-	}
-	
-	public ChordNode getSuccessor() {
-		
-		return node(successor);
 	}
 }

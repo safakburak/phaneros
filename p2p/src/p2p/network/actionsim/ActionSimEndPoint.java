@@ -5,6 +5,7 @@ import java.util.HashMap;
 
 import actionsim.chord.ChordId;
 import actionsim.chord.ChordMessage;
+import actionsim.chord.internal.AbstractMessage;
 import actionsim.scribe.ScribeListener;
 import actionsim.scribe.ScribeNode;
 import p2p.network.IEndPoint;
@@ -71,7 +72,7 @@ public class ActionSimEndPoint implements IEndPoint, ScribeListener {
 	@Override
 	public void sendMessage(String dest, IMessage message) {
 
-		scribeNode.getChordNode().send(new ActionSimEnvelope(scribeNode.getChordNode().getId(), new ChordId(dest), message));
+		scribeNode.getChordNode().send(new ActionSimEnvelope(nodeId, new ChordId(dest), message));
 	}
 
 	@Override
@@ -82,18 +83,18 @@ public class ActionSimEndPoint implements IEndPoint, ScribeListener {
 
 	
 	@Override
-	public void onScribeMessage(ChordId topic, ChordId origin, Object message) {
+	public void onScribeMessage(ChordId topic, Object message) {
 
-		if(message instanceof IMessage && origin.equals(nodeId) == false) {
+		if(message instanceof IMessage) {
 			
-			distributeToListeners(origin.getKeyText(), (IMessage) message);
+			distributeToListeners(null, (IMessage) message);
 		}
 	}
 	
 	@Override
 	public void onChordMessage(ChordMessage message) {
 
-		if(message instanceof ActionSimEnvelope && message.getFrom().equals(nodeId) == false) {
+		if(message instanceof ActionSimEnvelope /*&& message.getFrom().equals(nodeId) == false*/) {
 			
 			ActionSimEnvelope envelope = (ActionSimEnvelope) message;
 			IMessage payload = envelope.getPayload();

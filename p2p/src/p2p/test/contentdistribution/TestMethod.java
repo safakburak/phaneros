@@ -15,7 +15,7 @@ public class TestMethod
 {
 	public static void main(String[] args) 
 	{
-		Logger.init();
+		Logger.init(Logger.INFO);
 		Stats.start();
 		
 		EndPointFactory.setEndPointType(EndPointType.ActionSim);
@@ -28,7 +28,7 @@ public class TestMethod
 		
 		peers.add(new Peer("client_0", true, true, true, true));
 		
-		for(int i = 1; i < 400; i++)
+		for(int i = 1; i < 1000; i++)
 		{
 			peers.add(new Peer("client_" + i, false, true, true, true));
 		}
