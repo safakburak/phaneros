@@ -1,11 +1,14 @@
 package actionsim.core;
 
-public class Configuration {
+public interface Configuration {
 
-	// milliseconds
-	public static float simulationStepLength = 100;
+	public float getStepLength();
 	
-	public static float connectionCost = 250;
+	public float getConnectionCost();
 	
-	public static float disconnectionCost = 0;
+	public float getDisconnectionCost();
+	
+	public float getDefaultBandwidth();
+	
+	public float getDefaultCpuBudget();
 }

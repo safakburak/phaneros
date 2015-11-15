@@ -6,10 +6,11 @@ import java.util.List;
 public class Simulation {
 
 	private List<Node> nodes = new ArrayList<Node>();
-
-	private float stepLength = Configuration.simulationStepLength;
+	
+	private Configuration configuration = new DefaultConfiguration();
 	
 	private long currentStep = 0;
+	
 	
 	public Node createNode() {
 		
@@ -25,17 +26,15 @@ public class Simulation {
 	
 	public Node createNode (String id) {
 		
-		Node result = new Node(id);
-
+		Node result = new Node(id, configuration);
 		nodes.add(result);
-
 		
 		return result;
 	}
 
 	public void iterate(float duration) {
 		
-		int iterations = (int) (duration / stepLength);
+		int iterations = (int) (duration / configuration.getStepLength());
 		
 		while(iterations-- > 0) {
 
@@ -57,17 +56,17 @@ public class Simulation {
 			
 			for(Node node : nodes) {
 				
-				node.processMessages(stepLength);
+				node.processMessages(configuration.getStepLength());
 			}
 			
 			for(Node node : nodes) {
 				
-				node.processActions(stepLength);
+				node.processActions(configuration.getStepLength());
 			}
 			
 			for(Node node : nodes) {
 				
-				node.deliverMessages(stepLength);
+				node.deliverMessages(configuration.getStepLength());
 			}
 			
 		}
@@ -75,11 +74,6 @@ public class Simulation {
 		currentStep++;
 	}
 	
-	public void setLength(long length) {
-		
-		this.stepLength = length;
-	}
-
 	public long getCurrentStep() {
 		
 		return currentStep;
@@ -87,7 +81,7 @@ public class Simulation {
 	
 	public float getCurrentTime() {
 		
-		return currentStep * stepLength;
+		return currentStep * configuration.getStepLength();
 	}
 	
 	public int getNodeCount() {
@@ -98,5 +92,10 @@ public class Simulation {
 	public Node getNode(int index) {
 		
 		return nodes.get(index);
+	}
+	
+	public void setConfiguration(Configuration configuration) {
+		
+		this.configuration = configuration;
 	}
 }

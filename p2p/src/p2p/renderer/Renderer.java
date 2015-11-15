@@ -2,6 +2,7 @@ package p2p.renderer;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
+import java.awt.RenderingHints;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.geom.AffineTransform;
@@ -87,6 +88,8 @@ public class Renderer
 		{
 			return;
 		}
+		
+		g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 		
 		g.setColor(Color.white);
 		g.fillRect(0, 0, mFrame.getContentPane().getWidth(), mFrame.getContentPane().getHeight());

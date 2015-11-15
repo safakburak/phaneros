@@ -23,6 +23,7 @@ public class ScribeNode implements ChordApplication {
 
 	private ScribeListener listener;
 
+	
 	public ScribeNode(Node node) {
 
 		chordNode = new ChordNode(node);

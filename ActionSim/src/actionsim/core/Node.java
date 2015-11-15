@@ -24,18 +24,20 @@ public class Node {
 	private Queue<Action> completedActions = new LinkedList<Action>();
 	
 	
-	private float bandwidth = 0; // kilobytes per second
+	private float bandwidth; // kilobytes per second
 	
 	private float remainingKilobytes = 0;
 	
-	private float cpuBudgetPerStep = 0; // milliseconds
+	private float cpuBudgetPerStep; // milliseconds
 	
 	private float remainingCpuBudget = 0;
 	
 	
-	protected Node(String id) {
+	Node(String id, Configuration configuration) {
 		
 		this.id = id;
+		this.bandwidth = configuration.getDefaultBandwidth();
+		this.cpuBudgetPerStep = configuration.getDefaultCpuBudget();
 	}
 	
 	final void deliverMessages(float deltaTime) {
@@ -87,31 +89,28 @@ public class Node {
 			
 			remainingCpuBudget += cpuBudgetPerStep;
 		}
-
-		synchronized (actions) {
 		
-			while(actions.isEmpty() == false) {
+		while(actions.isEmpty() == false) {
+			
+			if(cpuBudgetPerStep <= NEAR_ZERO || actions.peek().getCpuCost() <= remainingCpuBudget) {
 				
-				if(cpuBudgetPerStep <= NEAR_ZERO || actions.peek().getCpuCost() <= remainingCpuBudget) {
-					
-					Action action = actions.poll();
-					
-					remainingCpuBudget -= action.getCpuCost();
-					
-					action.run();
-					
-					completedActions.add(action);
-				}
-				else {
-					
-					break;
-				}
+				Action action = actions.poll();
+				
+				remainingCpuBudget -= action.getCpuCost();
+				
+				action.run();
+				
+				completedActions.add(action);
 			}
-		
-			completedActionsArr = new Action[completedActions.size()];
-		
-			completedActionsArr = completedActions.toArray(completedActionsArr);
+			else {
+				
+				break;
+			}
 		}
+	
+		completedActionsArr = new Action[completedActions.size()];
+	
+		completedActionsArr = completedActions.toArray(completedActionsArr);
 		
 		application.onStep(completedActionsArr, deltaTime);
 	}
@@ -204,10 +203,7 @@ public class Node {
 	
 	public final void act(Action action) {
 		
-		synchronized (actions) {
-			
-			actions.add(action);
-		}
+		actions.add(action);
 	}
 	
 	@Override
