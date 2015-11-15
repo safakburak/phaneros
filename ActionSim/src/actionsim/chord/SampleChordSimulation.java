@@ -3,7 +3,7 @@ package actionsim.chord;
 import java.util.ArrayList;
 
 import actionsim.core.Simulation;
-import p2p.log.Logger;
+import actionsim.log.Logger;
 
 public class SampleChordSimulation {
 

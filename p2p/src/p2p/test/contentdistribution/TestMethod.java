@@ -2,14 +2,14 @@ package p2p.test.contentdistribution;
 
 import java.util.ArrayList;
 
+import actionsim.log.Logger;
 import p2p.application.contentserver.ContentServer;
 import p2p.application.loop.Loop;
 import p2p.application.peer.Peer;
-import p2p.log.Logger;
-import p2p.log.Stats;
 import p2p.network.EndPointFactory;
 import p2p.network.EndPointFactory.EndPointType;
 import p2p.network.actionsim.ActionSimNetwork;
+import p2p.stats.Stats;
 
 public class TestMethod 
 {
@@ -28,7 +28,7 @@ public class TestMethod
 		
 		peers.add(new Peer("client_0", true, true, true, true));
 		
-		for(int i = 1; i < 1000; i++)
+		for(int i = 1; i < 100; i++)
 		{
 			peers.add(new Peer("client_" + i, false, true, true, true));
 		}

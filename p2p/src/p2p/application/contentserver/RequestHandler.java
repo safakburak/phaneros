@@ -6,11 +6,11 @@ import p2p.application.messages.PatchQuery;
 import p2p.application.messages.PatchRequest;
 import p2p.cache.Cache;
 import p2p.data.Region;
-import p2p.log.Stats;
 import p2p.network.IEndPoint;
 import p2p.network.IMessageListener;
 import p2p.patch.Patch;
 import p2p.patchfetcher.PatchFetcher;
+import p2p.stats.Stats;
 
 public class RequestHandler
 {

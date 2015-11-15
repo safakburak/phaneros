@@ -1,11 +1,11 @@
 package p2p.application.peer.components;
 
+import actionsim.log.Logger;
 import p2p.application.peer.IPeerComponent;
 import p2p.application.peer.Peer;
 import p2p.cache.Cache;
 import p2p.constants.Constants;
 import p2p.data.IntPair;
-import p2p.log.Logger;
 import p2p.patch.Patch;
 
 

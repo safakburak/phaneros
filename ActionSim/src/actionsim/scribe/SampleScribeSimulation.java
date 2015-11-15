@@ -4,7 +4,7 @@ import java.util.ArrayList;
 
 import actionsim.chord.ChordId;
 import actionsim.core.Simulation;
-import p2p.log.Logger;
+import actionsim.log.Logger;
 
 public class SampleScribeSimulation {
 

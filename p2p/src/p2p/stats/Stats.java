@@ -1,7 +1,8 @@
-package p2p.log;
+package p2p.stats;
 
 import java.util.HashMap;
 
+import actionsim.log.Logger;
 import p2p.application.loop.ILoopListener;
 import p2p.application.loop.Loop;
 import p2p.data.IntPair;

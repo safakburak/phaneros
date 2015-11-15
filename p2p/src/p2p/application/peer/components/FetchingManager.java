@@ -10,9 +10,9 @@ import p2p.application.peer.IPeerComponent;
 import p2p.application.peer.Peer;
 import p2p.cache.Cache;
 import p2p.data.IntPair;
-import p2p.log.Stats;
 import p2p.network.IEndPoint;
 import p2p.network.IMessageListener;
+import p2p.stats.Stats;
 import p2p.visibility.VisibilityMap;
 
 public class FetchingManager implements IPeerComponent

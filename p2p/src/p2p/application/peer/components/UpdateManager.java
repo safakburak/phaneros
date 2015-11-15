@@ -1,12 +1,12 @@
 package p2p.application.peer.components;
 
-import p2p.application.messages.PositionUpdate;
 import p2p.application.messages.PatchUpdate;
+import p2p.application.messages.PositionUpdate;
 import p2p.application.peer.IPeerComponent;
 import p2p.application.peer.Peer;
 import p2p.data.IntPair;
-import p2p.log.Stats;
 import p2p.network.IEndPoint;
+import p2p.stats.Stats;
 
 public class UpdateManager implements IPeerComponent
 {

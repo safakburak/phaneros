@@ -2,15 +2,15 @@ package p2p.test.contentdistribution;
 
 import java.util.ArrayList;
 
+import actionsim.log.Logger;
 import p2p.application.contentserver.ContentServer;
 import p2p.application.loop.Loop;
 import p2p.application.peer.Peer;
 import p2p.data.Region;
-import p2p.log.Logger;
-import p2p.log.Stats;
 import p2p.network.EndPointFactory;
 import p2p.network.EndPointFactory.EndPointType;
 import p2p.network.actionsim.ActionSimNetwork;
+import p2p.stats.Stats;
 
 public class TestDedicatedPeer 
 {

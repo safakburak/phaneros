@@ -1,7 +1,7 @@
 package actionsim.chord;
 
 import actionsim.chord.internal.AbstractMessage;
-import p2p.log.Logger;
+import actionsim.log.Logger;
 
 public class DefaultChordApplication implements ChordApplication {
 

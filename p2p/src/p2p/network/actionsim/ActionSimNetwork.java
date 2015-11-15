@@ -3,10 +3,10 @@ package p2p.network.actionsim;
 import java.util.ArrayList;
 
 import actionsim.core.Simulation;
+import actionsim.log.Logger;
 import actionsim.scribe.ScribeNode;
 import p2p.application.loop.ILoopListener;
 import p2p.application.loop.Loop;
-import p2p.log.Logger;
 
 public class ActionSimNetwork {
 

@@ -15,7 +15,7 @@ import actionsim.core.Action;
 import actionsim.core.DefaultApplication;
 import actionsim.core.Message;
 import actionsim.core.Node;
-import p2p.log.Logger;
+import actionsim.log.Logger;
 
 public class ChordNode extends DefaultApplication {
 
