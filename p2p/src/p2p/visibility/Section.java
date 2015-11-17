@@ -3,18 +3,18 @@ package p2p.visibility;
 
 public class Section 
 {
-	private MyDouble mStart = new MyDouble();
-	private MyDouble mEnd = new MyDouble();
-	private MyDouble mElev = new MyDouble();
+	private FpDouble mStart = new FpDouble(0);
+	private FpDouble mEnd = new FpDouble(0);
+	private FpDouble mElev = new FpDouble(0);
 
 	public Section(double start, double end, double elev) 
 	{
-		mStart = new MyDouble(start);
-		mEnd = new MyDouble(end);
-		mElev = new MyDouble(elev);
+		mStart = new FpDouble(start);
+		mEnd = new FpDouble(end);
+		mElev = new FpDouble(elev);
 	}
 	
-	private boolean contains(MyDouble value)
+	private boolean contains(FpDouble value)
 	{
 		return value.gte(mStart) && value.lt(mEnd);
 	}
@@ -23,9 +23,9 @@ public class Section
 	{
 		Section[] result;
 
-		MyDouble newStart = new MyDouble(start);
-		MyDouble newEnd = new MyDouble(end);
-		MyDouble newElev = new MyDouble(elev);
+		FpDouble newStart = new FpDouble(start);
+		FpDouble newEnd = new FpDouble(end);
+		FpDouble newElev = new FpDouble(elev);
 		
 		if(newElev.gt(mElev))
 		{
@@ -107,22 +107,22 @@ public class Section
 	
 	public boolean test(double elev)
 	{
-		MyDouble myElev = new MyDouble(elev);
+		FpDouble myElev = new FpDouble(elev);
 		
 		return myElev.gt(mElev);
 	}
 	
-	public MyDouble getStart()
+	public FpDouble getStart()
 	{
 		return mStart;
 	}
 	
-	public MyDouble getEnd()
+	public FpDouble getEnd()
 	{
 		return mEnd;
 	}
 	
-	public MyDouble getElev()
+	public FpDouble getElev()
 	{
 		return mElev;
 	}
