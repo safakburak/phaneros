@@ -12,12 +12,13 @@ import actionsim.chord.internal.PredecessorResponse;
 import actionsim.chord.internal.SuccessorQuery;
 import actionsim.chord.internal.SuccessorResponse;
 import actionsim.core.Action;
-import actionsim.core.DefaultApplication;
 import actionsim.core.Message;
 import actionsim.core.Node;
+import actionsim.core.NodeListener;
+import actionsim.core.Policy;
 import actionsim.log.Logger;
 
-public class ChordNode extends DefaultApplication {
+public class ChordNode implements NodeListener, Policy {
 
 	private static ConcurrentHashMap<ChordId, ChordNode> chordNodes = new ConcurrentHashMap<ChordId, ChordNode>();
 
@@ -28,7 +29,7 @@ public class ChordNode extends DefaultApplication {
 	
 	private Node node;
 	
-	private ChordApplication application;
+	private ArrayList<ChordApplication> applications = new ArrayList<>();
 	
 	private ChordId me;
 	private ChordId predecessor;
@@ -46,11 +47,12 @@ public class ChordNode extends DefaultApplication {
 	public ChordNode(Node node) {
 
 		this.node = node;
-		this.node.setApplication(this);
+		this.node.addPolicy(this);
+		this.node.addNodeListener(this);
 		
 		me = new ChordId(node.getId());
 		
-		application = new DefaultChordApplication(me);
+		addApplication(new DefaultChordApplication(me));
 		
 		chordNodes.put(me, this);
 		
@@ -102,15 +104,33 @@ public class ChordNode extends DefaultApplication {
 		}
 	}
 	
+	private boolean beforeForward(ChordMessage message, ChordId to) {
+		
+		boolean result = true;
+		
+		for(ChordApplication application : applications) {
+			
+			if(application.beforeForward(message, to) == false) {
+				
+				result = false;
+			}
+		}
+		
+		return result;
+	}
+	
 	private void handleChordMessage(ChordMessage chordMessage, boolean noCheck) {
 		
 		if(chordMessage.getTo().isIn(predecessor, me, true)) {
 			
-			application.onChordMessage(chordMessage);
+			for(ChordApplication application : applications) {
+				
+				application.onChordMessage(chordMessage);
+			}
 		}
 		else if(chordMessage.getTo().isIn(me, successor, true)) {
 			
-			if(noCheck || application.beforeForward(chordMessage, successor)) {
+			if(noCheck || beforeForward(chordMessage, successor)) {
 				
 				send(successor, chordMessage);
 			}
@@ -119,7 +139,7 @@ public class ChordNode extends DefaultApplication {
 
 			ChordId nextNode = findCpf(chordMessage.getTo());
 			
-			if(noCheck || application.beforeForward(chordMessage, nextNode)) {
+			if(noCheck || beforeForward(chordMessage, nextNode)) {
 				
 				send(nextNode, chordMessage);
 			}
@@ -288,9 +308,12 @@ public class ChordNode extends DefaultApplication {
 		return me;
 	}
 	
-	public void setApplication(ChordApplication application) {
+	public void addApplication(ChordApplication application) {
 		
-		this.application = application;
+		if(applications.contains(application) == false) {
+			
+			applications.add(application);
+		}
 	}
 	
 	public void send(ChordMessage chordMessage) {
@@ -342,5 +365,27 @@ public class ChordNode extends DefaultApplication {
 			
 			node(successor).report(n - 1);
 		}
+	}
+
+	@Override
+	public boolean canConnectTo(Node node) {
+		
+		return true;
+	}
+
+	@Override
+	public boolean canConnectFrom(Node node) {
+		
+		return true;
+	}
+
+	@Override
+	public void onConnect(Node node) {
+		
+	}
+
+	@Override
+	public void onDisconnect(Node node) {
+		
 	}
 }

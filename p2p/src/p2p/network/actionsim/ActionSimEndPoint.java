@@ -3,8 +3,8 @@ package p2p.network.actionsim;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import actionsim.chord.ChordApplication;
 import actionsim.chord.ChordId;
-import actionsim.chord.ChordMessage;
 import actionsim.chord.internal.AbstractMessage;
 import actionsim.scribe.ScribeListener;
 import actionsim.scribe.ScribeNode;
@@ -13,7 +13,7 @@ import p2p.network.IForwardListener;
 import p2p.network.IMessage;
 import p2p.network.IMessageListener;
 
-public class ActionSimEndPoint implements IEndPoint, ScribeListener {
+public class ActionSimEndPoint implements IEndPoint, ScribeListener, ChordApplication {
 
 	private ScribeNode scribeNode;
 	
@@ -26,7 +26,8 @@ public class ActionSimEndPoint implements IEndPoint, ScribeListener {
 	public ActionSimEndPoint(ScribeNode scribeNode) {
 		
 		this.scribeNode = scribeNode;
-		scribeNode.setListener(this);
+		scribeNode.addScribeListener(this);
+		scribeNode.getChordNode().addApplication(this);
 		
 		nodeId = scribeNode.getChordNode().getId();
 	}
@@ -92,9 +93,9 @@ public class ActionSimEndPoint implements IEndPoint, ScribeListener {
 	}
 	
 	@Override
-	public void onChordMessage(ChordMessage message) {
-
-		if(message instanceof ActionSimEnvelope /*&& message.getFrom().equals(nodeId) == false*/) {
+	public void onChordMessage(AbstractMessage message) {
+		
+		if(message instanceof ActionSimEnvelope) {
 			
 			ActionSimEnvelope envelope = (ActionSimEnvelope) message;
 			IMessage payload = envelope.getPayload();
@@ -119,5 +120,11 @@ public class ActionSimEndPoint implements IEndPoint, ScribeListener {
 	public ScribeNode getScribeNode() {
 		
 		return scribeNode;
+	}
+
+	@Override
+	public boolean beforeForward(AbstractMessage message, ChordId to) {
+		
+		return true;
 	}
 }

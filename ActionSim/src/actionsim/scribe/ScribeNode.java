@@ -5,7 +5,6 @@ import java.util.HashMap;
 
 import actionsim.chord.ChordApplication;
 import actionsim.chord.ChordId;
-import actionsim.chord.ChordMessage;
 import actionsim.chord.ChordNode;
 import actionsim.chord.internal.AbstractMessage;
 import actionsim.core.Node;
@@ -21,16 +20,14 @@ public class ScribeNode implements ChordApplication {
 
 	private ArrayList<ChordId> subscriptions = new ArrayList<ChordId>();
 
-	private ScribeListener listener;
+	private ArrayList<ScribeListener> listeners = new ArrayList<>();
 
 	
 	public ScribeNode(Node node) {
 
 		chordNode = new ChordNode(node);
 
-		chordNode.setApplication(this);
-		
-		listener = new DefaultScribeListener(chordNode.getId());
+		chordNode.addApplication(this);
 	}
 
 	@Override
@@ -42,8 +39,8 @@ public class ScribeNode implements ChordApplication {
 
 			if (subscriptions.contains(publish.getTopic())) {
 
-				if (listener != null) {
-
+				for(ScribeListener listener : listeners) {
+					
 					listener.onScribeMessage(publish.getTopic(), ((Publish) message).getValue());
 				}
 			}
@@ -92,10 +89,6 @@ public class ScribeNode implements ChordApplication {
 			}
 			
 		} 
-		else {
-
-			listener.onChordMessage((ChordMessage) message);
-		}
 	}
 
 	@Override
@@ -149,11 +142,6 @@ public class ScribeNode implements ChordApplication {
 		return true;
 	}
 
-	@Override
-	public void onEntryValue(ChordId key, Object value) {
-
-	}
-
 	public ChordNode getChordNode() {
 
 		return chordNode;
@@ -183,8 +171,11 @@ public class ScribeNode implements ChordApplication {
 		chordNode.send(publish);
 	}
 
-	public void setListener(ScribeListener listener) {
+	public void addScribeListener(ScribeListener listener) {
 
-		this.listener = listener;
+		if(listeners.contains(listener) == false) {
+			
+			listeners.add(listener);
+		}
 	}
 }

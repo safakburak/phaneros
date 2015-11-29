@@ -29,9 +29,4 @@ public class DefaultChordApplication implements ChordApplication {
 		
 		return true;
 	}
-	
-	@Override
-	public void onEntryValue(ChordId key, Object value) {
-		
-	}
 }

@@ -1,5 +1,6 @@
 package actionsim.core;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
@@ -10,8 +11,10 @@ public class Node {
 
 	private String id;
 
-	private Application application = new DefaultApplication();
-
+	private ArrayList<Policy> policies = new ArrayList<>();
+	
+	private ArrayList<NodeListener> listeners = new ArrayList<>();
+	
 	private List<Node> connections = new LinkedList<Node>();
 	
 	private Queue<Message> inbox = new LinkedList<Message>();
@@ -74,7 +77,10 @@ public class Node {
 			
 			if(message.getTo() == this) {
 
-				application.onMessage(message);
+				for(NodeListener listener : listeners) {
+					
+					listener.onMessage(message);
+				}
 			}
 		}
 	}
@@ -112,43 +118,58 @@ public class Node {
 	
 		completedActionsArr = completedActions.toArray(completedActionsArr);
 		
-		application.onStep(completedActionsArr, deltaTime);
+		for(NodeListener listener : listeners) {
+			
+			listener.onStep(completedActionsArr, deltaTime);
+		}
 	}
 	
 	private boolean canConnectTo(Node node) {
 		
-		if(application == null) {
+		boolean result = true;
+		
+		for(Policy policy : policies) {
 			
-			return true;
+			if(policy.canConnectTo(node) == false) {
+				
+				result = false;
+			}
 		}
-		else {
-			
-			return application.canConnectTo(node);
-		}
+		
+		return result;
 	}
 	
 	private boolean canConnectFrom(Node node) {
 		
-		if(application == null) {
+		boolean result = true;
+		
+		for(Policy policy : policies) {
 			
-			return true;
+			if(policy.canConnectFrom(node) == false) {
+				
+				result = false;
+			}
 		}
-		else {
-			
-			return application.canConnectFrom(node);
-		}
+		
+		return result;
 	}
 	
 	// public interface
 
-	public Application getApplication() {
-		
-		return application;
+	public void addPolicy(Policy policy) {
+
+		if(policies.contains(policy) == false) {
+			
+			policies.add(policy);
+		}
 	}
 	
-	public void setApplication(Application application) {
-		
-		this.application = application;
+	public void addNodeListener(NodeListener listener) {
+
+		if(listeners.contains(listener) == false) {
+			
+			listeners.add(listener);
+		}
 	}
 	
 	public final String getId() {
@@ -173,7 +194,11 @@ public class Node {
 			if(canConnectTo(node) && node.canConnectFrom(this)) {
 				
 				connections.add(node);
-				application.onConnect(node);
+				
+				for(NodeListener listener : listeners) {
+					
+					listener.onConnect(node);
+				}
 				
 				node.connect(this);
 			}
@@ -185,7 +210,11 @@ public class Node {
 		if(connections.contains(node)) {
 			
 			connections.remove(node);
-			application.onDisconnect(node);
+			
+			for(NodeListener listener : listeners) {
+				
+				listener.onDisconnect(node);
+			}
 			
 			node.disconnect(this);
 		}

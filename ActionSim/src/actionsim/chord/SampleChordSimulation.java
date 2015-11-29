@@ -37,25 +37,25 @@ public class SampleChordSimulation {
 		simulation.iterate(50);
 		
 		
-//		int messageCount = 1000;
-//		
-//		long start = System.currentTimeMillis();
-//		
-//		while(messageCount-- > 0) {
-//			
-//			ChordNode nodeA = (ChordNode) simulation.getNode((int) (Math.random() * simulation.getNodeCount())).getApplication();
-//			ChordNode nodeB = (ChordNode) simulation.getNode((int) (Math.random() * simulation.getNodeCount())).getApplication();
-//			
-//			ChordMessage message = new ChordMessage(nodeB.getId());
-//			nodeA.send(message);
-//			
-//			simulation.iterate(10);
-//		}
-//		
-//		System.out.println("messages: " + DefaultChordApplication.totalMessages);
-//		System.out.println("avg hops: " + DefaultChordApplication.totalHops / DefaultChordApplication.totalMessages);
-//		System.out.println("sum time: " + (System.currentTimeMillis() - start));
-//		System.out.println("avg time: " + (System.currentTimeMillis() - start) / DefaultChordApplication.totalMessages);
+		int messageCount = 1000;
+		
+		long start = System.currentTimeMillis();
+		
+		while(messageCount-- > 0) {
+			
+			ChordNode nodeA = (ChordNode) nodes.get((int) (Math.random() * nodes.size()));
+			ChordNode nodeB = (ChordNode) nodes.get((int) (Math.random() * nodes.size()));
+			
+			ChordMessage message = new ChordMessage(nodeB.getId());
+			nodeA.send(message);
+			
+			simulation.iterate(10);
+		}
+		
+		System.out.println("messages: " + DefaultChordApplication.totalMessages);
+		System.out.println("avg hops: " + DefaultChordApplication.totalHops / DefaultChordApplication.totalMessages);
+		System.out.println("sum time: " + (System.currentTimeMillis() - start));
+		System.out.println("avg time: " + (System.currentTimeMillis() - start) / DefaultChordApplication.totalMessages);
 		
 		
 //		ChordNode nodeA = (ChordNode) simulation.getNode((int) (Math.random() * simulation.getNodeCount())).getApplication();
