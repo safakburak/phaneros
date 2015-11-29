@@ -55,7 +55,7 @@ public class Horizon
 					Section section1 = newSections.get(sectionIndex); 
 					Section section2 = newSections.get(sectionIndex + 1); 
 					
-					if(section1.getElev().eq(section2.getElev()))
+					if(section1.getElev().equals(section2.getElev()))
 					{
 						Section mergedSection = new Section(section1.getStart().getValue(), 
 								section2.getEnd().getValue(), 

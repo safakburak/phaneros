@@ -1,20 +1,21 @@
 package p2p.visibility;
 
+import p2p.visibility.nuv.horizon.Angle;
 
 public class Section 
 {
-	private FpDouble mStart = new FpDouble(0);
-	private FpDouble mEnd = new FpDouble(0);
-	private FpDouble mElev = new FpDouble(0);
+	private Angle mStart = new Angle(0);
+	private Angle mEnd = new Angle(0);
+	private Angle mElev = new Angle(0);
 
 	public Section(double start, double end, double elev) 
 	{
-		mStart = new FpDouble(start);
-		mEnd = new FpDouble(end);
-		mElev = new FpDouble(elev);
+		mStart = new Angle(start);
+		mEnd = new Angle(end);
+		mElev = new Angle(elev);
 	}
 	
-	private boolean contains(FpDouble value)
+	private boolean contains(Angle value)
 	{
 		return value.gte(mStart) && value.lt(mEnd);
 	}
@@ -23,19 +24,19 @@ public class Section
 	{
 		Section[] result;
 
-		FpDouble newStart = new FpDouble(start);
-		FpDouble newEnd = new FpDouble(end);
-		FpDouble newElev = new FpDouble(elev);
+		Angle newStart = new Angle(start);
+		Angle newEnd = new Angle(end);
+		Angle newElev = new Angle(elev);
 		
 		if(newElev.gt(mElev))
 		{
-			if(mStart.eq(newStart) && mEnd.eq(newEnd))
+			if(mStart.equals(newStart) && mEnd.equals(newEnd))
 			{
 				mElev = newElev;
 				result = new Section[1];
 				result[0] = this;
 			}
-			else if(mStart.eq(newStart))
+			else if(mStart.equals(newStart))
 			{
 				if(newEnd.gt(mEnd))
 				{
@@ -50,7 +51,7 @@ public class Section
 					result[1] = new Section(newEnd.getValue(), mEnd.getValue(), mElev.getValue());
 				}
 			}
-			else if(mEnd.eq(newEnd))
+			else if(mEnd.equals(newEnd))
 			{
 				if(newStart.lt(mStart))
 				{
@@ -107,22 +108,22 @@ public class Section
 	
 	public boolean test(double elev)
 	{
-		FpDouble myElev = new FpDouble(elev);
+		Angle myElev = new Angle(elev);
 		
 		return myElev.gt(mElev);
 	}
 	
-	public FpDouble getStart()
+	public Angle getStart()
 	{
 		return mStart;
 	}
 	
-	public FpDouble getEnd()
+	public Angle getEnd()
 	{
 		return mEnd;
 	}
 	
-	public FpDouble getElev()
+	public Angle getElev()
 	{
 		return mElev;
 	}
