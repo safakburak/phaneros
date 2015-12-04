@@ -1,4 +1,4 @@
-package p2p.visibility.nuv.horizon;
+package p2p.visibility.nuv.visibility.horizon;
 
 public class Angle 
 {

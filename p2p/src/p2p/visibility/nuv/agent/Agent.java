@@ -5,11 +5,11 @@ import java.util.TreeSet;
 import actionsim.chord.ChordNode;
 import actionsim.core.Node;
 import actionsim.scribe.ScribeNode;
-import p2p.visibility.nuv.map.Patch;
+import p2p.visibility.nuv.map.Map;
 
 public class Agent {
 
-	private TreeSet<Patch> cache;
+	private TreeSet<Map> cache;
 	private ChordNode chordNode;
 	private ScribeNode scribeNode;
 	

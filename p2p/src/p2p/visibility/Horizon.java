@@ -2,6 +2,8 @@ package p2p.visibility;
 
 import java.util.ArrayList;
 
+import p2p.visibility.nuv.visibility.horizon.Angle;
+
 public class Horizon 
 {
 	ArrayList<Section> mSections = new ArrayList<Section>();

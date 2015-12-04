@@ -1,4 +1,4 @@
-package p2p.visibility.nuv.horizon;
+package p2p.visibility.nuv.visibility.horizon;
 
 import java.util.LinkedList;
 
@@ -11,14 +11,16 @@ public class Horizon {
 		sectors.add(new Sector(Angle.MIN, Angle.MAX, new Angle(0)));
 	}
 	
-	public void update(Sector sector) {
+	public boolean update(Sector sector) {
 
 		split(sector.getStart());
 		split(sector.getEnd());
 		
-		updateElevs(sector.getStart(), sector.getEnd(), sector.getElev());
+		boolean result = updateElevs(sector.getStart(), sector.getEnd(), sector.getElev());
 		
 		merge();
+		
+		return result;
 	}
 	
 	private void split(Angle angle) {
@@ -37,15 +39,28 @@ public class Horizon {
 		}		
 	}
 	
-	private void updateElevs(Angle start, Angle end, Angle elev) {
+	private boolean updateElevs(Angle start, Angle end, Angle elev) {
 		
-		for(Sector sector : sectors) {
+		boolean result = false;
+		
+		if(end.gte(start)) {
 			
-			if(sector.getElev().lt(elev) && sector.getStart().gte(start) && sector.getEnd().lte(end)) {
+			for(Sector sector : sectors) {
 				
-				sector.setElev(elev);
-			}
-		} 
+				if(sector.getElev().lt(elev) && sector.getStart().gte(start) && sector.getEnd().lte(end)) {
+					
+					sector.setElev(elev);
+					result = true;
+				}
+			} 
+			
+		} else {
+
+			result = result || updateElevs(start, Angle.MAX, elev); 
+			result = result || updateElevs(Angle.MIN, end, elev); 
+		}
+		
+		return result;
 	}
 	
 	private void merge() {

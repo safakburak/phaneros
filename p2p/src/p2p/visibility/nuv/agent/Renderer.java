@@ -7,11 +7,11 @@ import java.util.List;
 
 import javax.swing.JPanel;
 
-import p2p.visibility.nuv.map.Patch;
+import p2p.visibility.nuv.map.Map;
 
 public class Renderer {
 
-	private List<Patch> patches = new ArrayList<Patch>();
+	private List<Map> patches = new ArrayList<Map>();
 	private JPanel panel = new JPanel();
 
 	public void render() {
@@ -25,7 +25,7 @@ public class Renderer {
 
 		g.clearRect(0, 0, panel.getWidth(), panel.getHeight());
 
-		for (Patch patch : patches) {
+		for (Map patch : patches) {
 
 			if (patch.getData() == null) {
 
@@ -44,7 +44,7 @@ public class Renderer {
 		return panel;
 	}
 
-	public void addPatch(Patch patch) {
+	public void addPatch(Map patch) {
 		
 		if(patches.contains(patch) == false) {
 			
@@ -52,7 +52,7 @@ public class Renderer {
 		}
 	}
 	
-	public void removePatch(Patch patch) {
+	public void removePatch(Map patch) {
 		
 		patches.remove(patch);
 	}

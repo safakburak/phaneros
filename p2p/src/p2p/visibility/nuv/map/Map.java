@@ -1,51 +1,137 @@
 package p2p.visibility.nuv.map;
 
-public class Map {
+import java.awt.Color;
+import java.awt.Graphics;
+import java.awt.image.BufferedImage;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.Serializable;
 
-	private Patch[][] patches;
+import javax.imageio.ImageIO;
 
-	private int patchWidth;
-	private int patchHeight;
+public class Map implements Serializable {
 
-	public Map(Patch patch, int patchWidth, int patchHeight) {
+	private int x;
+	private int y;
+	private BufferedImage data;
 
-		this.patchWidth = patchWidth;
-		this.patchHeight = patchHeight;
+	public Map(String path) {
 
-		int colNum = patch.getWidth() / patchWidth;
-		int rowNum = patch.getHeight() / patchHeight;
+		this.x = 0;
+		this.y = 0;
+		
+		load(path);
+	}
 
-		patches = new Patch[colNum][rowNum];
+	public Map(int x, int y, BufferedImage data) {
 
-		for (int x = 0; x < rowNum; x++) {
+		this.x = x;
+		this.y = y;
+		this.data = data;
+	}
+	
+	public Map getMapPart(int x, int y, int w, int h) {
+		
+		return new Map(x, y, data.getSubimage(x, y, w, h));
+	}
+	
+	public void fillRandom(double fillRate, int stepSize) {
+		
+		Graphics g = data.getGraphics();
+		
+		for(int x = 0; x < data.getWidth(); x += stepSize) {
+			for(int y = 0; y < data.getHeight(); y += stepSize) {
+				
+				if(Math.random() <= fillRate) {
 
-			for (int y = 0; y < colNum; y++) {
+					g.setColor(new Color(120, 120, 120));
+					g.fillRect(x, y, 10, 10);
+				}
+			}	
+		}
+	}
+	
+	public void save(String path) {
 
-				int xCoord = x * patchWidth;
-				int yCoord = y * patchWidth;
+		FileOutputStream outputStream;
+		
+		try {
+			
+			outputStream = new FileOutputStream(path);
+			ImageIO.write(data, "png", outputStream);
+			outputStream.flush();
+			outputStream.close();
+			
+		} catch (Exception e) {
+			
+			e.printStackTrace();
+		}
+	}
+	
+	public void load(String path) {
 
-				patches[x][y] = patch.getPart(xCoord, yCoord, patchWidth, patchHeight);
-			}
+		try {
+			
+			data = ImageIO.read(new FileInputStream(path));
+			
+		} catch (Exception e) {
+			
+			e.printStackTrace();
 		}
 	}
 
-	public Patch getPatch(int x, int y) {
-
-		return patches[x][y];
+	public int getX() {
+		
+		return x;
 	}
 	
-	public Patch getEmptyPatch(int x, int y) {
+	public int getY() {
 		
-		return new Patch(x * this.patchWidth, y * this.patchHeight, this.patchWidth, this.patchHeight);
-	}
-
-	public Patch getPatchAt(int x, int y) {
-
-		return patches[x / patchWidth][y / patchHeight];
+		return y;
 	}
 	
-	public Patch getEmptyPatchAt(int x, int y) {
+	public int getWidth() {
+
+		return data.getWidth();
+	}
+
+	public int getHeight() {
+
+		return data.getHeight();
+	}
+	
+	public BufferedImage getData() {
 		
-		return new Patch(x / patchWidth * patchWidth, y / patchHeight * patchHeight, this.patchWidth, this.patchHeight);
+		return data;
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + x;
+		result = prime * result + y;
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Map other = (Map) obj;
+		if (x != other.x)
+			return false;
+		if (y != other.y)
+			return false;
+		return true;
+	}
+	
+	public int getHeightAt(int x, int y) {
+		
+		return data.getData().getSample(x, y, 0);
 	}
 }
