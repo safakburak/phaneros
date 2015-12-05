@@ -10,9 +10,6 @@ import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 
-import javax.swing.JFrame;
-import javax.swing.JPanel;
-
 import p2p.visibility.nuv.map.Map;
 import p2p.visibility.nuv.visibility.horizon.Horizon;
 import p2p.visibility.nuv.visibility.horizon.Sector;
@@ -22,25 +19,24 @@ public class Visibility {
 	private Map map;
 	private int cellSize; // meters
 	private Cell[][] cells;
-	private int visibilityRange; // meters
+	private int maxRange; // meters
 
 	public Visibility(Map map, int cellSize, int visibilityRange) {
 
 		this.map = map;
 		this.cellSize = cellSize;
-		this.visibilityRange = visibilityRange;
+		this.maxRange = visibilityRange;
 
 		int colNum = map.getWidth() / cellSize;
 		int rowNum = map.getHeight() / cellSize;
 
 		cells = new Cell[colNum][rowNum];
-		
+
 		for (int col = 0; col < colNum; col++) {
 			for (int row = 0; row < rowNum; row++) {
 				cells[col][row] = new Cell(col * cellSize, row * cellSize, cellSize, cellSize);
 			}
 		}
-//		calculate();
 	}
 
 	private void calculate() {
@@ -58,38 +54,51 @@ public class Visibility {
 		Horizon horizon = new Horizon();
 		Cell cell = cells[sX / cellSize][sY / cellSize];
 
-		for (int range = 0; range < visibilityRange; range++) {
+		for (int range = 1; range < maxRange; range++) {
 
 			int xMin = Math.max(sX - range, 0);
 			int xMax = Math.min(sX + range, map.getWidth() - 1);
 			int yMin = Math.max(sY - range, 0);
 			int yMax = Math.min(sY + range, map.getWidth() - 1);
 
+			// north, south
+			for (int x = xMin; x <= xMax; x++) {
+
+				calculateForLine(horizon, cell, sX, sY, x, yMin);
+				calculateForLine(horizon, cell, sX, sY, x, yMax);
+			}
+
+			// west, east
 			for (int y = yMin; y <= yMax; y++) {
-				for (int x = xMin; x <= xMax; x++) {
 
-					
-					if ((x != sX || y != sY)
-							&& (((x - sX) * (x - sX)) + ((y - sY) * (y - sY)) <= range * range)
-							&& horizon.update(getSector(sX, sY, x, y))) {
-
-						int row = x / cellSize;
-						int col = y / cellSize;
-
-						cell.addToPvs(cells[col][row]);
-					}
-				}
+				calculateForLine(horizon, cell, sX, sY, xMin, y);
+				calculateForLine(horizon, cell, sX, sY, xMax, y);
 			}
 		}
-		
-		System.out.println();
+	}
+
+	private void calculateForLine(Horizon horizon, Cell cell, int sX, int sY, int tX, int tY) {
+
+		if (sX != tX || sY != tY) {
+			
+			int dX = tX - sX;
+			int dY = tY - sY;
+			
+			if (((dX * dX) + (dY * dY) <= (maxRange * maxRange)) && horizon.update(getSector(sX, sY, tX, tY))) {
+				
+				int row = tX / cellSize;
+				int col = tY / cellSize;
+				
+				cell.addToPvs(cells[col][row]);
+			}
+		}
 	}
 
 	private Sector getSector(double sX, double sY, int tX, int tY) {
 
 		double cX = sX + 0.5;
 		double cY = sY + 0.5;
-		
+
 		ArrayList<Double> angles = new ArrayList<Double>();
 
 		angles.add(atan(tY - cY, tX - cX));
@@ -177,30 +186,18 @@ public class Visibility {
 		BufferedImage image = new BufferedImage(100, 100, BufferedImage.TYPE_BYTE_GRAY);
 
 		Graphics g = image.getGraphics();
-		
+
 		g.setColor(Color.BLACK);
 		g.fillRect(0, 0, 100, 100);
-		
-		g.setColor(new Color(100, 100, 100));
-		g.drawLine(20, 10, 20, 20);
-//		g.drawRect(5, 5, 10, 10);
 
-		final Map map = new Map(0, 0, image);
+		g.setColor(new Color(2, 2, 2));
+		g.drawRect(5, 5, 10, 10);
+		//
+		// g.setColor(new Color(200, 200, 200));
+		// g.drawRect(30, 5, 10, 10);
 
-		Visibility visibility = new Visibility(map, 10, 30);
-		visibility.calculateForPosision(10, 10);
-		
-		JFrame frame = new JFrame();
-		JPanel panel = new JPanel() {
-			
-			public void paint(Graphics g) {
-				
-				super.paint(g);
-				g.drawImage(map.getData(), 0, 0, null);
-			};
-		}; 
-		frame.setContentPane(panel);
-		frame.setSize(500, 500);
-		frame.setVisible(true);
+		Visibility visibility = new Visibility(new Map(0, 0, image), 10, 10);
+		visibility.calculate();
+//		visibility.calculateForPosision(10, 10);
 	}
 }
