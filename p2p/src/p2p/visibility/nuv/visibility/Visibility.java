@@ -1,12 +1,10 @@
 package p2p.visibility.nuv.visibility;
 
-import java.awt.Color;
-import java.awt.Graphics;
-import java.awt.image.BufferedImage;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 
@@ -14,7 +12,7 @@ import p2p.visibility.nuv.map.Map;
 import p2p.visibility.nuv.visibility.horizon.Horizon;
 import p2p.visibility.nuv.visibility.horizon.Sector;
 
-public class Visibility {
+public class Visibility implements Serializable {
 
 	private Map map;
 	private int cellSize; // meters
@@ -152,7 +150,7 @@ public class Visibility {
 		try {
 
 			ObjectOutputStream outputStream = new ObjectOutputStream(new FileOutputStream(path));
-			outputStream.writeObject(cells);
+			outputStream.writeObject(this);
 			outputStream.flush();
 			outputStream.close();
 
@@ -162,18 +160,22 @@ public class Visibility {
 		}
 	}
 
-	public void load(String path) {
+	public static Visibility load(String path) {
 
+		Visibility result = null;
+		
 		try {
 
 			ObjectInputStream inputStream = new ObjectInputStream(new FileInputStream(path));
-			cells = (Cell[][]) inputStream.readObject();
+			result = (Visibility) inputStream.readObject();
 			inputStream.close();
 
 		} catch (Exception e) {
 
 			e.printStackTrace();
 		}
+		
+		return result;
 	}
 
 	public int getCellSize() {
@@ -183,21 +185,11 @@ public class Visibility {
 
 	public static void main(String[] args) {
 
-		BufferedImage image = new BufferedImage(100, 100, BufferedImage.TYPE_BYTE_GRAY);
-
-		Graphics g = image.getGraphics();
-
-		g.setColor(Color.BLACK);
-		g.fillRect(0, 0, 100, 100);
-
-		g.setColor(new Color(2, 2, 2));
-		g.drawRect(5, 5, 10, 10);
-		//
-		// g.setColor(new Color(200, 200, 200));
-		// g.drawRect(30, 5, 10, 10);
-
-		Visibility visibility = new Visibility(new Map(0, 0, image), 10, 10);
+		Visibility visibility = new Visibility(new Map("world.png").getMapPart(0, 0, 100, 100), 20, 2);
 		visibility.calculate();
-//		visibility.calculateForPosision(10, 10);
+		
+		visibility.save("deneme.vis");
+		
+		visibility = Visibility.load("deneme.vis");
 	}
 }

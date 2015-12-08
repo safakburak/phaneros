@@ -5,10 +5,14 @@ import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.Serializable;
 
 import javax.imageio.ImageIO;
 
+@SuppressWarnings("serial")
 public class Map implements Serializable {
 
 	private int x;
@@ -133,5 +137,19 @@ public class Map implements Serializable {
 	public int getHeightAt(int x, int y) {
 		
 		return data.getData().getSample(x, y, 0);
+	}
+	
+	private void writeObject(ObjectOutputStream out) throws IOException {
+		
+		out.writeInt(x);
+		out.writeInt(y);
+		ImageIO.write(data, "png", out);
+	}
+	
+	private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+		
+		x = in.readInt();
+		y = in.readInt();
+		data = ImageIO.read(in);
 	}
 }
