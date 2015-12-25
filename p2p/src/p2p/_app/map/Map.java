@@ -1,16 +1,16 @@
-package p2p.visibility.nuv.map;
+package p2p._app.map;
 
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 
 import javax.imageio.ImageIO;
+
+import p2p._app.common.Persist;
 
 @SuppressWarnings("serial")
 public class Map implements Serializable {
@@ -19,81 +19,44 @@ public class Map implements Serializable {
 	private int y;
 	private BufferedImage data;
 
-	public Map(String path) {
-
-		this.x = 0;
-		this.y = 0;
-		
-		load(path);
-	}
-
 	public Map(int x, int y, BufferedImage data) {
 
 		this.x = x;
 		this.y = y;
 		this.data = data;
 	}
-	
+
 	public Map getMapPart(int x, int y, int w, int h) {
-		
+
 		return new Map(x, y, data.getSubimage(x, y, w, h));
 	}
-	
+
 	public void fillRandom(double fillRate, int stepSize) {
-		
+
 		Graphics g = data.getGraphics();
-		
-		for(int x = 0; x < data.getWidth(); x += stepSize) {
-			for(int y = 0; y < data.getHeight(); y += stepSize) {
-				
-				if(Math.random() <= fillRate) {
+
+		for (int x = 0; x < data.getWidth(); x += stepSize) {
+			for (int y = 0; y < data.getHeight(); y += stepSize) {
+
+				if (Math.random() <= fillRate) {
 
 					g.setColor(new Color(120, 120, 120));
 					g.fillRect(x, y, 10, 10);
 				}
-			}	
-		}
-	}
-	
-	public void save(String path) {
-
-		FileOutputStream outputStream;
-		
-		try {
-			
-			outputStream = new FileOutputStream(path);
-			ImageIO.write(data, "png", outputStream);
-			outputStream.flush();
-			outputStream.close();
-			
-		} catch (Exception e) {
-			
-			e.printStackTrace();
-		}
-	}
-	
-	public void load(String path) {
-
-		try {
-			
-			data = ImageIO.read(new FileInputStream(path));
-			
-		} catch (Exception e) {
-			
-			e.printStackTrace();
+			}
 		}
 	}
 
 	public int getX() {
-		
+
 		return x;
 	}
-	
+
 	public int getY() {
-		
+
 		return y;
 	}
-	
+
 	public int getWidth() {
 
 		return data.getWidth();
@@ -103,10 +66,39 @@ public class Map implements Serializable {
 
 		return data.getHeight();
 	}
-	
+
 	public BufferedImage getData() {
-		
+
 		return data;
+	}
+
+	public int getHeightAtRel(int x, int y) {
+
+		return data.getData().getSample(x, y, 0);
+	}
+	
+	public int getHeightAtAbs(int x, int y) {
+		
+		return data.getData().getSample(x - this.x, y - this.y, 0);
+	}
+
+	public boolean contains(int x, int y) {
+
+		return x >= this.x && y >= this.y && x < (this.x + getWidth()) && y < (this.y + getHeight());
+	}
+
+	private void writeObject(ObjectOutputStream out) throws IOException {
+
+		out.writeInt(x);
+		out.writeInt(y);
+		ImageIO.write(data, "png", out);
+	}
+
+	private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+
+		x = in.readInt();
+		y = in.readInt();
+		data = ImageIO.read(in);
 	}
 
 	@Override
@@ -132,24 +124,5 @@ public class Map implements Serializable {
 		if (y != other.y)
 			return false;
 		return true;
-	}
-	
-	public int getHeightAt(int x, int y) {
-		
-		return data.getData().getSample(x, y, 0);
-	}
-	
-	private void writeObject(ObjectOutputStream out) throws IOException {
-		
-		out.writeInt(x);
-		out.writeInt(y);
-		ImageIO.write(data, "png", out);
-	}
-	
-	private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
-		
-		x = in.readInt();
-		y = in.readInt();
-		data = ImageIO.read(in);
 	}
 }

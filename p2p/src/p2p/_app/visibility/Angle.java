@@ -1,6 +1,6 @@
-package p2p.visibility.nuv.visibility.horizon;
+package p2p._app.visibility;
 
-public class Angle 
+class Angle 
 {
 	public static Angle MIN = new Angle(0);
 	public static Angle MAX = new Angle(360);

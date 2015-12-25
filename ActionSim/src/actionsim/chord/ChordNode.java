@@ -99,8 +99,8 @@ public class ChordNode implements NodeListener, Policy {
 			}
 		}
 		else {
-			
-			throw new AssertionError("Unsupported message type!");
+
+			// not interested
 		}
 	}
 	

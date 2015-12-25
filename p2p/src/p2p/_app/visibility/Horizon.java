@@ -1,8 +1,9 @@
-package p2p.visibility.nuv.visibility.horizon;
+package p2p._app.visibility;
 
 import java.util.LinkedList;
 
-public class Horizon {
+
+class Horizon {
 
 	private LinkedList<Sector> sectors = new LinkedList<Sector>();
 	

@@ -1,6 +1,6 @@
 package p2p.visibility;
 
-import p2p.visibility.nuv.visibility.horizon.Angle;
+import p2p._app.visibility.Angle;
 
 public class Section 
 {

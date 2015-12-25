@@ -1,6 +1,6 @@
-package p2p.visibility.nuv.visibility.horizon;
+package p2p._app.visibility;
 
-public class Sector {
+class Sector {
 
 	private Angle start;
 	private Angle end;
