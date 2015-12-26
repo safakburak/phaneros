@@ -6,6 +6,7 @@ import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.geom.AffineTransform;
 
+import javax.swing.JFrame;
 import javax.swing.JPanel;
 
 import p2p._app.map.Map;
@@ -22,6 +23,11 @@ public class Renderer extends JPanel {
 	public Renderer(Agent agent) {
 		
 		this.agent = agent;
+		
+		JFrame frame = new JFrame(agent.getName());
+		frame.setContentPane(this);
+		frame.setSize(500, 500);
+		frame.setVisible(true);
 	}
 	
 	@Override

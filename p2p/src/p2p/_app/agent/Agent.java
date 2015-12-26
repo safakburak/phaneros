@@ -131,4 +131,9 @@ public class Agent {
 		
 		return y;
 	}
+	
+	public String getName() {
+		
+		return node.getId();
+	}
 }

@@ -41,11 +41,6 @@ public class Sample {
 		
 		KeyManager keyManager = new KeyManager(simulation, renderer);
 		
-		JFrame frame = new JFrame("Agent");
-		frame.setContentPane(renderer);
-		frame.setSize(500, 500);
-		frame.setVisible(true);
-		
 		long renderTime = 0;
 		
 		while(true) {
