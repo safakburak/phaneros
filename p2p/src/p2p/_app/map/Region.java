@@ -13,6 +13,7 @@ public class Region implements Serializable {
 		
 		this.x = x;
 		this.y = y;
+		this.size = size;
 	}
 	
 	public int getX() {

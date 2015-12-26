@@ -10,6 +10,8 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 
 import p2p._app.map.Map;
+import p2p._app.map.Region;
+import p2p._app.visibility.VisibilityCell;
 
 @SuppressWarnings("serial")
 public class Renderer extends JPanel {
@@ -44,17 +46,17 @@ public class Renderer extends JPanel {
 		
 		g2D.clearRect(0, 0, getWidth(), getHeight());
 
+		for (VisibilityCell cell : agent.getPvs()) {
+			
+			Region region = cell.getRegion();
+			
+			g2D.setColor(Color.orange);
+			g2D.fillRect(region.getX(), region.getY(), region.getSize(), region.getSize());
+		}
+		
 		for (Map patch : agent.getCache().getPatches()) {
 
-			if (patch.getData() == null) {
-
-				g2D.setColor(Color.yellow);
-				g2D.fillRect(patch.getX(), patch.getY(), patch.getWidth(), patch.getHeight());
-
-			} else {
-
-				g2D.drawImage(patch.getData(), patch.getX(), patch.getY(), null);
-			}
+			g2D.drawImage(patch.getData(), patch.getX(), patch.getY(), null);
 		}
 		
 		g2D.setColor(Color.red);

@@ -148,7 +148,7 @@ public class Visibility implements Serializable {
 		distance = Math.min(distance, (tY + 1 - cY) * (tY + 1 - cY) + (tX + 1 - cX) * (tX + 1 - cX));
 		distance = Math.sqrt(distance);
 
-		return new Sector(angles.get(0), angles.get(3), Math.toDegrees(Math.atan2(map.getHeightAt(tX, tY), distance)));
+		return new Sector(angles.get(0), angles.get(3), Math.toDegrees(Math.atan2(map.getHeightAtAbs(tX, tY), distance)));
 	}
 
 	private double atan(double dY, double dX) {
