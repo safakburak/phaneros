@@ -9,6 +9,7 @@ import javax.swing.JFrame;
 import actionsim.core.Node;
 import actionsim.core.Simulation;
 import p2p._app.agent.Agent;
+import p2p._app.agent.KeyManager;
 import p2p._app.agent.Renderer;
 import p2p._app.agent.Server;
 import p2p._app.common.Persist;
@@ -37,6 +38,8 @@ public class Sample {
 		Agent agent = new Agent(simulation.createNode("agent"), world.getVisibility(), 10, server.getNode());
 		
 		Renderer renderer = new Renderer(agent);
+		
+		KeyManager keyManager = new KeyManager(simulation, renderer);
 		
 		JFrame frame = new JFrame("Agent");
 		frame.setContentPane(renderer);

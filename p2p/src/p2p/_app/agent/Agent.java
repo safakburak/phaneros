@@ -2,14 +2,12 @@ package p2p._app.agent;
 
 import java.util.Collection;
 import java.util.Random;
-import java.util.Set;
 
 import actionsim.AbstractChordApplication;
 import actionsim.AbstractNodeListener;
 import actionsim.chord.ChordId;
 import actionsim.chord.ChordNode;
 import actionsim.chord.internal.AbstractMessage;
-import actionsim.core.Action;
 import actionsim.core.Message;
 import actionsim.core.Node;
 import actionsim.scribe.ScribeListener;
@@ -33,6 +31,7 @@ public class Agent {
 	private Node server;
 	
 	private Random random;
+	private Timer timer;
 	
 	public Agent(Node node, Visibility visibility, int cacheSize, Node server) {
 
@@ -44,22 +43,9 @@ public class Agent {
 		this.server = server;
 		
 		random = new Random();
+		timer = new Timer(node);
 		
 		node.addNodeListener(new AbstractNodeListener() {
-			
-			float time = 0;
-			
-			@Override
-			public void onStep(Action[] completedActions, float deltaTime) {
-				
-				time += deltaTime;
-				
-				if(time >= 1000) {
-				
-					step();
-					time -= 1000;
-				}
-			}
 			
 			@Override
 			public void onMessage(Message message) {
@@ -90,6 +76,15 @@ public class Agent {
 				
 			}
 		});
+		
+		timer.repeat(new TimedAction() {
+			
+			@Override
+			public void act(float time) {
+
+				step();
+			}
+		}, 500);
 	}
 	
 	private void step() {

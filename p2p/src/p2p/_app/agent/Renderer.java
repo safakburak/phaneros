@@ -3,11 +3,7 @@ package p2p._app.agent;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.KeyEventDispatcher;
-import java.awt.KeyboardFocusManager;
 import java.awt.Point;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
 import java.awt.geom.AffineTransform;
 
 import javax.swing.JPanel;
@@ -26,50 +22,6 @@ public class Renderer extends JPanel {
 	public Renderer(Agent agent) {
 		
 		this.agent = agent;
-		
-		KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher(new KeyEventDispatcher() {
-			
-			@Override
-			public boolean dispatchKeyEvent(KeyEvent e) {
-				
-				if(e.getID() == KeyEvent.KEY_PRESSED) {
-					
-					switch (e.getKeyCode()) {
-					
-					case KeyEvent.VK_A:
-						zoom = zoom / 2;
-						break;
-						
-					case KeyEvent.VK_Z:
-						zoom = zoom * 2;
-						break;
-						
-					case KeyEvent.VK_Q:
-						zoom = 1;
-						pan.setLocation(0, 0);
-						break;
-						
-					case KeyEvent.VK_UP:
-						pan.translate(0, 10);
-						break;
-						
-					case KeyEvent.VK_DOWN:
-						pan.translate(0, -10);
-						break;
-						
-					case KeyEvent.VK_LEFT:
-						pan.translate(10, 0);
-						break;
-						
-					case KeyEvent.VK_RIGHT:
-						pan.translate(-10, 0);
-						break;
-					}
-				}
-				
-				return true;
-			}
-		});
 	}
 	
 	@Override
@@ -103,5 +55,26 @@ public class Renderer extends JPanel {
 		g2D.fillRect(agent.getX(), agent.getY(), 1, 1);
 		
 		g2D.setTransform(transform);
+	}
+	
+	public void zoomIn() {
+		
+		zoom = zoom * 2;
+	}
+	
+	public void zoomOut() {
+		
+		zoom = zoom / 2;
+	}
+	
+	public void pan(int dX, int dY) {
+		
+		pan.translate(dX, dY);
+	}
+	
+	public void reset() {
+		
+		zoom = 1;
+		pan.setLocation(0, 0);
 	}
 }

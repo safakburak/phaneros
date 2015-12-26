@@ -11,6 +11,8 @@ public class Simulation {
 	
 	private long currentStep = 0;
 	
+	private boolean isPlay = true;
+	
 	
 	public Node createNode() {
 		
@@ -52,26 +54,29 @@ public class Simulation {
 	
 	private void step() {
 		
-		synchronized (nodes) {
+		if(isPlay) {
 			
-			for(Node node : nodes) {
+			synchronized (nodes) {
 				
-				node.processMessages(configuration.getStepLength());
+				for(Node node : nodes) {
+					
+					node.processMessages(configuration.getStepLength());
+				}
+				
+				for(Node node : nodes) {
+					
+					node.processActions(configuration.getStepLength());
+				}
+				
+				for(Node node : nodes) {
+					
+					node.deliverMessages(configuration.getStepLength());
+				}
+				
 			}
 			
-			for(Node node : nodes) {
-				
-				node.processActions(configuration.getStepLength());
-			}
-			
-			for(Node node : nodes) {
-				
-				node.deliverMessages(configuration.getStepLength());
-			}
-			
+			currentStep++;
 		}
-		
-		currentStep++;
 	}
 	
 	public long getCurrentStep() {
@@ -97,5 +102,10 @@ public class Simulation {
 	public void setConfiguration(Configuration configuration) {
 		
 		this.configuration = configuration;
+	}
+	
+	public void togglePlay() {
+		
+		isPlay = !isPlay;
 	}
 }
