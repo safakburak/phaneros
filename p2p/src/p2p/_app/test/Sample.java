@@ -21,16 +21,7 @@ public class Sample {
 
 	public static void main(String[] args) throws IOException {
 		
-//		Map m = new Map(0, 0, ImageIO.read(new File("data/random.png")));
-//		Persist.save(m, "data/random.map");
-//		
-//		Map map = (Map) Persist.load("data/random.map");
-//		Visibility visibility = Visibility.calculateDummy(map, 16, 50);
-//		World world = new World(map, visibility);
-//		
-//		Persist.save(world, "data/random_fixed_range.world");
-		
-		World world = (World) Persist.load("data/random_fixed_range.world");
+		World world = (World) Persist.load("data/world/random_fixed_range.world");
 		
 		Simulation simulation = new Simulation();
 		

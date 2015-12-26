@@ -23,60 +23,60 @@ public class Visibility implements Serializable {
 		out.writeInt(maxRange);
 		out.writeInt(cells.length);
 		out.writeInt(cells[0].length);
-		
-		for(int col = 0; col < cells.length; col++) {
-			for(int row = 0; row < cells[col].length; row++) {
+
+		for (int col = 0; col < cells.length; col++) {
+			for (int row = 0; row < cells[col].length; row++) {
 
 				out.writeObject(cells[col][row].getRegion());
 			}
 		}
-		
-		for(int col = 0; col < cells.length; col++) {
-			for(int row = 0; row < cells.length; row++) {
+
+		for (int col = 0; col < cells.length; col++) {
+			for (int row = 0; row < cells.length; row++) {
 
 				VisibilityCell cell = cells[col][row];
-				
+
 				out.writeInt(cell.getPvs().size());
-				
-				for(VisibilityCell pvsCell : cell.getPvs()) {
-					
+
+				for (VisibilityCell pvsCell : cell.getPvs()) {
+
 					out.writeObject(pvsCell.getRegion());
 				}
 			}
-		}		
+		}
 	}
 
 	private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
 
 		cellSize = in.readInt();
 		maxRange = in.readInt();
-		
+
 		cells = new VisibilityCell[in.readInt()][in.readInt()];
-		
-		for(int col = 0; col < cells.length; col++) {
-			for(int row = 0; row < cells.length; row++) {
+
+		for (int col = 0; col < cells.length; col++) {
+			for (int row = 0; row < cells.length; row++) {
 
 				Region region = (Region) in.readObject();
-				cells[col][row] = new VisibilityCell(region.getX(), region.getY(), region.getSize()); 
+				cells[col][row] = new VisibilityCell(region.getX(), region.getY(), region.getSize());
 			}
 		}
-		
-		for(int col = 0; col < cells.length; col++) {
-			for(int row = 0; row < cells.length; row++) {
+
+		for (int col = 0; col < cells.length; col++) {
+			for (int row = 0; row < cells.length; row++) {
 
 				VisibilityCell cell = cells[col][row];
-			
-				int pvsSize = in.readInt();
-				
-				while(pvsSize-- > 0) {
 
-					Region region = (Region) in.readObject(); 
+				int pvsSize = in.readInt();
+
+				while (pvsSize-- > 0) {
+
+					Region region = (Region) in.readObject();
 					cell.addToPvs(cells[region.getX() / cellSize][region.getY() / cellSize]);
 				}
 			}
-		}	
+		}
 	}
-	
+
 	private void calculateForPosision(Map map, int sX, int sY) {
 
 		Horizon horizon = new Horizon();
@@ -108,15 +108,15 @@ public class Visibility implements Serializable {
 	private void calculateForLine(Map map, Horizon horizon, VisibilityCell cell, int sX, int sY, int tX, int tY) {
 
 		if (sX != tX || sY != tY) {
-			
+
 			int dX = tX - sX;
 			int dY = tY - sY;
-			
+
 			if (((dX * dX) + (dY * dY) <= (maxRange * maxRange)) && horizon.update(getSector(map, sX, sY, tX, tY))) {
-				
+
 				int row = tX / cellSize;
 				int col = tY / cellSize;
-				
+
 				cell.addToPvs(cells[col][row]);
 			}
 		}
@@ -148,7 +148,8 @@ public class Visibility implements Serializable {
 		distance = Math.min(distance, (tY + 1 - cY) * (tY + 1 - cY) + (tX + 1 - cX) * (tX + 1 - cX));
 		distance = Math.sqrt(distance);
 
-		return new Sector(angles.get(0), angles.get(3), Math.toDegrees(Math.atan2(map.getHeightAtAbs(tX, tY), distance)));
+		return new Sector(angles.get(0), angles.get(3),
+				Math.toDegrees(Math.atan2(map.getHeightAtAbs(tX, tY), distance)));
 	}
 
 	private double atan(double dY, double dX) {
@@ -176,9 +177,9 @@ public class Visibility implements Serializable {
 	}
 
 	public static Visibility calculateDummy(Map map, int cellSize, int visibilityRange) {
-		
+
 		Visibility visibility = new Visibility();
-		
+
 		visibility.cellSize = cellSize;
 		visibility.maxRange = visibilityRange;
 
@@ -189,22 +190,24 @@ public class Visibility implements Serializable {
 
 		for (int col = 0; col < colNum; col++) {
 			for (int row = 0; row < rowNum; row++) {
-				
+
 				visibility.cells[col][row] = new VisibilityCell(col * cellSize, row * cellSize, cellSize);
 			}
 		}
-		
+
+		int range = visibilityRange / cellSize;
+
 		for (int col = 0; col < colNum; col++) {
 			for (int row = 0; row < rowNum; row++) {
-				
-				int rangeInCells = visibilityRange / cellSize;
-				
-				for(int range = 1; range < rangeInCells; range++) {
-					
-					for(int tCol = col - range; tCol <= col + range; tCol++) {
-						for(int tRow = row - range; tRow <= row + range; tRow++) {
-					
-							if(tCol >= 0 &&  tCol <colNum && tRow >= 0 && tRow < rowNum) {
+
+				for (int tCol = col - range; tCol <= col + range; tCol++) {
+					for (int tRow = row - range; tRow <= row + range; tRow++) {
+
+						if (tCol >= 0 && tCol < colNum && tRow >= 0 && tRow < rowNum) {
+							
+							double dist = Math.sqrt(Math.pow(tRow - row, 2) + Math.pow(tCol - col, 2));
+							
+							if(dist <= range) {
 								
 								visibility.cells[col][row].addToPvs(visibility.cells[tCol][tRow]);
 							}
@@ -216,11 +219,11 @@ public class Visibility implements Serializable {
 
 		return visibility;
 	}
-	
+
 	public static Visibility calculate(Map map, int cellSize, int visibilityRange) {
 
 		Visibility visibility = new Visibility();
-		
+
 		visibility.cellSize = cellSize;
 		visibility.maxRange = visibilityRange;
 
@@ -231,38 +234,38 @@ public class Visibility implements Serializable {
 
 		for (int col = 0; col < colNum; col++) {
 			for (int row = 0; row < rowNum; row++) {
-				
+
 				visibility.cells[col][row] = new VisibilityCell(col * cellSize, row * cellSize, cellSize);
 			}
 		}
-		
+
 		for (int y = 0; y < map.getHeight(); y++) {
 			for (int x = 0; x < map.getWidth(); x++) {
 
 				visibility.calculateForPosision(map, x, y);
 			}
 		}
-		
+
 		return visibility;
 	}
-	
+
 	public int getCellSize() {
-		
+
 		return cellSize;
 	}
 
 	public int getMaxRange() {
-		
+
 		return maxRange;
 	}
-	
+
 	public VisibilityCell getCell(int col, int row) {
-		
+
 		return cells[col][row];
 	}
-	
+
 	public VisibilityCell getCellForPos(int x, int y) {
-		
+
 		return cells[x / cellSize][y / cellSize];
 	}
 }

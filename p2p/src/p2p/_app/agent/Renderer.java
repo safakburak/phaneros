@@ -37,14 +37,14 @@ public class Renderer extends JPanel {
 
 		Graphics2D g2D = (Graphics2D) g;
 		
+		g2D.clearRect(0, 0, getWidth(), getHeight());
+		
 		AffineTransform transform = g2D.getTransform();
 		
 		g2D.translate(getWidth() / 2, getHeight() / 2);
 		g2D.scale(zoom, zoom);
 		g2D.translate(-getWidth() / 2, -getHeight() / 2);
 		g2D.translate(pan.x, pan.y);
-		
-		g2D.clearRect(0, 0, getWidth(), getHeight());
 
 		for (VisibilityCell cell : agent.getPvs()) {
 			
