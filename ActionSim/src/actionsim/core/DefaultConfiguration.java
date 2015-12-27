@@ -21,13 +21,13 @@ public class DefaultConfiguration implements Configuration {
 	}
 
 	@Override
-	public float getDefaultBandwidth() {
+	public float getBandwidth(Node node) {
 		
 		return 0;
 	}
 
 	@Override
-	public float getDefaultCpuBudget() {
+	public float getCpuBudget(Node node) {
 		
 		return 0;
 	}

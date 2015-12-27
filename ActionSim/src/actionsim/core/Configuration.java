@@ -8,7 +8,7 @@ public interface Configuration {
 	
 	public float getDisconnectionCost();
 	
-	public float getDefaultBandwidth();
+	public float getBandwidth(Node node);
 	
-	public float getDefaultCpuBudget();
+	public float getCpuBudget(Node node);
 }

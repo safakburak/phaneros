@@ -5,14 +5,22 @@ import java.util.List;
 
 public class Simulation {
 
-	private List<Node> nodes = new ArrayList<Node>();
-	
 	private Configuration configuration = new DefaultConfiguration();
+	
+	private List<Node> nodes = new ArrayList<Node>();
 	
 	private long currentStep = 0;
 	
 	private boolean isPlay = true;
 	
+	public Simulation() {
+		
+	}
+	
+	public Simulation(Configuration configuration) {
+		
+		this.configuration = configuration;
+	}
 	
 	public Node createNode() {
 		
@@ -28,7 +36,9 @@ public class Simulation {
 	
 	public Node createNode (String id) {
 		
-		Node result = new Node(id, configuration);
+		Node result = new Node(id);
+		result.setBandwidth(configuration.getBandwidth(result));
+		result.setCpuBudget(configuration.getCpuBudget(result));
 		nodes.add(result);
 		
 		return result;

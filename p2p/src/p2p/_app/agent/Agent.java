@@ -32,6 +32,7 @@ public class Agent {
 	
 	private Random random;
 	private Timer timer;
+	private VisibilityCell currentCell; 
 	
 	public Agent(Node node, Visibility visibility, int cacheSize, Node server) {
 

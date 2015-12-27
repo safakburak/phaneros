@@ -1,21 +1,14 @@
 package p2p._app.test;
 
-import java.io.File;
 import java.io.IOException;
 
-import javax.imageio.ImageIO;
-import javax.swing.JFrame;
-
-import actionsim.core.Node;
 import actionsim.core.Simulation;
 import p2p._app.agent.Agent;
 import p2p._app.agent.KeyManager;
 import p2p._app.agent.Renderer;
 import p2p._app.agent.Server;
 import p2p._app.common.Persist;
-import p2p._app.map.Map;
 import p2p._app.map.World;
-import p2p._app.visibility.Visibility;
 
 public class Sample {
 

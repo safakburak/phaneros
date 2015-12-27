@@ -34,7 +34,15 @@ public class Cache {
 	
 	public Map getPatch(int x, int y) {
 		
-		return patchMap.get(new Region(x / cellSize * cellSize, y / cellSize * cellSize, cellSize));
+		Map patch = patchMap.get(new Region(x / cellSize * cellSize, y / cellSize * cellSize, cellSize)); 
+		
+		if(patch != null) {
+			
+			disposeQueue.remove(patch);
+			disposeQueue.add(patch);
+		}
+		
+		return patch;
 	}
 	
 	public void addPatch(Map patch) {

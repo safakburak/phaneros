@@ -27,20 +27,18 @@ public class Node {
 	private Queue<Action> completedActions = new LinkedList<Action>();
 	
 	
-	private float bandwidth; // kilobytes per second
+	private float bandwidth = 0; // kilobytes per second
 	
 	private float remainingKilobytes = 0;
 	
-	private float cpuBudgetPerStep; // milliseconds
+	private float cpuBudget = 0; // milliseconds
 	
 	private float remainingCpuBudget = 0;
 	
 	
-	Node(String id, Configuration configuration) {
+	Node(String id) {
 		
 		this.id = id;
-		this.bandwidth = configuration.getDefaultBandwidth();
-		this.cpuBudgetPerStep = configuration.getDefaultCpuBudget();
 	}
 	
 	final void deliverMessages(float deltaTime) {
@@ -91,14 +89,14 @@ public class Node {
 		
 		Action[] completedActionsArr;
 		
-		if(cpuBudgetPerStep > 0) {
+		if(cpuBudget > 0) {
 			
-			remainingCpuBudget += cpuBudgetPerStep;
+			remainingCpuBudget += cpuBudget;
 		}
 		
 		while(actions.isEmpty() == false) {
 			
-			if(cpuBudgetPerStep <= NEAR_ZERO || actions.peek().getCpuCost() <= remainingCpuBudget) {
+			if(cpuBudget <= NEAR_ZERO || actions.peek().getCpuCost() <= remainingCpuBudget) {
 				
 				Action action = actions.poll();
 				
@@ -227,7 +225,7 @@ public class Node {
 	
 	public final void setCpuBudget(float cpuBudget) {
 		
-		this.cpuBudgetPerStep = cpuBudget;
+		this.cpuBudget = cpuBudget;
 	}
 	
 	public final void act(Action action) {
