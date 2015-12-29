@@ -1,7 +1,10 @@
 package p2p._app.agent;
 
+import java.awt.Point;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Random;
+import java.util.Set;
 
 import actionsim.AbstractChordApplication;
 import actionsim.AbstractNodeListener;
@@ -20,8 +23,8 @@ public class Agent {
 
 	private int x;
 	private int y;
-	private int nX;
-	private int nY;
+	private int dX;
+	private int dY;
 
 	private Cache cache;
 	private Visibility visibility;
@@ -34,6 +37,9 @@ public class Agent {
 	private Timer timer;
 	private VisibilityCell currentCell; 
 	
+	private boolean isKeepOthers = false;
+	private HashMap<String, Point> agents = new HashMap<String, Point>();
+	
 	public Agent(Node node, Visibility visibility, int cacheSize, Node server) {
 
 		this.node = node;
@@ -45,7 +51,10 @@ public class Agent {
 		
 		random = new Random();
 		timer = new Timer(node);
-		
+	}
+	
+	public void start() {
+
 		node.addNodeListener(new AbstractNodeListener() {
 			
 			@Override
@@ -74,7 +83,15 @@ public class Agent {
 			@Override
 			public void onScribeMessage(ChordId topic, Object message) {
 
-				
+				if(message instanceof Update) {
+					
+					Update update = (Update) message;
+
+					if(isKeepOthers && update.getId().equals(getId()) == false) {
+						
+						agents.put(update.getId(), new Point(update.getX(), update.getY()));
+					}
+				}
 			}
 		});
 		
@@ -82,34 +99,78 @@ public class Agent {
 			
 			@Override
 			public void act(float time) {
-
+				
 				step();
+				doSubscriptions();
 			}
 		}, 500);
 	}
 	
+	private void doSubscriptions() {
+
+		VisibilityCell newCell = visibility.getCellForPos(x, y);
+		
+		if(currentCell == null || currentCell != newCell) {
+
+			if(currentCell != null) {
+				
+				Set<VisibilityCell> pvs = currentCell.getPvs();
+				
+				for(Object topic : scribeNode.getSubscriptions().toArray()) {
+					
+					if(pvs.contains(topic) == false) {
+						
+						scribeNode.unsubscribe((ChordId) topic);
+					}
+				}
+			}
+
+			for(VisibilityCell cell : newCell.getPvs()) {
+
+				scribeNode.subscribe(new ChordId(cell.getRegion().toString()));
+			}
+			
+			currentCell = newCell;
+		}
+	}
+	
+	private boolean isValid(int x, int y) {
+		
+		return x > 0 && y > 0 && x < 1024 && y < 1024;
+	}
+	
 	private void step() {
 
+		int nX = x + dX;
+		int nY = y + dY;
+		
 		Map map = cache.getPatch(nX, nY);
 		
-		if(map == null) {
+		if(isValid(nX, nY) && map == null) {
 			
 			server.send(new Message(node, server, new PatchRequest(nX, nY)));
 			
 		} else {
 			
-			if(map.getHeightAtAbs(nX, nY) == 0) {
+			if((dX != 0 || dY != 0) && isValid(nX, nY) && map.getHeightAtAbs(nX, nY) == 0) {
 				
 				x = nX;
 				y = nY;
-			} 
-			
-			do {
 				
-				nX = x + (random.nextInt(3) - 1);
-				nY = y + (random.nextInt(3) - 1);
+				scribeNode.publish(new ChordId(currentCell.getRegion().toString()), new Update(getId(), x, y));
 				
-			} while(nX < 0 || nY < 0);
+			} else {
+				
+				do {
+					
+					dX = random.nextInt(3) - 1;
+					dY = random.nextInt(3) - 1;
+					
+					nX = x + dX;
+					nY = y + dY;
+					
+				} while((dX == 0 && dY == 0) || isValid(nX, nY) == false);
+			}
 		}
 	}
 	
@@ -133,8 +194,31 @@ public class Agent {
 		return y;
 	}
 	
-	public String getName() {
+	public String getId() {
 		
 		return node.getId();
+	}
+	
+	public ChordNode getChordNode() {
+		return chordNode;
+	}
+	
+	public Collection<Point> getAgents() {
+		
+		return agents.values();
+	}
+	
+	public void setPosition(int x, int y) {
+		
+		this.x = x;
+		this.y = y;
+		
+		dX = 0;
+		dY = 0;
+	}
+	
+	public void setKeepOthers(boolean isKeepOthers) {
+		
+		this.isKeepOthers = isKeepOthers;
 	}
 }

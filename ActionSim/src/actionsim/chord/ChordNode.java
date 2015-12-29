@@ -121,14 +121,14 @@ public class ChordNode implements NodeListener, Policy {
 	
 	private void handleChordMessage(ChordMessage chordMessage, boolean noCheck) {
 		
-		if(chordMessage.getTo().isIn(predecessor, me, true)) {
+		if(predecessor != null && chordMessage.getTo().isIn(predecessor, me, true)) {
 			
 			for(ChordApplication application : applications) {
 				
 				application.onChordMessage(chordMessage);
 			}
 		}
-		else if(chordMessage.getTo().isIn(me, successor, true)) {
+		else if(successor != null && chordMessage.getTo().isIn(me, successor, true)) {
 			
 			if(noCheck || beforeForward(chordMessage, successor)) {
 				
@@ -323,9 +323,15 @@ public class ChordNode implements NodeListener, Policy {
 	
 	public void send(ChordId to, AbstractMessage chordMessage) {
 		
-		chordMessage.addHop(me);
-		
-		node.send(new Message(node, node(to).node, chordMessage));
+		if(chordMessage.getLastHop() != null && chordMessage.getLastHop().equals(me)) {
+			
+			System.out.println("killed");
+			
+		} else {
+			
+			chordMessage.addHop(me);
+			node.send(new Message(node, node(to).node, chordMessage));
+		}
 	}
 	
 	public void createNetwork() {

@@ -56,4 +56,8 @@ public class Server {
 	public Node getNode() {
 		return node;
 	}
+	
+	public ChordNode getChordNode() {
+		return chordNode;
+	}
 }

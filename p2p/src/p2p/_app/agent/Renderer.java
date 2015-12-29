@@ -26,7 +26,7 @@ public class Renderer extends JPanel {
 		
 		this.agent = agent;
 		
-		JFrame frame = new JFrame(agent.getName());
+		JFrame frame = new JFrame(agent.getId());
 		frame.setContentPane(this);
 		frame.setSize(500, 500);
 		frame.setVisible(true);
@@ -57,6 +57,13 @@ public class Renderer extends JPanel {
 		for (Map patch : agent.getCache().getPatches()) {
 
 			g2D.drawImage(patch.getData(), patch.getX(), patch.getY(), null);
+		}
+		
+		
+		g2D.setColor(Color.blue);
+		for(Point p : agent.getAgents()) {
+
+			g2D.fillRect(p.x, p.y, 1, 1);
 		}
 		
 		g2D.setColor(Color.red);

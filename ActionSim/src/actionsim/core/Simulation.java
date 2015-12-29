@@ -66,23 +66,19 @@ public class Simulation {
 		
 		if(isPlay) {
 			
-			synchronized (nodes) {
+			for(Node node : nodes) {
 				
-				for(Node node : nodes) {
-					
-					node.processMessages(configuration.getStepLength());
-				}
+				node.processMessages(configuration.getStepLength());
+			}
+			
+			for(Node node : nodes) {
 				
-				for(Node node : nodes) {
-					
-					node.processActions(configuration.getStepLength());
-				}
+				node.processActions(configuration.getStepLength());
+			}
+			
+			for(Node node : nodes) {
 				
-				for(Node node : nodes) {
-					
-					node.deliverMessages(configuration.getStepLength());
-				}
-				
+				node.deliverMessages(configuration.getStepLength());
 			}
 			
 			currentStep++;

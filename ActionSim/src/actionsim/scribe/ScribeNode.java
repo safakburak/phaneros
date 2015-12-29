@@ -2,6 +2,7 @@ package actionsim.scribe;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import actionsim.chord.ChordApplication;
 import actionsim.chord.ChordId;
@@ -152,9 +153,8 @@ public class ScribeNode implements ChordApplication {
 		if (subscriptions.contains(topic) == false) {
 
 			subscriptions.add(topic);
+			chordNode.send(new Subscribe(topic));
 		}
-
-		chordNode.send(new Subscribe(topic));
 	}
 
 	public void unsubscribe(ChordId topic) {
@@ -177,5 +177,10 @@ public class ScribeNode implements ChordApplication {
 			
 			listeners.add(listener);
 		}
+	}
+	
+	public List<ChordId> getSubscriptions() {
+		
+		return subscriptions;
 	}
 }
