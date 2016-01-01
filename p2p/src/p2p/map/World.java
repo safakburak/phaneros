@@ -24,5 +24,14 @@ public class World implements Serializable {
 		
 		return map;
 	}
+
+	public int getWidth() {
+		
+		return map.getWidth();
+	}
 	
+	public int getHeight() {
+		
+		return map.getHeight();
+	}
 }

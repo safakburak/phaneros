@@ -9,7 +9,6 @@ import actionsim.log.Logger;
 import p2p.map.World;
 import p2p.phaneros.Agent;
 import p2p.phaneros.Server;
-import p2p.renderer.KeyManager;
 import p2p.renderer.Renderer;
 import p2p.util.Persist;
 
@@ -28,7 +27,7 @@ public class Sample {
 		Simulation simulation = new Simulation();
 		
 		Server server = new Server(simulation.createNode("server"), world.getMap(), world.getVisibility().getCellSize());
-		agents.add(new Agent(simulation.createNode("agent"), world.getVisibility(), 10, server.getNode()));
+		agents.add(new Agent(simulation.createNode("agent"), world.getVisibility(), 10, server.getNode(), world.getWidth(), world.getHeight()));
 		
 		agents.get(0).setKeepOthers(true);
 		
@@ -38,7 +37,7 @@ public class Sample {
 		
 		while(agentCount-- > 0) {
 			
-			Agent agent = new Agent(simulation.createNode(), world.getVisibility(), 10, server.getNode());
+			Agent agent = new Agent(simulation.createNode(), world.getVisibility(), 10, server.getNode(), world.getWidth(), world.getHeight());
 			
 			int x;
 			int y;

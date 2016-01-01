@@ -1,9 +1,6 @@
 package p2p.phaneros;
 
 import java.awt.Point;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Random;
 import java.util.Set;
 
 import actionsim.AbstractChordApplication;
@@ -16,35 +13,25 @@ import actionsim.core.Node;
 import actionsim.scribe.ScribeListener;
 import actionsim.scribe.ScribeNode;
 import p2p.map.Map;
-import p2p.renderer.IRenderable;
 import p2p.timer.TimedAction;
 import p2p.timer.Timer;
 import p2p.visibility.Visibility;
 import p2p.visibility.VisibilityCell;
 
-public class Agent implements IRenderable {
+public class Agent extends AbstractAgent {
 
-	private int x;
-	private int y;
-	private int dX;
-	private int dY;
-
-	private Cache cache;
-	private Visibility visibility;
 	private ScribeNode scribeNode;
 	private ChordNode chordNode;
-	private Node node;
 	private Node server;
 	
-	private Random random;
-	private Timer timer;
-	private VisibilityCell currentCell; 
-	
 	private boolean isKeepOthers = false;
-	private HashMap<String, Point> agents = new HashMap<String, Point>();
 	
-	public Agent(Node node, Visibility visibility, int cacheSize, Node server) {
+	private RandomWalker walker;
+	
+	public Agent(Node node, Visibility visibility, int cacheSize, Node server, int worldWidth, int worldHeight) {
 
+		super(node, visibility, cacheSize);
+		
 		this.node = node;
 		this.visibility = visibility;
 		this.cache = new Cache(cacheSize, visibility.getCellSize());
@@ -52,7 +39,8 @@ public class Agent implements IRenderable {
 		this.chordNode = scribeNode.getChordNode();
 		this.server = server;
 		
-		random = new Random();
+		walker = new RandomWalker(this, worldWidth, worldHeight);
+		
 		timer = new Timer(node);
 	}
 	
@@ -103,7 +91,7 @@ public class Agent implements IRenderable {
 			@Override
 			public void act(float time) {
 				
-				step();
+				walker.walk();
 				doSubscriptions();
 			}
 		}, 500);
@@ -137,87 +125,8 @@ public class Agent implements IRenderable {
 		}
 	}
 	
-	private boolean isValid(int x, int y) {
-		
-		return x > 0 && y > 0 && x < 1024 && y < 1024;
-	}
-	
-	private void step() {
-
-		int nX = x + dX;
-		int nY = y + dY;
-		
-		Map map = cache.getPatch(nX, nY);
-		
-		if(isValid(nX, nY) && map == null) {
-			
-			server.send(new Message(node, server, new PatchRequest(nX, nY)));
-			
-		} else {
-			
-			if((dX != 0 || dY != 0) && isValid(nX, nY) && map.getHeightAtAbs(nX, nY) == 0) {
-				
-				x = nX;
-				y = nY;
-				
-				scribeNode.publish(new ChordId(currentCell.getRegion().toString()), new Update(getId(), x, y));
-				
-			} else {
-				
-				do {
-					
-					dX = random.nextInt(3) - 1;
-					dY = random.nextInt(3) - 1;
-					
-					nX = x + dX;
-					nY = y + dY;
-					
-				} while((dX == 0 && dY == 0) || isValid(nX, nY) == false);
-			}
-		}
-	}
-	
-	public Cache getCache() {
-		
-		return cache;
-	}
-	
-	public Collection<VisibilityCell> getPvs() {
-		
-		return visibility.getCellForPos(x, y).getPvs();
-	}
-	
-	public int getX() {
-		
-		return x;
-	}
-	
-	public int getY() {
-		
-		return y;
-	}
-	
-	public String getId() {
-		
-		return node.getId();
-	}
-	
 	public ChordNode getChordNode() {
 		return chordNode;
-	}
-	
-	public Collection<Point> getAgents() {
-		
-		return agents.values();
-	}
-	
-	public void setPosition(int x, int y) {
-		
-		this.x = x;
-		this.y = y;
-		
-		dX = 0;
-		dY = 0;
 	}
 	
 	public void setKeepOthers(boolean isKeepOthers) {
@@ -226,8 +135,14 @@ public class Agent implements IRenderable {
 	}
 	
 	@Override
-	public Collection<Map> getPatches() {
+	public void onCacheMissAt(int x, int y) {
 		
-		return cache.getPatches();
+		server.send(new Message(node, server, new PatchRequest(x, y)));
+	}
+
+	@Override
+	public void onPositionChange() {
+
+		scribeNode.publish(new ChordId(currentCell.getRegion().toString()), new Update(getId(), x, y));
 	}
 }
