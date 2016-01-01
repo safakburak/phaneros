@@ -6,15 +6,16 @@ import actionsim.core.Message;
 import actionsim.core.Node;
 import actionsim.scribe.ScribeNode;
 import p2p.map.Map;
+import p2p.phaneros.messages.PatchRequest;
 
-public class Server {
+public class MapServer {
 
 	private Node node;
 	private ScribeNode scribeNode;
 	private ChordNode chordNode;
 	private Map[][] patches;
 	
-	public Server(Node node, Map map, int patchSize) {
+	public MapServer(Node node, Map map, int patchSize) {
 		
 		this.node = node;
 		this.scribeNode = new ScribeNode(node);

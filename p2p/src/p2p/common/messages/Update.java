@@ -1,21 +1,23 @@
-package p2p.phaneros;
+package p2p.common.messages;
+
+import actionsim.core.Node;
 
 public class Update {
 
-	private String id;
+	private Node node;
 	private int x;
 	private int y;
 	
-	public Update(String id, int x, int y) {
+	public Update(Node node, int x, int y) {
 		
-		this.id = id;
+		this.node = node;
 		this.x = x;
 		this.y = y;
 	}
-	
-	public String getId() {
+
+	public Node getNode() {
 		
-		return id;
+		return node;
 	}
 	
 	public int getX() {

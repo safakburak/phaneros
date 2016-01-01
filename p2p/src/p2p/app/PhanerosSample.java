@@ -7,16 +7,16 @@ import java.util.Random;
 import actionsim.core.Simulation;
 import actionsim.log.Logger;
 import p2p.map.World;
-import p2p.phaneros.Agent;
-import p2p.phaneros.Server;
+import p2p.phaneros.PhanerosAgent;
+import p2p.phaneros.MapServer;
 import p2p.renderer.Renderer;
 import p2p.util.Persist;
 
-public class Sample {
+public class PhanerosSample {
 
 	public static void main(String[] args) throws IOException {
 		
-		ArrayList<Agent> agents = new ArrayList<Agent>();
+		ArrayList<PhanerosAgent> agents = new ArrayList<PhanerosAgent>();
 		
 		Random random = new Random();
 		
@@ -26,8 +26,8 @@ public class Sample {
 		
 		Simulation simulation = new Simulation();
 		
-		Server server = new Server(simulation.createNode("server"), world.getMap(), world.getVisibility().getCellSize());
-		agents.add(new Agent(simulation.createNode("agent"), world.getVisibility(), 10, server.getNode(), world.getWidth(), world.getHeight()));
+		MapServer server = new MapServer(simulation.createNode("server"), world.getMap(), world.getVisibility().getCellSize());
+		agents.add(new PhanerosAgent(simulation.createNode("agent"), world.getVisibility(), 10, server.getNode(), world.getWidth(), world.getHeight()));
 		
 		agents.get(0).setKeepOthers(true);
 		
@@ -37,7 +37,7 @@ public class Sample {
 		
 		while(agentCount-- > 0) {
 			
-			Agent agent = new Agent(simulation.createNode(), world.getVisibility(), 10, server.getNode(), world.getWidth(), world.getHeight());
+			PhanerosAgent agent = new PhanerosAgent(simulation.createNode(), world.getVisibility(), 10, server.getNode(), world.getWidth(), world.getHeight());
 			
 			int x;
 			int y;
@@ -55,7 +55,7 @@ public class Sample {
 		
 		server.getChordNode().createNetwork();
 
-		for(Agent agent : agents) {
+		for(PhanerosAgent agent : agents) {
 			
 			agent.getChordNode().joinNetwork(server.getChordNode().getId());
 			
@@ -65,7 +65,7 @@ public class Sample {
 		//stabilize network
 		simulation.iterate(300);
 		
-		for(Agent agent : agents) {
+		for(PhanerosAgent agent : agents) {
 			
 			agent.start();
 		}

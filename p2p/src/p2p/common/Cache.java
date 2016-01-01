@@ -1,4 +1,4 @@
-package p2p.phaneros;
+package p2p.common;
 
 import java.util.ArrayDeque;
 import java.util.Collection;

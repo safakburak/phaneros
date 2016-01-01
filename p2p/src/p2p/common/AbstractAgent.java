@@ -1,4 +1,4 @@
-package p2p.phaneros;
+package p2p.common;
 
 import java.awt.Point;
 import java.util.Collection;
@@ -79,6 +79,8 @@ public abstract class AbstractAgent implements IRenderable {
 		this.x = x;
 		this.y = y;
 	}
+	
+	public abstract void start();
 	
 	public abstract void onCacheMissAt(int x, int y);
 	
