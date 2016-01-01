@@ -1,196 +1,140 @@
 package p2p.renderer;
 
+import java.awt.BasicStroke;
 import java.awt.Color;
+import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.RenderingHints;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
+import java.awt.Point;
 import java.awt.geom.AffineTransform;
-import java.util.ArrayList;
-import java.util.Timer;
-import java.util.TimerTask;
-import java.util.concurrent.ConcurrentHashMap;
 
 import javax.swing.JFrame;
+import javax.swing.JPanel;
 
-import p2p.application.peer.Peer;
-import p2p.cache.Cache;
-import p2p.constants.Constants;
-import p2p.data.IntPair;
-import p2p.patch.Patch;
-import p2p.visibility.VisibilityMap;
+import actionsim.core.Simulation;
+import actionsim.core.SimulationListener;
+import p2p.map.Map;
+import p2p.map.Region;
+import p2p.map.World;
+import p2p.visibility.VisibilityCell;
 
-public class Renderer
-{
-	private static final int cellDisplaySize = 7;
-	
-	private JFrame mFrame;
-	
-	private ImagePanel mPanel;
-	
-	private Cache mPatchCache;
-	
-	private Timer mRenderingTimer;
-	
-	private VisibilityMap mVisibility;
-	
-	private String mId;
+@SuppressWarnings("serial")
+public class Renderer extends JPanel {
 
-	private Peer mOwner;
+	@SuppressWarnings("unused")
+	private Simulation simulation;
 	
-	public Renderer(Peer owner, String id, Cache patchCache, VisibilityMap visibility) 
-	{
-		mOwner = owner;
-		
-		mId = id;
-		
-		mPatchCache = patchCache;
-		mVisibility = visibility;
+	private IRenderable renderable;
 
-		mPanel = new ImagePanel();
+	private double zoom = 1;
+	
+	private Point pan = new Point(0, 0);
+	
+	@SuppressWarnings("unused")
+	private KeyManager keyManager;
+	
+	private World world;
+	
+	public Renderer(World world, Simulation simulation, IRenderable renderable) {
 		
-		mFrame = new JFrame();
-		mFrame.setSize(500, 500);
-		mFrame.setVisible(true);
-		mFrame.setContentPane(mPanel);
-		mFrame.setTitle(mId);
+		this.simulation = simulation;
+		this.renderable = renderable;
+		this.world = world;
 		
-		mRenderingTimer = new Timer();
+		keyManager = new KeyManager(simulation, this);
 		
-		mRenderingTimer.scheduleAtFixedRate(new TimerTask() {
+		simulation.addListener(new SimulationListener() {
 			
 			@Override
-			public void run() 
-			{
-				render();
-			}
-		}, 1000, 100);
-		
-		mPanel.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseClicked(MouseEvent e) 
-			{
-				mOwner.isUserControl = mOwner.isUserControl;
+			public void onStep(float deltaTime, long step) {
+				
+				paint(getGraphics());
 			}
 		});
+		
+		JFrame frame = new JFrame(renderable.getId());
+		frame.setContentPane(this);
+		frame.setSize(500, 500);
+		frame.setVisible(true);
 	}
+	
+	@Override
+	public void paint(Graphics g) {
 
-	public void render() 
-	{
-		IntPair position = mOwner.currentPos; 
+		Graphics2D g2D = (Graphics2D) g;
 		
-		int x = position.getX();
-		int y = position.getY();
+		g2D.clearRect(0, 0, getWidth(), getHeight());
 		
-		Graphics2D g = (Graphics2D) mPanel.getBufferContext();
+		AffineTransform transform = g2D.getTransform();
 		
-		if(g == null)
-		{
-			return;
+		g2D.translate(getWidth() / 2, getHeight() / 2);
+		g2D.scale(zoom, zoom);
+		g2D.translate(-getWidth() / 2, -getHeight() / 2);
+		g2D.translate(pan.x, pan.y);
+
+		
+		int cellSize = world.getVisibility().getCellSize();
+		int rowCount = world.getVisibility().getRowCount();
+		int colCount = world.getVisibility().getColCount();
+		int width = cellSize * colCount; 
+		int height = cellSize * rowCount; 
+		
+		g2D.setColor(Color.darkGray);
+		g2D.setStroke(new BasicStroke(0.5f));
+		
+		for(int row = 0; row <= rowCount; row++) {
+		
+			g2D.drawLine(0, row * cellSize, width, row * cellSize);	
 		}
 		
-		g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-		
-		g.setColor(Color.white);
-		g.fillRect(0, 0, mFrame.getContentPane().getWidth(), mFrame.getContentPane().getHeight());
-		
-		AffineTransform oldTransform = g.getTransform();
-		
-		g.translate(-x * cellDisplaySize, -y * cellDisplaySize);
-		g.translate(mFrame.getContentPane().getWidth() / 2, mFrame.getContentPane().getHeight() / 2);
-		
-		
-		ArrayList<IntPair> pvs = mVisibility.get(mOwner.currentPatch);
-		
-		for(Patch patch : mPatchCache)
-		{
-			renderPatch(g, patch, pvs.contains(patch.getPos()));
-		}
-		
-		for(IntPair patchPos : mVisibility.get(mOwner.currentPatch))
-		{
-			if(mPatchCache.getPatch(patchPos) == null)
-			{
-				renderPatchPlaceHolder(g, patchPos);
-			}
-		}
-		
-		g.setColor(Color.red);
-		g.fillOval(x * cellDisplaySize, y * cellDisplaySize, cellDisplaySize, cellDisplaySize);
-		
-		g.setColor(Color.blue);
-		
-		ConcurrentHashMap<String, IntPair> peers = mOwner.peerPoses;
-		
-		for(String key : peers.keySet())
-		{
-			IntPair peerPosition = peers.get(key);
+		for(int col = 0; col <= rowCount; col++) {
 			
-			if (peerPosition != null)
-			{
-				g.fillOval(peerPosition.getX() * cellDisplaySize, peerPosition.getY() * cellDisplaySize, cellDisplaySize, cellDisplaySize);
-			}
+			g2D.drawLine(col * cellSize, 0, col * cellSize, height);	
 		}
 		
-		g.setTransform(oldTransform);
+		for (VisibilityCell cell : renderable.getPvs()) {
+			
+			Region region = cell.getRegion();
+			
+			g2D.setColor(Color.orange);
+			g2D.fillRect(region.getX(), region.getY(), region.getSize(), region.getSize());
+		}
 		
-		mPanel.toggleBuffer();
+		for (Map patch : renderable.getPatches()) {
+
+			g2D.drawImage(patch.getData(), patch.getX(), patch.getY(), null);
+		}
+		
+		
+		g2D.setColor(Color.blue);
+		for(Point p : renderable.getAgents()) {
+
+			g2D.fillRect(p.x, p.y, 1, 1);
+		}
+		
+		g2D.setColor(Color.red);
+		g2D.fillRect(renderable.getX(), renderable.getY(), 1, 1);
+		
+		g2D.setTransform(transform);
 	}
 	
-	private void renderPatch(Graphics2D g, Patch patch, boolean isPvsPatch)
-	{
+	public void zoomIn() {
 		
-		if(isPvsPatch)
-		{
-			g.setColor(Color.green.darker());
-		}
-		else
-		{
-			g.setColor(Color.gray.brighter());
-		}
-		
-		AffineTransform oldTransform = g.getTransform();
-		
-		g.translate(patch.getPos().getX() * Constants.PATCH_SIZE  * cellDisplaySize, 
-				patch.getPos().getY() * Constants.PATCH_SIZE  * cellDisplaySize);
-		
-		g.drawRect(0, 0, 
-				Constants.PATCH_SIZE * cellDisplaySize, 
-				Constants.PATCH_SIZE * cellDisplaySize);
-		
-		int[][] data = patch.getData();
-		
-		for(int x = 0; x < Constants.PATCH_SIZE; x++)
-		{
-			for(int y = 0; y < Constants.PATCH_SIZE; y++)
-			{
-				if(data[x][y] == 1)
-				{
-					g.fillRect(x * cellDisplaySize, y * cellDisplaySize, cellDisplaySize, cellDisplaySize);
-				}
-			}
-		}
-		
-		g.setTransform(oldTransform);
+		zoom = zoom * 2;
 	}
 	
-	private void renderPatchPlaceHolder(Graphics2D g, IntPair patchPos)
-	{
-		AffineTransform oldTransform = g.getTransform();
+	public void zoomOut() {
 		
-		g.translate(patchPos.getX() * Constants.PATCH_SIZE  * cellDisplaySize, 
-				patchPos.getY() * Constants.PATCH_SIZE  * cellDisplaySize);
+		zoom = zoom / 2;
+	}
+	
+	public void pan(int dX, int dY) {
 		
-		g.setColor(Color.yellow);
-		g.fillRect(0, 0, 
-				Constants.PATCH_SIZE * cellDisplaySize, 
-				Constants.PATCH_SIZE * cellDisplaySize);
+		pan.translate(dX, dY);
+	}
+	
+	public void reset() {
 		
-		g.setColor(Color.gray);
-		g.drawRect(0, 0, 
-				Constants.PATCH_SIZE * cellDisplaySize, 
-				Constants.PATCH_SIZE * cellDisplaySize);
-		
-		g.setTransform(oldTransform);
+		zoom = 1;
+		pan.setLocation(0, 0);
 	}
 }

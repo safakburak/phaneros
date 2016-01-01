@@ -13,6 +13,8 @@ public class Simulation {
 	
 	private boolean isPlay = true;
 	
+	private List<SimulationListener> listeners = new ArrayList<>();
+	
 	public Simulation() {
 		
 	}
@@ -81,6 +83,11 @@ public class Simulation {
 				node.deliverMessages(configuration.getStepLength());
 			}
 			
+			for(SimulationListener listener : listeners) {
+				
+				listener.onStep(configuration.getStepLength(), currentStep);
+			}
+			
 			currentStep++;
 		}
 	}
@@ -113,5 +120,13 @@ public class Simulation {
 	public void togglePlay() {
 		
 		isPlay = !isPlay;
+	}
+	
+	public void addListener(SimulationListener listener) {
+		
+		if(listeners.contains(listener) == false) {
+			
+			listeners.add(listener);
+		}
 	}
 }

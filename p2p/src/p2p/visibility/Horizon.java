@@ -1,95 +1,100 @@
 package p2p.visibility;
 
-import java.util.ArrayList;
+import java.util.LinkedList;
 
-import p2p._app.visibility.Angle;
 
-public class Horizon 
-{
-	ArrayList<Section> mSections = new ArrayList<Section>();
+class Horizon {
+
+	private LinkedList<Sector> sectors = new LinkedList<Sector>();
 	
-	public Horizon() 
-	{
-		mSections.add(new Section(0, 360, 0));
+	public Horizon() {
+		
+		sectors.add(new Sector(Angle.MIN, Angle.MAX, new Angle(0)));
 	}
 	
-	public boolean update(double start, double end, double elev)
-	{
-		if(start > end)
-		{
-			boolean result1;
-			boolean result2;
-			
-			result1 = update(start, 360, elev);
-			result2 = update(0, end, elev);
-			
-			return result1 || result2;
-		}
-		else
-		{
-			ArrayList<Section> newSections = new ArrayList<Section>();
+	public boolean update(Sector sector) {
 
-			boolean result = false;
+		split(sector.getStart());
+		split(sector.getEnd());
+		
+		boolean result = updateElevs(sector.getStart(), sector.getEnd(), sector.getElev());
+		
+		merge();
+		
+		return result;
+	}
+	
+	private void split(Angle angle) {
+		
+		for (int i = 0; i < sectors.size(); i++) {
 			
-			for (Section section : mSections) 
-			{
-				if(section.test(elev))
-				{
+			Sector sector = sectors.get(i);
+			
+			if(sector.contains(angle, false)) {
+
+				Sector newSector = new Sector(sector.getStart(), angle, sector.getElev());
+				sector.setStart(angle);
+				sectors.add(i, newSector);
+				break;
+			}
+		}		
+	}
+	
+	private boolean updateElevs(Angle start, Angle end, Angle elev) {
+		
+		boolean result = false;
+		
+		if(end.gte(start)) {
+			
+			for(Sector sector : sectors) {
+				
+				if(sector.getElev().lt(elev) && sector.getStart().gte(start) && sector.getEnd().lte(end)) {
+					
+					sector.setElev(elev);
 					result = true;
-					
-					Section[] subsections = section.update(start, end, elev);
-					
-					for (Section subsection : subsections) 
-					{
-						newSections.add(subsection);
-					}
 				}
-				else
-				{
-					newSections.add(section);
-				}
+			} 
+			
+		} else {
+
+			result = result || updateElevs(start, Angle.MAX, elev); 
+			result = result || updateElevs(Angle.MIN, end, elev); 
+		}
+		
+		return result;
+	}
+	
+	private void merge() {
+		
+		Sector prev = sectors.get(0); 
+		
+		for(int i = 1; i < sectors.size(); i++) {
+			
+			Sector sector = sectors.get(i);
+			
+			if(prev.getElev().equals(sector.getElev())) {
+				
+				prev.setEnd(sector.getEnd());
+				sectors.remove(i);
+				i--;
+				
+			} else {
+				
+				prev = sector;
 			}
-			
-			if(newSections.size() > 1)
-			{
-				for(int sectionIndex = 0; sectionIndex < (newSections.size() - 1); sectionIndex++)
-				{
-					Section section1 = newSections.get(sectionIndex); 
-					Section section2 = newSections.get(sectionIndex + 1); 
-					
-					if(section1.getElev().equals(section2.getElev()))
-					{
-						Section mergedSection = new Section(section1.getStart().getValue(), 
-								section2.getEnd().getValue(), 
-								section1.getElev().getValue());
-						
-						newSections.set(sectionIndex, mergedSection);
-						newSections.remove(sectionIndex + 1);
-						sectionIndex--;
-					}
-				}
-			}
-			
-			mSections = newSections;
-			
-			return result;
 		}
 	}
 	
-	public boolean isClosed()
-	{
-		return mSections.size() == 1 && mSections.get(0).getElev().getValue() > 0;
-	}
-	
-	public static void main(String[] args) 
-	{
-		boolean isVisible;
+	@Override
+	public String toString() {
 		
-		Horizon horizon = new Horizon();
+		String result = "";
 		
-		isVisible = horizon.update(100, 200, 1);
-		isVisible = horizon.update(310, 50, 1);
+		for(Sector sector : sectors) {
+			
+			result += sector.toString() + "\n";
+		}
 		
-		System.out.println(horizon);
+		return result;
 	}
 }
