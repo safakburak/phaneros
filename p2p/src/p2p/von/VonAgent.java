@@ -1,9 +1,14 @@
 package p2p.von;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
+
 import actionsim.AbstractNodeListener;
 import actionsim.core.Message;
 import actionsim.core.Node;
 import p2p.common.AbstractAgent;
+import p2p.common.Cache;
 import p2p.common.RandomWalker;
 import p2p.map.Map;
 import p2p.phaneros.messages.PatchRequest;
@@ -14,13 +19,17 @@ public class VonAgent extends AbstractAgent {
 
 	private RandomWalker walker;
 	
-	private boolean isKeepOthers = false;
-	
 	private Node mapServer;
 	
-	public VonAgent(Node node, Visibility visibility, int cacheSize, Node mapServer, int worldWidth, int worldHeight) {
+	private VonGraph graph = new VonGraph(this);
+	
+	private Set<VonAgent> enclosingAgents = new HashSet<VonAgent>();
+	private Set<VonAgent> aoiAgents = new HashSet<VonAgent>();
+
+	
+	public VonAgent(Node node, Visibility visibility, int cacheSize, Node mapServer, int worldWidth, int worldHeight, Cache cache) {
 		
-		super(node, visibility, cacheSize);
+		super(node, visibility, cacheSize, cache);
 		
 		this.mapServer = mapServer;
 		
@@ -66,8 +75,21 @@ public class VonAgent extends AbstractAgent {
 		
 	}
 	
-	public void setKeepOthers(boolean isKeepOthers) {
+	public void init(ArrayList<AbstractAgent> agents, VonGraph graph) {
+
+		int range = visibility.getMaxRange();
 		
-		this.isKeepOthers = isKeepOthers;
+		for(AbstractAgent agent : agents) {
+
+			double dX = agent.getX() - x; 
+			double dY = agent.getY() - y;
+			
+			if( dX * dX + dY * dY < range * range) {
+			
+				aoiAgents.add((VonAgent) agent);
+			}
+		}
+		
+		enclosingAgents = graph.getEnclosing(this);
 	}
 }

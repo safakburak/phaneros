@@ -10,42 +10,46 @@ import p2p.common.AbstractAgent;
 import p2p.common.Cache;
 import p2p.common.FullCache;
 import p2p.map.World;
-import p2p.phaneros.PhanerosAgent;
 import p2p.phaneros.MapServer;
 import p2p.renderer.Renderer;
 import p2p.util.Persist;
+import p2p.von.VonAgent;
+import p2p.von.VonGraph;
 
-public class PhanerosSample {
+public class VonSample {
 
 	public static void main(String[] args) throws IOException {
 
-		ArrayList<AbstractAgent> agents = new ArrayList<AbstractAgent>();
-
+		Logger.init(System.out, Logger.INFO);
 		Random random = new Random();
 
-		Logger.init(System.out, Logger.INFO);
+		ArrayList<AbstractAgent> agents = new ArrayList<AbstractAgent>();
 
 		World world = (World) Persist.load("data/world/random_fixed_range.world");
 
 		Cache cache = new FullCache(world.getMap(), world.getVisibility().getCellSize());
-
+		
 		Simulation simulation = new Simulation();
 
 		MapServer server = new MapServer(simulation.createNode("server"), world.getMap(),
 				world.getVisibility().getCellSize());
-		agents.add(new PhanerosAgent(simulation.createNode("agent"), world.getVisibility(), 10, server.getNode(),
-				world.getWidth(), world.getHeight(), cache));
 
-		agents.get(0).setKeepOthers(true);
+		VonAgent agentOne = new VonAgent(simulation.createNode("agent"), world.getVisibility(), 10, server.getNode(),
+				world.getWidth(), world.getHeight(), cache);
 
-		new Renderer(world, simulation, agents.get(0), agents);
+		agentOne.setPosition(502, 502);
+		
+		agents.add(agentOne);
+
+		agentOne.setKeepOthers(true);
+		new Renderer(world, simulation, agentOne, agents);
 
 		int agentCount = 1000;
 
 		while (agentCount-- > 0) {
 
-			PhanerosAgent agent = new PhanerosAgent(simulation.createNode(), world.getVisibility(), 10,
-					server.getNode(), world.getWidth(), world.getHeight(), cache);
+			VonAgent agent = new VonAgent(simulation.createNode(), world.getVisibility(), 10, server.getNode(),
+					world.getWidth(), world.getHeight(), cache);
 
 			int x;
 			int y;
@@ -61,18 +65,12 @@ public class PhanerosSample {
 			agents.add(agent);
 		}
 
-		server.getChordNode().createNetwork();
-
+		VonGraph graph = new VonGraph(agents);
+		
 		for (AbstractAgent agent : agents) {
 
-			PhanerosAgent phanerosAgent = (PhanerosAgent) agent;
-			phanerosAgent.getChordNode().joinNetwork(server.getChordNode().getId());
-
-			simulation.iterate(10);
+			((VonAgent)agent).init(agents, graph);
 		}
-
-		// stabilize network
-		simulation.iterate(300);
 
 		for (AbstractAgent agent : agents) {
 

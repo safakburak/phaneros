@@ -10,16 +10,15 @@ import java.util.Set;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 
-import actionsim.AbstractChordApplication;
 import actionsim.AbstractNodeListener;
 import actionsim.chord.ChordId;
 import actionsim.chord.ChordNode;
-import actionsim.chord.internal.AbstractMessage;
 import actionsim.core.Message;
 import actionsim.core.Node;
 import actionsim.scribe.ScribeListener;
 import actionsim.scribe.ScribeNode;
 import p2p.common.AbstractAgent;
+import p2p.common.Cache;
 import p2p.common.RandomWalker;
 import p2p.common.messages.Update;
 import p2p.map.Map;
@@ -41,11 +40,9 @@ public class PhanerosAgent extends AbstractAgent {
 	
 	private List<VisibilityCell> subscriptions = Collections.synchronizedList(new ArrayList<VisibilityCell>());
 	
-	private boolean isKeepOthers = false;
-	
-	public PhanerosAgent(Node node, Visibility visibility, int cacheSize, Node mapServer, int worldWidth, int worldHeight) {
+	public PhanerosAgent(Node node, Visibility visibility, int cacheSize, Node mapServer, int worldWidth, int worldHeight, Cache cache) {
 
-		super(node, visibility, cacheSize);
+		super(node, visibility, cacheSize, cache);
 		
 		this.scribeNode = new ScribeNode(node);
 		this.chordNode = scribeNode.getChordNode();
@@ -121,12 +118,7 @@ public class PhanerosAgent extends AbstractAgent {
 	public ChordNode getChordNode() {
 		return chordNode;
 	}
-	
-	public void setKeepOthers(boolean isKeepOthers) {
-		
-		this.isKeepOthers = isKeepOthers;
-	}
-	
+
 	@Override
 	public void onCacheMissAt(int x, int y) {
 		

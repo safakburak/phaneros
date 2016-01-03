@@ -28,11 +28,26 @@ public abstract class AbstractAgent implements IRenderable {
 	
 	protected VisibilityCell currentCell; 
 	
+	protected boolean isKeepOthers = false;
+	
 	public AbstractAgent(Node node, Visibility visibility, int cacheSize) {
+		
+		this(node, visibility, cacheSize, null);
+	}
+	
+	public AbstractAgent(Node node, Visibility visibility, int cacheSize, Cache cache) {
 		
 		this.node = node;
 		this.visibility = visibility;
-		this.cache = new Cache(cacheSize, visibility.getCellSize());
+		
+		if(cache == null) {
+
+			this.cache = new LimitedCache(cacheSize, visibility.getCellSize());
+			
+		} else {
+			
+			this.cache = cache;
+		}
 		
 		timer = new Timer(node);
 	}
@@ -79,6 +94,12 @@ public abstract class AbstractAgent implements IRenderable {
 		this.x = x;
 		this.y = y;
 	}
+	
+	public void setKeepOthers(boolean isKeepOthers) {
+		
+		this.isKeepOthers = isKeepOthers;
+	}
+	
 	
 	public abstract void start();
 	

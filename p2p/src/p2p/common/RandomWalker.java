@@ -29,31 +29,37 @@ public class RandomWalker {
 		int nX = x + dX;
 		int nY = y + dY;
 		
-		Map map = agent.getCache().getPatch(nX, nY);
-		
-		if(isValid(nX, nY) && map == null) {
+		boolean directionChange = true;
+
+		if((dX != 0 || dY != 0) && isValid(nX, nY)) {
 			
-			agent.onCacheMissAt(nX, nY);
-			
-		} else {
-			
-			if((dX != 0 || dY != 0) && isValid(nX, nY) && map.getHeightAtAbs(nX, nY) == 0) {
+			Map map = agent.getCache().getPatch(nX, nY);
+
+			if(map == null) {
+				
+				agent.onCacheMissAt(nX, nY);
+				directionChange = false;
+				
+			} else if (map.getHeightAtAbs(nX, nY) == 0) {
 				
 				agent.setPosition(nX, nY);
 				agent.onPositionChange();
 				
-			} else {
-				
-				do {
-					
-					dX = random.nextInt(3) - 1;
-					dY = random.nextInt(3) - 1;
-					
-					nX = x + dX;
-					nY = y + dY;
-					
-				} while((dX == 0 && dY == 0) || isValid(nX, nY) == false);
+				directionChange = false;
 			}
+		} 
+		
+		if (directionChange) {
+
+			do {
+				
+				dX = random.nextInt(3) - 1;
+				dY = random.nextInt(3) - 1;
+				
+				nX = x + dX;
+				nY = y + dY;
+				
+			} while((dX == 0 && dY == 0) || isValid(nX, nY) == false);
 		}
 	}
 	
