@@ -30,12 +30,19 @@ public abstract class AbstractAgent implements IRenderable {
 	
 	protected boolean isKeepOthers = false;
 	
-	public AbstractAgent(Node node, Visibility visibility, int cacheSize) {
+	public AbstractAgent(Node node, Visibility visibility, int cacheSize, Map worldMap) {
 		
 		this.node = node;
 		this.visibility = visibility;
 		
-		this.cache = new LimitedCache(cacheSize, visibility.getCellSize());
+		if(worldMap != null) {
+			
+			this.cache = new NeverMissCache(worldMap, cacheSize, visibility.getCellSize());
+		} else {
+			
+			this.cache = new LimitedCache(cacheSize, visibility.getCellSize());
+		}
+		
 		
 		timer = new Timer(node);
 	}

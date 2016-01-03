@@ -24,7 +24,15 @@ public class LimitedCache implements Cache {
 
 	public Map getPatch(Region cell) {
 
-		return patchMap.get(cell);
+		Map patch = patchMap.get(cell);
+		
+		if (patch != null) {
+
+			disposeQueue.remove(patch);
+			disposeQueue.add(patch);
+		}
+		
+		return patch;
 	}
 
 	public Collection<Map> getPatches() {
@@ -34,15 +42,7 @@ public class LimitedCache implements Cache {
 
 	public Map getPatch(int x, int y) {
 
-		Map patch = patchMap.get(new Region(x / cellSize * cellSize, y / cellSize * cellSize, cellSize));
-
-		if (patch != null) {
-
-			disposeQueue.remove(patch);
-			disposeQueue.add(patch);
-		}
-
-		return patch;
+		return getPatch(new Region(x / cellSize * cellSize, y / cellSize * cellSize, cellSize));
 	}
 
 	public void addPatch(Map patch) {
@@ -69,5 +69,10 @@ public class LimitedCache implements Cache {
 				patchMap.remove(removeKey);
 			}
 		}
+	}
+	
+	public int getCellSize() {
+		
+		return cellSize;
 	}
 }

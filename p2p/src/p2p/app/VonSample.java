@@ -30,22 +30,12 @@ public class VonSample {
 		MapServer server = new MapServer(simulation.createNode("server"), world.getMap(),
 				world.getVisibility().getCellSize());
 
-		VonAgent agentOne = new VonAgent(simulation.createNode("agent"), world.getVisibility(), 10, server.getNode(),
-				world.getWidth(), world.getHeight());
-
-		agentOne.setPosition(502, 502);
-		
-		agents.add(agentOne);
-
-		agentOne.setKeepOthers(true);
-		new Renderer(world, simulation, agentOne, agents, world.getMap());
-
 		int agentCount = 1000;
 
 		while (agentCount-- > 0) {
 
 			VonAgent agent = new VonAgent(simulation.createNode(), world.getVisibility(), 10, server.getNode(),
-					world.getWidth(), world.getHeight());
+					world.getWidth(), world.getHeight(), world.getMap());
 
 			int x;
 			int y;
@@ -60,6 +50,10 @@ public class VonSample {
 			agent.setPosition(x, y);
 			agents.add(agent);
 		}
+		
+		agents.get(0).setPosition(502, 502);
+		agents.get(0).setKeepOthers(true);
+		new Renderer(world, simulation, agents.get(0), agents, world.getMap());
 
 		VonGraph graph = new VonGraph(agents);
 		

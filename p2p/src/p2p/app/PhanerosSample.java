@@ -29,19 +29,13 @@ public class PhanerosSample {
 
 		MapServer server = new MapServer(simulation.createNode("server"), world.getMap(),
 				world.getVisibility().getCellSize());
-		agents.add(new PhanerosAgent(simulation.createNode("agent"), world.getVisibility(), 10, server.getNode(),
-				world.getWidth(), world.getHeight()));
-
-		agents.get(0).setKeepOthers(true);
-
-		new Renderer(world, simulation, agents.get(0), agents, world.getMap());
 
 		int agentCount = 1000;
 
 		while (agentCount-- > 0) {
 
 			PhanerosAgent agent = new PhanerosAgent(simulation.createNode(), world.getVisibility(), 10,
-					server.getNode(), world.getWidth(), world.getHeight());
+					server.getNode(), world.getWidth(), world.getHeight(), world.getMap());
 
 			int x;
 			int y;
@@ -57,6 +51,10 @@ public class PhanerosSample {
 			agents.add(agent);
 		}
 
+		agents.get(0).setPosition(502, 502);
+		agents.get(0).setKeepOthers(true);
+		new Renderer(world, simulation, agents.get(0), agents, world.getMap());
+		
 		server.getChordNode().createNetwork();
 
 		for (AbstractAgent agent : agents) {

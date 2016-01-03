@@ -8,7 +8,6 @@ import actionsim.AbstractNodeListener;
 import actionsim.core.Message;
 import actionsim.core.Node;
 import p2p.common.AbstractAgent;
-import p2p.common.Cache;
 import p2p.common.RandomWalker;
 import p2p.map.Map;
 import p2p.phaneros.messages.PatchRequest;
@@ -27,9 +26,9 @@ public class VonAgent extends AbstractAgent {
 	private Set<VonAgent> aoiAgents = new HashSet<VonAgent>();
 
 	
-	public VonAgent(Node node, Visibility visibility, int cacheSize, Node mapServer, int worldWidth, int worldHeight) {
+	public VonAgent(Node node, Visibility visibility, int cacheSize, Node mapServer, int worldWidth, int worldHeight, Map worldMap) {
 		
-		super(node, visibility, cacheSize);
+		super(node, visibility, cacheSize, worldMap);
 		
 		this.mapServer = mapServer;
 		

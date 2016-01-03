@@ -39,9 +39,9 @@ public class PhanerosAgent extends AbstractAgent {
 	
 	private List<VisibilityCell> subscriptions = Collections.synchronizedList(new ArrayList<VisibilityCell>());
 	
-	public PhanerosAgent(Node node, Visibility visibility, int cacheSize, Node mapServer, int worldWidth, int worldHeight) {
+	public PhanerosAgent(Node node, Visibility visibility, int cacheSize, Node mapServer, int worldWidth, int worldHeight, Map worldMap) {
 
-		super(node, visibility, cacheSize);
+		super(node, visibility, cacheSize, worldMap);
 		
 		this.scribeNode = new ScribeNode(node);
 		this.chordNode = scribeNode.getChordNode();
