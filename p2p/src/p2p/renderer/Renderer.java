@@ -148,7 +148,7 @@ public class Renderer extends JPanel {
 		
 		if(isDrawAllAgents) {
 			
-			g2D.setColor(Color.orange.darker());
+			g2D.setColor(new Color(165, 42, 42));
 			for (AbstractAgent agent : allAgents) {
 				
 				g2D.fillRect(agent.getX(), agent.getY(), 1, 1);
