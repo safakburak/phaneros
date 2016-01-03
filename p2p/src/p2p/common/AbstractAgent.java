@@ -32,22 +32,10 @@ public abstract class AbstractAgent implements IRenderable {
 	
 	public AbstractAgent(Node node, Visibility visibility, int cacheSize) {
 		
-		this(node, visibility, cacheSize, null);
-	}
-	
-	public AbstractAgent(Node node, Visibility visibility, int cacheSize, Cache cache) {
-		
 		this.node = node;
 		this.visibility = visibility;
 		
-		if(cache == null) {
-
-			this.cache = new LimitedCache(cacheSize, visibility.getCellSize());
-			
-		} else {
-			
-			this.cache = cache;
-		}
+		this.cache = new LimitedCache(cacheSize, visibility.getCellSize());
 		
 		timer = new Timer(node);
 	}
@@ -74,7 +62,7 @@ public abstract class AbstractAgent implements IRenderable {
 	
 	
 	@Override
-	public Collection<Map> getPatches() {
+	public Collection<Map> getAvailablePatches() {
 		
 		return cache.getPatches();
 	}

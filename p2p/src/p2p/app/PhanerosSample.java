@@ -7,11 +7,9 @@ import java.util.Random;
 import actionsim.core.Simulation;
 import actionsim.log.Logger;
 import p2p.common.AbstractAgent;
-import p2p.common.Cache;
-import p2p.common.FullCache;
 import p2p.map.World;
-import p2p.phaneros.PhanerosAgent;
 import p2p.phaneros.MapServer;
+import p2p.phaneros.PhanerosAgent;
 import p2p.renderer.Renderer;
 import p2p.util.Persist;
 
@@ -27,25 +25,23 @@ public class PhanerosSample {
 
 		World world = (World) Persist.load("data/world/random_fixed_range.world");
 
-		Cache cache = new FullCache(world.getMap(), world.getVisibility().getCellSize());
-
 		Simulation simulation = new Simulation();
 
 		MapServer server = new MapServer(simulation.createNode("server"), world.getMap(),
 				world.getVisibility().getCellSize());
 		agents.add(new PhanerosAgent(simulation.createNode("agent"), world.getVisibility(), 10, server.getNode(),
-				world.getWidth(), world.getHeight(), cache));
+				world.getWidth(), world.getHeight()));
 
 		agents.get(0).setKeepOthers(true);
 
-		new Renderer(world, simulation, agents.get(0), agents);
+		new Renderer(world, simulation, agents.get(0), agents, world.getMap());
 
 		int agentCount = 1000;
 
 		while (agentCount-- > 0) {
 
 			PhanerosAgent agent = new PhanerosAgent(simulation.createNode(), world.getVisibility(), 10,
-					server.getNode(), world.getWidth(), world.getHeight(), cache);
+					server.getNode(), world.getWidth(), world.getHeight());
 
 			int x;
 			int y;

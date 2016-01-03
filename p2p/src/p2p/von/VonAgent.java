@@ -27,9 +27,9 @@ public class VonAgent extends AbstractAgent {
 	private Set<VonAgent> aoiAgents = new HashSet<VonAgent>();
 
 	
-	public VonAgent(Node node, Visibility visibility, int cacheSize, Node mapServer, int worldWidth, int worldHeight, Cache cache) {
+	public VonAgent(Node node, Visibility visibility, int cacheSize, Node mapServer, int worldWidth, int worldHeight) {
 		
-		super(node, visibility, cacheSize, cache);
+		super(node, visibility, cacheSize);
 		
 		this.mapServer = mapServer;
 		

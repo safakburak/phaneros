@@ -8,7 +8,7 @@ import p2p.visibility.VisibilityCell;
 
 public interface IRenderable {
 
-	public Collection<Map> getPatches();
+	public Collection<Map> getAvailablePatches();
 	
 	public Collection<VisibilityCell> getPvs();
 	

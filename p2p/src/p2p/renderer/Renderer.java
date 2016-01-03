@@ -1,7 +1,9 @@
 package p2p.renderer;
 
+import java.awt.AlphaComposite;
 import java.awt.BasicStroke;
 import java.awt.Color;
+import java.awt.Composite;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
@@ -42,13 +44,22 @@ public class Renderer extends JPanel {
 	private World world;
 
 	private ArrayList<AbstractAgent> allAgents;
+
+	private boolean isDrawAllAgents = true;
 	
-	public Renderer(World world, Simulation simulation, IRenderable renderable, ArrayList<AbstractAgent> allAgents) {
+	private boolean isDrawWorldMap = true;
+	
+	private Map worldMap;
+	
+	private Composite semiTransparent = AlphaComposite.getInstance(AlphaComposite.SRC_OVER,0.5f);
+	
+	public Renderer(World world, Simulation simulation, IRenderable renderable, ArrayList<AbstractAgent> allAgents, Map worldMap) {
 
 		this.simulation = simulation;
 		this.renderable = renderable;
 		this.world = world;
 		this.allAgents = allAgents;
+		this.worldMap = worldMap;
 
 		keyManager = new KeyManager(simulation, this);
 
@@ -113,21 +124,19 @@ public class Renderer extends JPanel {
 			g2D.drawLine(col * cellSize, 0, col * cellSize, height);
 		}
 
-		for (Map patch : renderable.getPatches()) {
-
-			g2D.drawImage(patch.getData(), patch.getX(), patch.getY(), null);
-		}
-
-		g2D.setColor(Color.orange.darker());
-		for (AbstractAgent agent : allAgents) {
-
-			g2D.fillRect(agent.getX(), agent.getY(), 1, 1);
+		if(isDrawWorldMap) {
+			
+			Composite oldComposite = g2D.getComposite();
+			
+			g2D.setComposite(semiTransparent);
+			g2D.drawImage(worldMap.getData(), 0, 0, null);
+			
+			g2D.setComposite(oldComposite);
 		}
 		
-		g2D.setColor(Color.green);
-		for (Point p : renderable.getAgents()) {
+		for (Map patch : renderable.getAvailablePatches()) {
 
-			g2D.fillRect(p.x, p.y, 1, 1);
+			g2D.drawImage(patch.getData(), patch.getX(), patch.getY(), null);
 		}
 
 		g2D.setColor(new Color(255, 255, 0, 50));
@@ -137,6 +146,22 @@ public class Renderer extends JPanel {
 			g2D.fillRect(region.getX(), region.getY(), region.getSize(), region.getSize());
 		}
 		
+		if(isDrawAllAgents) {
+			
+			g2D.setColor(Color.orange.darker());
+			for (AbstractAgent agent : allAgents) {
+				
+				g2D.fillRect(agent.getX(), agent.getY(), 1, 1);
+			}
+		}
+		
+		
+		g2D.setColor(Color.green);
+		for (Point p : renderable.getAgents()) {
+
+			g2D.fillRect(p.x, p.y, 1, 1);
+		}
+
 		g2D.setColor(Color.red);
 		g2D.fillRect(renderable.getX(), renderable.getY(), 1, 1);
 

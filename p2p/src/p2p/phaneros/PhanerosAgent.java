@@ -18,7 +18,6 @@ import actionsim.core.Node;
 import actionsim.scribe.ScribeListener;
 import actionsim.scribe.ScribeNode;
 import p2p.common.AbstractAgent;
-import p2p.common.Cache;
 import p2p.common.RandomWalker;
 import p2p.common.messages.Update;
 import p2p.map.Map;
@@ -40,9 +39,9 @@ public class PhanerosAgent extends AbstractAgent {
 	
 	private List<VisibilityCell> subscriptions = Collections.synchronizedList(new ArrayList<VisibilityCell>());
 	
-	public PhanerosAgent(Node node, Visibility visibility, int cacheSize, Node mapServer, int worldWidth, int worldHeight, Cache cache) {
+	public PhanerosAgent(Node node, Visibility visibility, int cacheSize, Node mapServer, int worldWidth, int worldHeight) {
 
-		super(node, visibility, cacheSize, cache);
+		super(node, visibility, cacheSize);
 		
 		this.scribeNode = new ScribeNode(node);
 		this.chordNode = scribeNode.getChordNode();

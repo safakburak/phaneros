@@ -7,8 +7,6 @@ import java.util.Random;
 import actionsim.core.Simulation;
 import actionsim.log.Logger;
 import p2p.common.AbstractAgent;
-import p2p.common.Cache;
-import p2p.common.FullCache;
 import p2p.map.World;
 import p2p.phaneros.MapServer;
 import p2p.renderer.Renderer;
@@ -27,29 +25,27 @@ public class VonSample {
 
 		World world = (World) Persist.load("data/world/random_fixed_range.world");
 
-		Cache cache = new FullCache(world.getMap(), world.getVisibility().getCellSize());
-		
 		Simulation simulation = new Simulation();
 
 		MapServer server = new MapServer(simulation.createNode("server"), world.getMap(),
 				world.getVisibility().getCellSize());
 
 		VonAgent agentOne = new VonAgent(simulation.createNode("agent"), world.getVisibility(), 10, server.getNode(),
-				world.getWidth(), world.getHeight(), cache);
+				world.getWidth(), world.getHeight());
 
 		agentOne.setPosition(502, 502);
 		
 		agents.add(agentOne);
 
 		agentOne.setKeepOthers(true);
-		new Renderer(world, simulation, agentOne, agents);
+		new Renderer(world, simulation, agentOne, agents, world.getMap());
 
 		int agentCount = 1000;
 
 		while (agentCount-- > 0) {
 
 			VonAgent agent = new VonAgent(simulation.createNode(), world.getVisibility(), 10, server.getNode(),
-					world.getWidth(), world.getHeight(), cache);
+					world.getWidth(), world.getHeight());
 
 			int x;
 			int y;
