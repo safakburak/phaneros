@@ -7,8 +7,8 @@ import java.util.Random;
 import actionsim.core.Simulation;
 import actionsim.log.Logger;
 import p2p.common.AbstractAgent;
+import p2p.common.MapServer;
 import p2p.map.World;
-import p2p.phaneros.MapServer;
 import p2p.renderer.Renderer;
 import p2p.util.Persist;
 import p2p.von.VonAgent;
@@ -30,7 +30,7 @@ public class VonSample {
 		MapServer server = new MapServer(simulation.createNode("server"), world.getMap(),
 				world.getVisibility().getCellSize());
 
-		int agentCount = 1000;
+		int agentCount = 150;
 
 		while (agentCount-- > 0) {
 
@@ -50,16 +50,15 @@ public class VonSample {
 			agent.setPosition(x, y);
 			agents.add(agent);
 		}
-		
+
 		agents.get(0).setPosition(502, 502);
-		agents.get(0).setKeepOthers(true);
 		new Renderer(world, simulation, agents.get(0), agents, world.getMap());
 
 		VonGraph graph = new VonGraph(agents);
-		
+
 		for (AbstractAgent agent : agents) {
 
-			((VonAgent)agent).init(agents, graph);
+			((VonAgent) agent).init(agents, graph);
 		}
 
 		for (AbstractAgent agent : agents) {

@@ -1,104 +1,94 @@
 package p2p.common;
 
-import java.awt.Point;
 import java.util.Collection;
 import java.util.HashMap;
 
 import actionsim.core.Node;
+import p2p.geometry.primitives.Point;
 import p2p.map.Map;
 import p2p.renderer.IRenderable;
 import p2p.timer.Timer;
 import p2p.visibility.Visibility;
 import p2p.visibility.VisibilityCell;
 
-public abstract class AbstractAgent implements IRenderable {
-	
+public abstract class AbstractAgent<T> implements IRenderable {
+
 	protected int x;
 	protected int y;
-	
+
 	protected Cache cache;
-	
+
 	protected Node node;
-	
+
 	protected Timer timer;
-	
+
 	protected Visibility visibility;
-	
-	protected HashMap<String, Point> agents = new HashMap<String, Point>();
-	
-	protected VisibilityCell currentCell; 
-	
-	protected boolean isKeepOthers = false;
-	
+
+	protected HashMap<T, Point> knownAgents = new HashMap<T, Point>();
+
+	protected VisibilityCell currentCell;
+
 	public AbstractAgent(Node node, Visibility visibility, int cacheSize, Map worldMap) {
-		
+
 		this.node = node;
 		this.visibility = visibility;
-		
-		if(worldMap != null) {
-			
+
+		if (worldMap != null) {
+
 			this.cache = new NeverMissCache(worldMap, cacheSize, visibility.getCellSize());
 		} else {
-			
+
 			this.cache = new LimitedCache(cacheSize, visibility.getCellSize());
 		}
-		
-		
+
 		timer = new Timer(node);
 	}
-	
+
 	public Collection<VisibilityCell> getPvs() {
-		
+
 		return visibility.getCellForPos(x, y).getPvs();
 	}
-	
+
 	public int getX() {
-		
+
 		return x;
 	}
-	
+
 	public int getY() {
-		
+
 		return y;
 	}
-	
+
 	public String getId() {
-		
+
 		return node.getId();
 	}
-	
-	
+
 	@Override
 	public Collection<Map> getAvailablePatches() {
-		
+
 		return cache.getPatches();
 	}
-	
+
 	public Collection<Point> getAgents() {
-		
-		return agents.values();
+
+		return knownAgents.values();
 	}
-	
+
 	public Cache getCache() {
-		
+
 		return cache;
 	}
-	
+
 	public void setPosition(int x, int y) {
-		
+
 		this.x = x;
 		this.y = y;
 	}
-	
-	public void setKeepOthers(boolean isKeepOthers) {
-		
-		this.isKeepOthers = isKeepOthers;
-	}
-	
-	
+
 	public abstract void start();
-	
+
 	public abstract void onCacheMissAt(int x, int y);
-	
+
 	public abstract void onPositionChange();
 }

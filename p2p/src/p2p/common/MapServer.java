@@ -1,12 +1,12 @@
-package p2p.phaneros;
+package p2p.common;
 
 import actionsim.AbstractNodeListener;
 import actionsim.chord.ChordNode;
 import actionsim.core.Message;
 import actionsim.core.Node;
 import actionsim.scribe.ScribeNode;
+import p2p.common.messages.PatchRequest;
 import p2p.map.Map;
-import p2p.phaneros.messages.PatchRequest;
 
 public class MapServer {
 

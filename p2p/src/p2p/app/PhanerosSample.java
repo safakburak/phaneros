@@ -7,8 +7,8 @@ import java.util.Random;
 import actionsim.core.Simulation;
 import actionsim.log.Logger;
 import p2p.common.AbstractAgent;
+import p2p.common.MapServer;
 import p2p.map.World;
-import p2p.phaneros.MapServer;
 import p2p.phaneros.PhanerosAgent;
 import p2p.renderer.Renderer;
 import p2p.util.Persist;
@@ -52,9 +52,8 @@ public class PhanerosSample {
 		}
 
 		agents.get(0).setPosition(502, 502);
-		agents.get(0).setKeepOthers(true);
 		new Renderer(world, simulation, agents.get(0), agents, world.getMap());
-		
+
 		server.getChordNode().createNetwork();
 
 		for (AbstractAgent agent : agents) {

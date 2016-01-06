@@ -6,7 +6,6 @@ import java.awt.Color;
 import java.awt.Composite;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.Point;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
@@ -18,6 +17,7 @@ import javax.swing.SwingUtilities;
 import actionsim.core.Simulation;
 import actionsim.core.SimulationListener;
 import p2p.common.AbstractAgent;
+import p2p.geometry.primitives.Point;
 import p2p.map.Map;
 import p2p.map.Region;
 import p2p.map.World;
@@ -46,14 +46,15 @@ public class Renderer extends JPanel {
 	private ArrayList<AbstractAgent> allAgents;
 
 	private boolean isDrawAllAgents = true;
-	
+
 	private boolean isDrawWorldMap = true;
-	
+
 	private Map worldMap;
-	
-	private Composite semiTransparent = AlphaComposite.getInstance(AlphaComposite.SRC_OVER,0.5f);
-	
-	public Renderer(World world, Simulation simulation, IRenderable renderable, ArrayList<AbstractAgent> allAgents, Map worldMap) {
+
+	private Composite semiTransparent = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.5f);
+
+	public Renderer(World world, Simulation simulation, IRenderable renderable, ArrayList<AbstractAgent> allAgents,
+			Map worldMap) {
 
 		this.simulation = simulation;
 		this.renderable = renderable;
@@ -76,6 +77,7 @@ public class Renderer extends JPanel {
 		frame.setContentPane(this);
 		frame.setSize(500, 500);
 		frame.setVisible(true);
+		frame.setAlwaysOnTop(true);
 
 		setDoubleBuffered(true);
 	}
@@ -103,7 +105,7 @@ public class Renderer extends JPanel {
 		g2D.translate(getWidth() / 2, getHeight() / 2);
 		g2D.scale(zoom, zoom);
 		g2D.translate(-getWidth() / 2, -getHeight() / 2);
-		g2D.translate(pan.x, pan.y);
+		g2D.translate(pan.getX(), pan.getY());
 
 		int cellSize = world.getVisibility().getCellSize();
 		int rowCount = world.getVisibility().getRowCount();
@@ -124,16 +126,16 @@ public class Renderer extends JPanel {
 			g2D.drawLine(col * cellSize, 0, col * cellSize, height);
 		}
 
-		if(isDrawWorldMap) {
-			
+		if (isDrawWorldMap) {
+
 			Composite oldComposite = g2D.getComposite();
-			
+
 			g2D.setComposite(semiTransparent);
 			g2D.drawImage(worldMap.getData(), 0, 0, null);
-			
+
 			g2D.setComposite(oldComposite);
 		}
-		
+
 		for (Map patch : renderable.getAvailablePatches()) {
 
 			g2D.drawImage(patch.getData(), patch.getX(), patch.getY(), null);
@@ -145,21 +147,20 @@ public class Renderer extends JPanel {
 			Region region = cell.getRegion();
 			g2D.fillRect(region.getX(), region.getY(), region.getSize(), region.getSize());
 		}
-		
-		if(isDrawAllAgents) {
-			
+
+		if (isDrawAllAgents) {
+
 			g2D.setColor(new Color(165, 42, 42));
 			for (AbstractAgent agent : allAgents) {
-				
+
 				g2D.fillRect(agent.getX(), agent.getY(), 1, 1);
 			}
 		}
-		
-		
+
 		g2D.setColor(Color.green);
 		for (Point p : renderable.getAgents()) {
 
-			g2D.fillRect(p.x, p.y, 1, 1);
+			g2D.fillRect((int) p.getX(), (int) p.getY(), 1, 1);
 		}
 
 		g2D.setColor(Color.red);

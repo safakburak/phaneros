@@ -1,4 +1,4 @@
-package p2p.phaneros.messages;
+package p2p.common.messages;
 
 public class PatchRequest {
 

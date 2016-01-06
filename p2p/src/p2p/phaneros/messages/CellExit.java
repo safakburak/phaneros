@@ -1,24 +1,24 @@
 package p2p.phaneros.messages;
 
-import actionsim.core.Node;
+import p2p.phaneros.PhanerosAgent;
 import p2p.visibility.VisibilityCell;
 
 public class CellExit {
 
 	private VisibilityCell cell;
-	private Node node;
-	
-	public CellExit(VisibilityCell cell, Node node) {
-		
+	private PhanerosAgent agent;
+
+	public CellExit(VisibilityCell cell, PhanerosAgent agent) {
+
 		this.cell = cell;
-		this.node = node;
+		this.agent = agent;
 	}
-	
+
 	public VisibilityCell getCell() {
 		return cell;
 	}
-	
-	public Node getNode() {
-		return node;
+
+	public PhanerosAgent getAgent() {
+		return agent;
 	}
 }
