@@ -1,10 +1,10 @@
 package p2p.common;
 
+import java.awt.Point;
 import java.util.Collection;
 import java.util.HashMap;
 
 import actionsim.core.Node;
-import p2p.geometry.primitives.Point;
 import p2p.map.Map;
 import p2p.renderer.IRenderable;
 import p2p.timer.Timer;

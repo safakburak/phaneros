@@ -1,5 +1,6 @@
 package p2p.phaneros;
 
+import java.awt.Point;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
@@ -19,7 +20,6 @@ import actionsim.scribe.ScribeNode;
 import p2p.common.AbstractAgent;
 import p2p.common.RandomWalker;
 import p2p.common.messages.PatchRequest;
-import p2p.geometry.primitives.Point;
 import p2p.map.Map;
 import p2p.phaneros.messages.CellEnter;
 import p2p.phaneros.messages.CellExit;

@@ -30,7 +30,7 @@ public class VonSample {
 		MapServer server = new MapServer(simulation.createNode("server"), world.getMap(),
 				world.getVisibility().getCellSize());
 
-		int agentCount = 150;
+		int agentCount = 200;
 
 		while (agentCount-- > 0) {
 

@@ -1,5 +1,6 @@
 package p2p.von;
 
+import java.awt.Point;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
@@ -10,7 +11,6 @@ import actionsim.core.Node;
 import p2p.common.AbstractAgent;
 import p2p.common.RandomWalker;
 import p2p.common.messages.PatchRequest;
-import p2p.geometry.primitives.Point;
 import p2p.map.Map;
 import p2p.timer.TimedAction;
 import p2p.visibility.Visibility;

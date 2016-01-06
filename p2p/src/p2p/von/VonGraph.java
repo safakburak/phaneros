@@ -1,22 +1,24 @@
 package p2p.von;
 
+import java.awt.Point;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
 
 import p2p.common.AbstractAgent;
-import p2p.geometry.delaunay.Delaunay;
-import p2p.geometry.primitives.Point;
-import p2p.geometry.primitives.Triangle;
+import p2p.geometry.delaunay.Delaunay_Triangulation;
+import p2p.geometry.delaunay.Point_dt;
+import p2p.geometry.delaunay.Triangle_dt;
 
 public class VonGraph {
 
 	private VonAgent agent;
 
-	private ArrayList<Triangle> triangles;
+	private ArrayList<Triangle_dt> triangles = new ArrayList<Triangle_dt>();
 
 	private Set<VonAgent> enclosing;
 
@@ -33,29 +35,31 @@ public class VonGraph {
 
 	public void update(HashMap<VonAgent, Point> knownAgents) {
 
-		ArrayList<Point> points = new ArrayList<Point>();
+		Point_dt[] points = new Point_dt[knownAgents.size() + 1];
 
+		int pIndex = 0;
 		for (Entry<VonAgent, Point> entry : knownAgents.entrySet()) {
 
 			if (entry.getKey() != agent) {
 
-				Point point = new Point(entry.getValue().getX(), entry.getValue().getY());
-				point.setMarker(entry.getKey());
-				points.add(point);
+				points[pIndex] = new Point_dt(entry.getValue().getX(), entry.getValue().getY());
+				points[pIndex].marker = entry.getKey();
+				pIndex++;
 			}
 		}
 
-		Point point = new Point(agent.getX(), agent.getY());
-		point.setMarker(agent);
-		points.add(point);
+		points[pIndex] = new Point_dt(agent.getX(), agent.getY());
+		points[pIndex].marker = agent;
 
-		try {
+		Delaunay_Triangulation triangulation = new Delaunay_Triangulation(points);
 
-			triangles = Delaunay.randomizedIncremental(points);
+		Iterator<Triangle_dt> itr = triangulation.trianglesIterator();
 
-		} catch (Exception exception) {
+		triangles.clear();
 
-			triangles = Delaunay.bruteForce(points);
+		while (itr.hasNext()) {
+
+			triangles.add(itr.next());
 		}
 
 		enclosing = getEnclosing(agent);
@@ -64,39 +68,61 @@ public class VonGraph {
 	@SuppressWarnings("rawtypes")
 	public void update(List<AbstractAgent> agents) {
 
-		ArrayList<Point> points = new ArrayList<Point>();
+		Point_dt[] points = new Point_dt[agents.size()];
 
+		int pIndex = 0;
 		for (AbstractAgent agent : agents) {
 
-			Point point = new Point(agent.getX(), agent.getY());
-			point.setMarker(agent);
-			points.add(point);
+			points[pIndex] = new Point_dt(agent.getX(), agent.getY());
+			points[pIndex].marker = (VonAgent) agent;
+			pIndex++;
 		}
 
-		triangles = Delaunay.randomizedIncremental(points);
+		Delaunay_Triangulation triangulation = new Delaunay_Triangulation(points);
+
+		Iterator<Triangle_dt> itr = triangulation.trianglesIterator();
+
+		triangles.clear();
+
+		while (itr.hasNext()) {
+
+			triangles.add(itr.next());
+		}
 	}
 
 	public Set<VonAgent> getEnclosing(VonAgent agent) {
 
 		Set<VonAgent> result = new HashSet<VonAgent>();
 
-		for (Triangle triangle : triangles) {
+		for (Triangle_dt triangle : triangles) {
 
-			if (triangle.getA().getMarker() == agent) {
+			if (triangle.p1() != null && triangle.p1().marker == agent) {
 
-				result.add((VonAgent) triangle.getB().getMarker());
-				result.add((VonAgent) triangle.getC().getMarker());
+				if (triangle.p2() != null) {
+					result.add((VonAgent) triangle.p2().marker);
+				}
 
-			} else if (triangle.getB().getMarker() == agent) {
+				if (triangle.p3() != null) {
+					result.add((VonAgent) triangle.p3().marker);
+				}
+			} else if (triangle.p2() != null && triangle.p2().marker == agent) {
 
-				result.add((VonAgent) triangle.getA().getMarker());
-				result.add((VonAgent) triangle.getC().getMarker());
+				if (triangle.p1() != null) {
+					result.add((VonAgent) triangle.p1().marker);
+				}
 
-			} else if (triangle.getC().getMarker() == agent) {
+				if (triangle.p3() != null) {
+					result.add((VonAgent) triangle.p3().marker);
+				}
+			} else if (triangle.p3() != null && triangle.p3().marker == agent) {
 
-				result.add((VonAgent) triangle.getA().getMarker());
-				result.add((VonAgent) triangle.getB().getMarker());
+				if (triangle.p1() != null) {
+					result.add((VonAgent) triangle.p1().marker);
+				}
 
+				if (triangle.p2() != null) {
+					result.add((VonAgent) triangle.p2().marker);
+				}
 			}
 		}
 

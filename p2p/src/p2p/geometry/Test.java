@@ -1,87 +1,66 @@
 package p2p.geometry;
 
-import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Set;
 
-import p2p.geometry.delaunay.Delaunay;
-import p2p.geometry.primitives.Point;
+import p2p.geometry.delaunay.Delaunay_Triangulation;
+import p2p.geometry.delaunay.Point_dt;
+import p2p.geometry.delaunay.Triangle_dt;
 
 public class Test {
 
 	public static void main(String[] args) {
 
-		// int pointCount = 1000;
-		//
-		// ArrayList<Point> points = new ArrayList<Point>(pointCount);
-		//
-		// while(pointCount-- > 0) {
-		//
-		// points.add(new Point(Math.random() * 1024, Math.random() * 1024));
-		// }
-		//
-		// long t = System.nanoTime();
-		//
-		//// ArrayList<Triangle> triangles =
-		// Delaunay.randomizedIncremental(points);
-		////
-		//// Multimap<Point, Point> graph = HashMultimap.create();
-		////
-		//// for(Triangle triangle : triangles) {
-		////
-		//// graph.put(triangle.getA(), triangle.getB());
-		//// graph.put(triangle.getA(), triangle.getC());
-		////
-		//// graph.put(triangle.getB(), triangle.getA());
-		//// graph.put(triangle.getB(), triangle.getC());
-		////
-		//// graph.put(triangle.getC(), triangle.getA());
-		//// graph.put(triangle.getC(), triangle.getB());
-		//// }
-		////
-		//// for(Point point : graph.get(points.get(150))) {
-		////
-		//// System.out.println(point);
-		//// }
-		//
-		// for(Point p1 : points) {
-		// for(Point p2 : points) {
-		//
-		// p1.dist(p2);
-		// }
-		// }
-		//
-		// System.out.println((System.nanoTime() - t) / 1000000.0);
+		int pointCount = 1000;
 
-		ArrayList<Point> points = new ArrayList<Point>();
+		Point_dt[] points = new Point_dt[pointCount];
 
-		// points.add(new Point(621.0, 166.0));
-		// points.add(new Point(612.0, 185.0));
-		// points.add(new Point(612.0, 190.0));
-		// points.add(new Point(579.0, 202.0));
-		// points.add(new Point(612.0, 227.0));
-		// points.add(new Point(602.0, 150.0));
-		// points.add(new Point(584.0, 160.0));
-		// points.add(new Point(554.0, 191.0));
-		// points.add(new Point(592.0, 184.0));
-		// points.add(new Point(600.0, 186.0));
+		int pIndex = 0;
+		while (pIndex < pointCount) {
 
-		points.add(new Point(291.0, 422.0));
-		points.add(new Point(352.0, 440.0));
-		points.add(new Point(307.0, 492.0));
-		points.add(new Point(337.0, 491.0));
-		points.add(new Point(334.0, 458.0));
-		points.add(new Point(305.0, 429.0));
-		points.add(new Point(307.0, 432.0));
-		points.add(new Point(283.0, 482.0));
-		points.add(new Point(278.0, 481.0));
-		points.add(new Point(343.0, 446.0));
-		points.add(new Point(307.0, 455.0));
+			points[pIndex] = new Point_dt((int) (Math.random() * 1024), (int) (Math.random() * 1024));
 
-		int n = 100;
+			points[pIndex].marker = pIndex;
 
-		while (n-- > 0) {
+			pIndex++;
+		}
 
-			Delaunay.randomizedIncremental(points);
+		long t = System.nanoTime();
+
+		Delaunay_Triangulation triangulation = new Delaunay_Triangulation(points);
+
+		Iterator<Triangle_dt> itr = triangulation.trianglesIterator();
+
+		Set<Point_dt> outpoints = new HashSet<Point_dt>();
+
+		while (itr.hasNext()) {
+
+			Triangle_dt tri = itr.next();
+
+			if (tri.p1() != null) {
+
+				outpoints.add(tri.p1());
+			}
+			if (tri.p2() != null) {
+
+				outpoints.add(tri.p2());
+			}
+			if (tri.p3() != null) {
+
+				outpoints.add(tri.p3());
+			}
+		}
+
+		System.out.println((System.nanoTime() - t) / 1000000.0);
+
+		System.out.println(outpoints.size());
+
+		for (Point_dt p : outpoints) {
+
+			if (p.marker == null) {
+				System.out.println("SIÇTIIIK");
+			}
 		}
 	}
-
 }
