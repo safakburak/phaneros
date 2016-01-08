@@ -19,8 +19,9 @@ import actionsim.scribe.ScribeListener;
 import actionsim.scribe.ScribeNode;
 import p2p.common.AbstractAgent;
 import p2p.common.RandomWalker;
-import p2p.common.messages.PatchRequest;
-import p2p.map.Map;
+import p2p.common.messages.TileRequest;
+import p2p.map.Atlas;
+import p2p.map.Tile;
 import p2p.phaneros.messages.CellEnter;
 import p2p.phaneros.messages.CellExit;
 import p2p.phaneros.messages.Update;
@@ -40,9 +41,9 @@ public class PhanerosAgent extends AbstractAgent<PhanerosAgent> {
 	private List<VisibilityCell> subscriptions = Collections.synchronizedList(new ArrayList<VisibilityCell>());
 
 	public PhanerosAgent(Node node, Visibility visibility, int cacheSize, Node mapServer, int worldWidth,
-			int worldHeight, Map worldMap) {
+			int worldHeight, Atlas atlas) {
 
-		super(node, visibility, cacheSize, worldMap);
+		super(node, visibility, cacheSize, atlas);
 
 		this.scribeNode = new ScribeNode(node);
 		this.chordNode = scribeNode.getChordNode();
@@ -59,6 +60,11 @@ public class PhanerosAgent extends AbstractAgent<PhanerosAgent> {
 			public void act(float time) {
 
 				walker.walk();
+
+				if (node.getId().equals("N0001")) {
+
+					System.out.println("kwn : " + connections.size());
+				}
 			}
 		}, 500);
 
@@ -69,9 +75,9 @@ public class PhanerosAgent extends AbstractAgent<PhanerosAgent> {
 
 				Object payload = message.getPayload();
 
-				if (payload instanceof Map) {
+				if (payload instanceof Tile) {
 
-					cache.addPatch((Map) payload);
+					cache.addTile((Tile) payload);
 
 				} else if (payload instanceof Update) {
 
@@ -123,7 +129,7 @@ public class PhanerosAgent extends AbstractAgent<PhanerosAgent> {
 	@Override
 	public void onCacheMissAt(int x, int y) {
 
-		mapServer.send(new Message(node, mapServer, new PatchRequest(x, y)));
+		mapServer.send(new Message(node, mapServer, new TileRequest(x, y)));
 	}
 
 	@Override

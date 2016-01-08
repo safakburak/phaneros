@@ -5,7 +5,8 @@ import java.util.Collection;
 import java.util.HashMap;
 
 import actionsim.core.Node;
-import p2p.map.Map;
+import p2p.map.Atlas;
+import p2p.map.Tile;
 import p2p.renderer.IRenderable;
 import p2p.timer.Timer;
 import p2p.visibility.Visibility;
@@ -28,14 +29,14 @@ public abstract class AbstractAgent<T> implements IRenderable {
 
 	protected VisibilityCell currentCell;
 
-	public AbstractAgent(Node node, Visibility visibility, int cacheSize, Map worldMap) {
+	public AbstractAgent(Node node, Visibility visibility, int cacheSize, Atlas atlas) {
 
 		this.node = node;
 		this.visibility = visibility;
 
-		if (worldMap != null) {
+		if (atlas != null) {
 
-			this.cache = new NeverMissCache(worldMap, cacheSize, visibility.getCellSize());
+			this.cache = new NeverMissCache(atlas, cacheSize, visibility.getCellSize());
 		} else {
 
 			this.cache = new LimitedCache(cacheSize, visibility.getCellSize());
@@ -65,9 +66,9 @@ public abstract class AbstractAgent<T> implements IRenderable {
 	}
 
 	@Override
-	public Collection<Map> getAvailablePatches() {
+	public Collection<Tile> getAvailableTiles() {
 
-		return cache.getPatches();
+		return cache.getTiles();
 	}
 
 	public Collection<Point> getAgents() {

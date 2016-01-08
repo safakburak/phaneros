@@ -7,31 +7,31 @@ import p2p.visibility.Visibility;
 @SuppressWarnings("serial")
 public class World implements Serializable {
 
-	private Map map;
+	private Atlas atlas;
 	private Visibility visibility;
 
-	public World(Map map, Visibility visibility) {
-		
-		this.map = map;
+	public World(Atlas atlas, Visibility visibility) {
+
+		this.atlas = atlas;
 		this.visibility = visibility;
 	}
 
 	public Visibility getVisibility() {
 		return visibility;
 	}
-	
-	public Map getMap() {
-		
-		return map;
+
+	public Atlas getAtlas() {
+
+		return atlas;
 	}
 
 	public int getWidth() {
-		
-		return map.getWidth();
+
+		return atlas.getWidth();
 	}
-	
+
 	public int getHeight() {
-		
-		return map.getHeight();
+
+		return atlas.getHeight();
 	}
 }

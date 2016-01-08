@@ -7,7 +7,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 
-import p2p.map.Map;
+import p2p.map.Atlas;
 import p2p.map.Region;
 
 @SuppressWarnings("serial")
@@ -54,6 +54,7 @@ public class Visibility implements Serializable {
 		cells = new VisibilityCell[in.readInt()][in.readInt()];
 
 		for (int col = 0; col < cells.length; col++) {
+
 			for (int row = 0; row < cells.length; row++) {
 
 				Region region = (Region) in.readObject();
@@ -77,7 +78,7 @@ public class Visibility implements Serializable {
 		}
 	}
 
-	private void calculateForPosision(Map map, int sX, int sY) {
+	private void calculateForPosition(Atlas atlas, int sX, int sY) {
 
 		Horizon horizon = new Horizon();
 		VisibilityCell cell = cells[sX / cellSize][sY / cellSize];
@@ -85,34 +86,34 @@ public class Visibility implements Serializable {
 		for (int range = 1; range < maxRange; range++) {
 
 			int xMin = Math.max(sX - range, 0);
-			int xMax = Math.min(sX + range, map.getWidth() - 1);
+			int xMax = Math.min(sX + range, atlas.getWidth() - 1);
 			int yMin = Math.max(sY - range, 0);
-			int yMax = Math.min(sY + range, map.getWidth() - 1);
+			int yMax = Math.min(sY + range, atlas.getWidth() - 1);
 
 			// north, south
 			for (int x = xMin; x <= xMax; x++) {
 
-				calculateForLine(map, horizon, cell, sX, sY, x, yMin);
-				calculateForLine(map, horizon, cell, sX, sY, x, yMax);
+				calculateForLine(atlas, horizon, cell, sX, sY, x, yMin);
+				calculateForLine(atlas, horizon, cell, sX, sY, x, yMax);
 			}
 
 			// west, east
 			for (int y = yMin; y <= yMax; y++) {
 
-				calculateForLine(map, horizon, cell, sX, sY, xMin, y);
-				calculateForLine(map, horizon, cell, sX, sY, xMax, y);
+				calculateForLine(atlas, horizon, cell, sX, sY, xMin, y);
+				calculateForLine(atlas, horizon, cell, sX, sY, xMax, y);
 			}
 		}
 	}
 
-	private void calculateForLine(Map map, Horizon horizon, VisibilityCell cell, int sX, int sY, int tX, int tY) {
+	private void calculateForLine(Atlas atlas, Horizon horizon, VisibilityCell cell, int sX, int sY, int tX, int tY) {
 
 		if (sX != tX || sY != tY) {
 
 			int dX = tX - sX;
 			int dY = tY - sY;
 
-			if (((dX * dX) + (dY * dY) <= (maxRange * maxRange)) && horizon.update(getSector(map, sX, sY, tX, tY))) {
+			if (((dX * dX) + (dY * dY) <= (maxRange * maxRange)) && horizon.update(getSector(atlas, sX, sY, tX, tY))) {
 
 				int row = tX / cellSize;
 				int col = tY / cellSize;
@@ -122,7 +123,7 @@ public class Visibility implements Serializable {
 		}
 	}
 
-	private Sector getSector(Map map, double sX, double sY, int tX, int tY) {
+	private Sector getSector(Atlas atlas, double sX, double sY, int tX, int tY) {
 
 		double cX = sX + 0.5;
 		double cY = sY + 0.5;
@@ -148,8 +149,9 @@ public class Visibility implements Serializable {
 		distance = Math.min(distance, (tY + 1 - cY) * (tY + 1 - cY) + (tX + 1 - cX) * (tX + 1 - cX));
 		distance = Math.sqrt(distance);
 
-		return new Sector(angles.get(0), angles.get(3),
-				Math.toDegrees(Math.atan2(map.getHeightAtAbs(tX, tY), distance)));
+		Sector result = new Sector(angles.get(0), angles.get(3), atan(atlas.get(tX, tY), distance));
+
+		return result;
 	}
 
 	private double atan(double dY, double dX) {
@@ -176,15 +178,15 @@ public class Visibility implements Serializable {
 		return result;
 	}
 
-	public static Visibility calculateDummy(Map map, int cellSize, int visibilityRange) {
+	public static Visibility calculateDummy(Atlas atlas, int cellSize, int visibilityRange) {
 
 		Visibility visibility = new Visibility();
 
 		visibility.cellSize = cellSize;
 		visibility.maxRange = visibilityRange;
 
-		int colNum = map.getWidth() / cellSize;
-		int rowNum = map.getHeight() / cellSize;
+		int colNum = atlas.getWidth() / cellSize;
+		int rowNum = atlas.getHeight() / cellSize;
 
 		visibility.cells = new VisibilityCell[colNum][rowNum];
 
@@ -204,11 +206,11 @@ public class Visibility implements Serializable {
 					for (int tRow = row - range; tRow <= row + range; tRow++) {
 
 						if (tCol >= 0 && tCol < colNum && tRow >= 0 && tRow < rowNum) {
-							
+
 							double dist = Math.sqrt(Math.pow(tRow - row, 2) + Math.pow(tCol - col, 2));
-							
-							if(dist <= range) {
-								
+
+							if (dist <= range) {
+
 								visibility.cells[col][row].addToPvs(visibility.cells[tCol][tRow]);
 							}
 						}
@@ -220,15 +222,15 @@ public class Visibility implements Serializable {
 		return visibility;
 	}
 
-	public static Visibility calculate(Map map, int cellSize, int visibilityRange) {
+	public static Visibility calculate(Atlas atlas, int cellSize, int visibilityRange) {
 
 		Visibility visibility = new Visibility();
 
 		visibility.cellSize = cellSize;
 		visibility.maxRange = visibilityRange;
 
-		int colNum = map.getWidth() / cellSize;
-		int rowNum = map.getHeight() / cellSize;
+		int colNum = atlas.getWidth() / cellSize;
+		int rowNum = atlas.getHeight() / cellSize;
 
 		visibility.cells = new VisibilityCell[colNum][rowNum];
 
@@ -239,10 +241,13 @@ public class Visibility implements Serializable {
 			}
 		}
 
-		for (int y = 0; y < map.getHeight(); y++) {
-			for (int x = 0; x < map.getWidth(); x++) {
+		for (int y = 0; y < atlas.getHeight(); y++) {
 
-				visibility.calculateForPosision(map, x, y);
+			System.out.println("col: " + y);
+
+			for (int x = 0; x < atlas.getWidth(); x++) {
+
+				visibility.calculateForPosition(atlas, x, y);
 			}
 		}
 
@@ -268,16 +273,15 @@ public class Visibility implements Serializable {
 
 		return cells[x / cellSize][y / cellSize];
 	}
-	
-	public int getRowCount(){
-	
+
+	public int getRowCount() {
+
 		return cells[0].length;
 	}
-	
-	public int getColCount(){
-		
+
+	public int getColCount() {
+
 		return cells.length;
 	}
-	
-	
+
 }

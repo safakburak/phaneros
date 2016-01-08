@@ -16,6 +16,7 @@ import p2p.von.VonGraph;
 
 public class VonSample {
 
+	@SuppressWarnings("rawtypes")
 	public static void main(String[] args) throws IOException {
 
 		Logger.init(System.out, Logger.INFO);
@@ -23,36 +24,36 @@ public class VonSample {
 
 		ArrayList<AbstractAgent> agents = new ArrayList<AbstractAgent>();
 
-		World world = (World) Persist.load("data/world/random_fixed_range.world");
+		World world = (World) Persist.load("data/world/random_range.world");
 
 		Simulation simulation = new Simulation();
 
-		MapServer server = new MapServer(simulation.createNode("server"), world.getMap(),
+		MapServer server = new MapServer(simulation.createNode("server"), world.getAtlas(),
 				world.getVisibility().getCellSize());
 
-		int agentCount = 200;
+		int agentCount = 1000;
 
 		while (agentCount-- > 0) {
 
 			VonAgent agent = new VonAgent(simulation.createNode(), world.getVisibility(), 10, server.getNode(),
-					world.getWidth(), world.getHeight(), world.getMap());
+					world.getWidth(), world.getHeight(), world.getAtlas());
 
 			int x;
 			int y;
 
 			do {
 
-				x = random.nextInt(world.getMap().getWidth());
-				y = random.nextInt(world.getMap().getHeight());
+				x = random.nextInt(world.getAtlas().getWidth());
+				y = random.nextInt(world.getAtlas().getHeight());
 
-			} while (world.getMap().getHeightAtAbs(x, y) != 0);
+			} while (world.getAtlas().get(x, y) != 0);
 
 			agent.setPosition(x, y);
 			agents.add(agent);
 		}
 
 		agents.get(0).setPosition(502, 502);
-		new Renderer(world, simulation, agents.get(0), agents, world.getMap());
+		new Renderer(world, simulation, agents.get(0), agents, world.getAtlas());
 
 		VonGraph graph = new VonGraph(agents);
 

@@ -2,7 +2,7 @@ package p2p.common;
 
 import java.util.Random;
 
-import p2p.map.Map;
+import p2p.map.Tile;
 
 public class RandomWalker {
 
@@ -33,14 +33,14 @@ public class RandomWalker {
 
 		if((dX != 0 || dY != 0) && isValid(nX, nY)) {
 			
-			Map map = agent.getCache().getPatch(nX, nY);
+			Tile map = agent.getCache().getTile(nX, nY);
 
 			if(map == null) {
 				
 				agent.onCacheMissAt(nX, nY);
 				directionChange = false;
 				
-			} else if (map.getHeightAtAbs(nX, nY) == 0) {
+			} else if (map.getAbsolute(nX, nY) == 0) {
 				
 				agent.setPosition(nX, nY);
 				agent.onPositionChange();

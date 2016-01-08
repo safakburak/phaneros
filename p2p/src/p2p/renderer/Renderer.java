@@ -18,8 +18,9 @@ import javax.swing.SwingUtilities;
 import actionsim.core.Simulation;
 import actionsim.core.SimulationListener;
 import p2p.common.AbstractAgent;
-import p2p.map.Map;
+import p2p.map.Atlas;
 import p2p.map.Region;
+import p2p.map.Tile;
 import p2p.map.World;
 import p2p.visibility.VisibilityCell;
 
@@ -43,24 +44,26 @@ public class Renderer extends JPanel {
 
 	private World world;
 
+	@SuppressWarnings("rawtypes")
 	private ArrayList<AbstractAgent> allAgents;
 
 	private boolean isDrawAllAgents = true;
 
 	private boolean isDrawWorldMap = true;
 
-	private Map worldMap;
+	private Atlas atlas;
 
 	private Composite semiTransparent = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.5f);
 
+	@SuppressWarnings("rawtypes")
 	public Renderer(World world, Simulation simulation, IRenderable renderable, ArrayList<AbstractAgent> allAgents,
-			Map worldMap) {
+			Atlas atlas) {
 
 		this.simulation = simulation;
 		this.renderable = renderable;
 		this.world = world;
 		this.allAgents = allAgents;
-		this.worldMap = worldMap;
+		this.atlas = atlas;
 
 		keyManager = new KeyManager(simulation, this);
 
@@ -93,6 +96,7 @@ public class Renderer extends JPanel {
 		}
 	}
 
+	@SuppressWarnings("rawtypes")
 	public void render() {
 
 		Graphics2D g2D = (Graphics2D) backBuffer.getGraphics();
@@ -131,14 +135,14 @@ public class Renderer extends JPanel {
 			Composite oldComposite = g2D.getComposite();
 
 			g2D.setComposite(semiTransparent);
-			g2D.drawImage(worldMap.getData(), 0, 0, null);
+			g2D.drawImage(atlas.getImage(), 0, 0, null);
 
 			g2D.setComposite(oldComposite);
 		}
 
-		for (Map patch : renderable.getAvailablePatches()) {
+		for (Tile tile : renderable.getAvailableTiles()) {
 
-			g2D.drawImage(patch.getData(), patch.getX(), patch.getY(), null);
+			g2D.drawImage(tile.getImage(), tile.getX(), tile.getY(), null);
 		}
 
 		g2D.setColor(new Color(255, 255, 0, 50));

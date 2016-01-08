@@ -1,43 +1,44 @@
 package p2p.common;
 
-import p2p.map.Map;
+import p2p.map.Atlas;
 import p2p.map.Region;
+import p2p.map.Tile;
 
 public class NeverMissCache extends LimitedCache {
 
-	private static Map[][] patches;
-	
-	public NeverMissCache(Map world, int capacity, int cellSize) {
+	private static Tile[][] patches;
+
+	public NeverMissCache(Atlas atlas, int capacity, int cellSize) {
 
 		super(capacity, cellSize);
-		
-		if(patches == null) {
-			
-			int colNum = world.getWidth() / cellSize;
-			int rowNum = world.getHeight() / cellSize;
-			
-			patches = new Map[colNum][rowNum];
-			
-			for(int col = 0; col < colNum; col++) {
-				for(int row = 0; row < rowNum; row++) {
-					
-					patches[col][row] = world.getMapPart(col * cellSize, row * cellSize, cellSize, cellSize);
-				}	
+
+		if (patches == null) {
+
+			int colNum = atlas.getWidth() / cellSize;
+			int rowNum = atlas.getHeight() / cellSize;
+
+			patches = new Tile[colNum][rowNum];
+
+			for (int col = 0; col < colNum; col++) {
+				for (int row = 0; row < rowNum; row++) {
+
+					patches[col][row] = atlas.getTile(col * cellSize, row * cellSize, cellSize);
+				}
 			}
 		}
 	}
 
-	public Map getPatch(Region cell) {
+	public Tile getTile(Region cell) {
 
-		Map patch = super.getPatch(cell);
-		
+		Tile patch = super.getTile(cell);
+
 		if (patch == null) {
 
 			patch = patches[cell.getX() / getCellSize()][cell.getY() / getCellSize()];
-			
-			addPatch(patch);
+
+			addTile(patch);
 		}
-		
+
 		return patch;
 	}
 }

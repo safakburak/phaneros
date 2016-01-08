@@ -10,8 +10,9 @@ import actionsim.core.Message;
 import actionsim.core.Node;
 import p2p.common.AbstractAgent;
 import p2p.common.RandomWalker;
-import p2p.common.messages.PatchRequest;
-import p2p.map.Map;
+import p2p.common.messages.TileRequest;
+import p2p.map.Atlas;
+import p2p.map.Tile;
 import p2p.timer.TimedAction;
 import p2p.visibility.Visibility;
 import p2p.von.messages.ConnectSuggestion;
@@ -29,9 +30,9 @@ public class VonAgent extends AbstractAgent<VonAgent> {
 	private Set<VonAgent> aoiAgents = new HashSet<VonAgent>();
 
 	public VonAgent(Node node, Visibility visibility, int cacheSize, Node mapServer, int worldWidth, int worldHeight,
-			Map worldMap) {
+			Atlas atlas) {
 
-		super(node, visibility, cacheSize, worldMap);
+		super(node, visibility, cacheSize, atlas);
 
 		this.mapServer = mapServer;
 
@@ -48,9 +49,9 @@ public class VonAgent extends AbstractAgent<VonAgent> {
 
 				Object payload = message.getPayload();
 
-				if (payload instanceof Map) {
+				if (payload instanceof Tile) {
 
-					cache.addPatch((Map) payload);
+					cache.addTile((Tile) payload);
 
 				} else if (payload instanceof Update) {
 
@@ -110,13 +111,6 @@ public class VonAgent extends AbstractAgent<VonAgent> {
 										new ConnectSuggestion(suggestionList)));
 							}
 						}
-
-						// System.out.println(node.getId() + " kwn : " +
-						// knownAgents.size());
-						// System.out.println(node.getId() + " enc : " +
-						// enclosingAgents.size());
-						// System.out.println(node.getId() + " aoi : " +
-						// aoiAgents.size());
 					}
 
 				} else if (payload instanceof ConnectSuggestion) {
@@ -151,6 +145,14 @@ public class VonAgent extends AbstractAgent<VonAgent> {
 			public void act(float time) {
 
 				walker.walk();
+
+				if (node.getId().equals("N0001")) {
+
+					Set<VonAgent> connected = new HashSet<VonAgent>(enclosingAgents);
+					connected.addAll(aoiAgents);
+
+					System.out.println("kwn : " + connected.size());
+				}
 			}
 		}, 500);
 	}
@@ -158,7 +160,7 @@ public class VonAgent extends AbstractAgent<VonAgent> {
 	@Override
 	public void onCacheMissAt(int x, int y) {
 
-		mapServer.send(new Message(node, mapServer, new PatchRequest(x, y)));
+		mapServer.send(new Message(node, mapServer, new TileRequest(x, y)));
 	}
 
 	@Override
@@ -178,6 +180,7 @@ public class VonAgent extends AbstractAgent<VonAgent> {
 		}
 	}
 
+	@SuppressWarnings("rawtypes")
 	public void init(ArrayList<AbstractAgent> agents, VonGraph graph) {
 
 		int range = visibility.getMaxRange();

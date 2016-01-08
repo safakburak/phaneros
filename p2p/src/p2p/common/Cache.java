@@ -2,17 +2,17 @@ package p2p.common;
 
 import java.util.Collection;
 
-import p2p.map.Map;
+import p2p.map.Tile;
 import p2p.map.Region;
 
 public interface Cache {
 	
-	public Map getPatch(Region cell);
+	public Tile getTile(Region cell);
 
-	public Collection<Map> getPatches();
+	public Collection<Tile> getTiles();
 
-	public Map getPatch(int x, int y);
+	public Tile getTile(int x, int y);
 		
-	public void addPatch(Map patch);
+	public void addTile(Tile patch);
 
 }
