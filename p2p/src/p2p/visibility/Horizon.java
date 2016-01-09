@@ -8,23 +8,21 @@ class Horizon {
 
 	public Horizon() {
 
-		sectors[0] = new Sector(Angle.MIN, Angle.MAX, new Angle(0));
+		sectors[0] = new Sector(Heading.MIN, Heading.MAX, Elevation.MIN);
 		length = 1;
 	}
 
 	public boolean update(Sector s) {
 
-		long t = System.nanoTime();
-
 		if (s.getStart().gt(s.getEnd())) {
 
-			boolean r1 = update(new Sector(s.getStart(), Angle.MAX, s.getElev()));
-			boolean r2 = update(new Sector(Angle.MIN, s.getEnd(), s.getElev()));
+			boolean r1 = update(new Sector(s.getStart(), Heading.MAX, s.getElev()));
+			boolean r2 = update(new Sector(Heading.MIN, s.getEnd(), s.getElev()));
 
 			return r1 || r2;
 		}
 
-		boolean updated = false;
+		boolean isVisible = false;
 
 		int start = findIndex(s.getStart(), 0, length);
 
@@ -40,7 +38,7 @@ class Horizon {
 
 						d.setElev(s.getElev());
 
-						updated = true;
+						isVisible = true;
 						break;
 
 					} else if (s.getEnd().lt(d.getEnd())) { // bitiş içerde
@@ -53,7 +51,7 @@ class Horizon {
 						d.setElev(s.getElev());
 						d.setEnd(s.getEnd());
 
-						updated = true;
+						isVisible = true;
 						break;
 
 					} else { // diğer sektöre DEVAM
@@ -61,7 +59,7 @@ class Horizon {
 						d.setElev(s.getElev());
 						s.setStart(d.getEnd());
 
-						updated = true;
+						isVisible = true;
 					}
 
 				} else { // başlangıç içerde kaldı. bölüp DEVAM et.
@@ -71,8 +69,6 @@ class Horizon {
 
 					sectors[i + 1] = new Sector(s.getStart(), d.getEnd(), d.getElev());
 					d.setEnd(s.getStart());
-
-					updated = true;
 				}
 
 			} else { // güncelleme olmayacak
@@ -101,10 +97,10 @@ class Horizon {
 			}
 		}
 
-		return updated;
+		return isVisible;
 	}
 
-	private int findIndex(Angle angle, int start, int end) {
+	private int findIndex(Heading angle, int start, int end) {
 
 		int index = start + (end - start) / 2;
 

@@ -60,11 +60,6 @@ public class PhanerosAgent extends AbstractAgent<PhanerosAgent> {
 			public void act(float time) {
 
 				walker.walk();
-
-				if (node.getId().equals("N0001")) {
-
-					System.out.println("kwn : " + connections.size());
-				}
 			}
 		}, 500);
 

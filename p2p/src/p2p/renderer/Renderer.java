@@ -53,7 +53,7 @@ public class Renderer extends JPanel {
 
 	private Atlas atlas;
 
-	private Composite semiTransparent = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.5f);
+	private Composite semiTransparent = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.25f);
 
 	@SuppressWarnings("rawtypes")
 	public Renderer(World world, Simulation simulation, IRenderable renderable, ArrayList<AbstractAgent> allAgents,
@@ -117,19 +117,6 @@ public class Renderer extends JPanel {
 		int width = cellSize * colCount;
 		int height = cellSize * rowCount;
 
-		g2D.setColor(Color.darkGray);
-		g2D.setStroke(new BasicStroke(0.5f));
-
-		for (int row = 0; row <= rowCount; row++) {
-
-			g2D.drawLine(0, row * cellSize, width, row * cellSize);
-		}
-
-		for (int col = 0; col <= rowCount; col++) {
-
-			g2D.drawLine(col * cellSize, 0, col * cellSize, height);
-		}
-
 		if (isDrawWorldMap) {
 
 			Composite oldComposite = g2D.getComposite();
@@ -152,25 +139,41 @@ public class Renderer extends JPanel {
 			g2D.fillRect(region.getX(), region.getY(), region.getSize(), region.getSize());
 		}
 
+		g2D.setColor(Color.white);
+		g2D.setStroke(new BasicStroke(0.5f));
+
+		for (int row = 0; row <= rowCount; row++) {
+
+			g2D.drawLine(0, row * cellSize, width, row * cellSize);
+		}
+
+		for (int col = 0; col <= rowCount; col++) {
+
+			g2D.drawLine(col * cellSize, 0, col * cellSize, height);
+		}
+
 		if (isDrawAllAgents) {
 
 			g2D.setColor(new Color(165, 42, 42));
 			for (AbstractAgent agent : allAgents) {
 
-				g2D.fillRect(agent.getX(), agent.getY(), 1, 1);
+				if (renderable.isKnown(agent) == false) {
+
+					drawAgent((int) agent.getX(), (int) agent.getY(), g2D);
+				}
 			}
 		}
 
 		g2D.setColor(Color.green);
 		for (Point p : renderable.getAgents()) {
 
-			g2D.fillRect((int) p.getX(), (int) p.getY(), 1, 1);
+			drawAgent((int) p.getX(), (int) p.getY(), g2D);
 		}
 
 		g2D.setColor(Color.red);
-		g2D.fillRect(renderable.getX(), renderable.getY(), 1, 1);
+		drawAgent(renderable.getX(), renderable.getY(), g2D);
 
-		double r = world.getVisibility().getMaxRange();
+		double r = world.getVisibility().getMaxRange() + world.getVisibility().getCellSize() / 2;
 		g2D.drawOval((int) (renderable.getX() - r), (int) (renderable.getY() - r), (int) (r * 2), (int) (r * 2));
 
 		g2D.setTransform(transform);
@@ -188,6 +191,12 @@ public class Renderer extends JPanel {
 				repaint();
 			}
 		});
+	}
+
+	private void drawAgent(int x, int y, Graphics2D g) {
+
+		g.drawLine(x - 3, y - 3, x + 3, y + 3);
+		g.drawLine(x - 3, y + 3, x + 3, y - 3);
 	}
 
 	public void zoomIn() {

@@ -76,6 +76,13 @@ public abstract class AbstractAgent<T> implements IRenderable {
 		return knownAgents.values();
 	}
 
+	@SuppressWarnings("rawtypes")
+	@Override
+	public boolean isKnown(AbstractAgent agent) {
+
+		return knownAgents.containsKey(agent);
+	}
+
 	public Cache getCache() {
 
 		return cache;

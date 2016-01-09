@@ -78,7 +78,7 @@ public class Visibility implements Serializable {
 		}
 	}
 
-	private void calculateForPosition(Atlas atlas, int sX, int sY) {
+	private void calculateForSource(Atlas atlas, int sX, int sY) {
 
 		Horizon horizon = new Horizon();
 		VisibilityCell cell = cells[sX / cellSize][sY / cellSize];
@@ -93,30 +93,30 @@ public class Visibility implements Serializable {
 			// north, south
 			for (int x = xMin; x <= xMax; x++) {
 
-				calculateForLine(atlas, horizon, cell, sX, sY, x, yMin);
-				calculateForLine(atlas, horizon, cell, sX, sY, x, yMax);
+				calculateForTarget(atlas, horizon, cell, sX, sY, x, yMin);
+				calculateForTarget(atlas, horizon, cell, sX, sY, x, yMax);
 			}
 
 			// west, east
 			for (int y = yMin; y <= yMax; y++) {
 
-				calculateForLine(atlas, horizon, cell, sX, sY, xMin, y);
-				calculateForLine(atlas, horizon, cell, sX, sY, xMax, y);
+				calculateForTarget(atlas, horizon, cell, sX, sY, xMin, y);
+				calculateForTarget(atlas, horizon, cell, sX, sY, xMax, y);
 			}
 		}
 	}
 
-	private void calculateForLine(Atlas atlas, Horizon horizon, VisibilityCell cell, int sX, int sY, int tX, int tY) {
+	private void calculateForTarget(Atlas atlas, Horizon horizon, VisibilityCell cell, int sX, int sY, int tX, int tY) {
 
-		if (sX != tX || sY != tY) {
+		if ((sX != tX || sY != tY) && atlas.get(sX, sY) == 0) {
 
 			int dX = tX - sX;
 			int dY = tY - sY;
 
 			if (((dX * dX) + (dY * dY) <= (maxRange * maxRange)) && horizon.update(getSector(atlas, sX, sY, tX, tY))) {
 
-				int row = tX / cellSize;
-				int col = tY / cellSize;
+				int col = tX / cellSize;
+				int row = tY / cellSize;
 
 				cell.addToPvs(cells[col][row]);
 			}
@@ -133,7 +133,7 @@ public class Visibility implements Serializable {
 		angles.add(atan(tY - cY, tX - cX));
 		angles.add(atan(tY + 1 - cY, tX - cX));
 		angles.add(atan(tY - cY, tX + 1 - cX));
-		angles.add(atan(tY + 1 - sY, tX + 1 - sX));
+		angles.add(atan(tY + 1 - cY, tX + 1 - cX));
 
 		Collections.sort(angles);
 
@@ -149,7 +149,7 @@ public class Visibility implements Serializable {
 		distance = Math.min(distance, (tY + 1 - cY) * (tY + 1 - cY) + (tX + 1 - cX) * (tX + 1 - cX));
 		distance = Math.sqrt(distance);
 
-		Sector result = new Sector(angles.get(0), angles.get(3), atan(atlas.get(tX, tY), distance));
+		Sector result = new Sector(angles.get(0), angles.get(3), atanElev(atlas.get(tX, tY) - 1.80, distance));
 
 		return result;
 	}
@@ -162,6 +162,13 @@ public class Visibility implements Serializable {
 
 			result += 360;
 		}
+
+		return result;
+	}
+
+	private double atanElev(double dY, double dX) {
+
+		double result = Math.toDegrees(Math.atan2(dY, dX));
 
 		return result;
 	}
@@ -197,7 +204,7 @@ public class Visibility implements Serializable {
 			}
 		}
 
-		int range = visibilityRange / cellSize;
+		int range = (int) Math.round(visibilityRange / ((double) cellSize) + 0.5);
 
 		for (int col = 0; col < colNum; col++) {
 			for (int row = 0; row < rowNum; row++) {
@@ -207,7 +214,7 @@ public class Visibility implements Serializable {
 
 						if (tCol >= 0 && tCol < colNum && tRow >= 0 && tRow < rowNum) {
 
-							double dist = Math.sqrt(Math.pow(tRow - row, 2) + Math.pow(tCol - col, 2));
+							double dist = Math.sqrt((tRow - row) * (tRow - row) + (tCol - col) * (tCol - col));
 
 							if (dist <= range) {
 
@@ -222,7 +229,7 @@ public class Visibility implements Serializable {
 		return visibility;
 	}
 
-	public static Visibility calculate(Atlas atlas, int cellSize, int visibilityRange) {
+	public static Visibility calculatePvs(Atlas atlas, int cellSize, int visibilityRange) {
 
 		Visibility visibility = new Visibility();
 
@@ -247,7 +254,7 @@ public class Visibility implements Serializable {
 
 			for (int x = 0; x < atlas.getWidth(); x++) {
 
-				visibility.calculateForPosition(atlas, x, y);
+				visibility.calculateForSource(atlas, x, y);
 			}
 		}
 

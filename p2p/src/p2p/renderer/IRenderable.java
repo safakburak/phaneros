@@ -3,6 +3,7 @@ package p2p.renderer;
 import java.awt.Point;
 import java.util.Collection;
 
+import p2p.common.AbstractAgent;
 import p2p.map.Tile;
 import p2p.visibility.VisibilityCell;
 
@@ -13,6 +14,9 @@ public interface IRenderable {
 	public Collection<VisibilityCell> getPvs();
 
 	public Collection<Point> getAgents();
+
+	@SuppressWarnings("rawtypes")
+	public boolean isKnown(AbstractAgent agent);
 
 	public String getId();
 

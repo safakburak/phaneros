@@ -15,12 +15,28 @@ import javax.imageio.ImageIO;
 public class Atlas implements Serializable {
 
 	private BufferedImage image;
-	private Raster raster;
+	private short[][] data;
 
 	public Atlas(BufferedImage image) {
 
 		this.image = image;
-		this.raster = image.getData();
+		fillData();
+	}
+
+	private void fillData() {
+
+		data = new short[image.getWidth()][image.getHeight()];
+		Raster raster = image.getData();
+
+		for (int x = 0; x < data.length; x++) {
+
+			data[x] = new short[image.getHeight()];
+
+			for (int y = 0; y < data[x].length; y++) {
+
+				data[x][y] = (short) raster.getSample(x, y, 0);
+			}
+		}
 	}
 
 	public Tile getTile(int x, int y, int size) {
@@ -42,11 +58,13 @@ public class Atlas implements Serializable {
 				}
 			}
 		}
+
+		fillData();
 	}
 
 	public int get(int x, int y) {
 
-		return raster.getSample(x, y, 0);
+		return data[x][y];
 	}
 
 	private void writeObject(ObjectOutputStream out) throws IOException {
@@ -57,7 +75,7 @@ public class Atlas implements Serializable {
 	private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
 
 		image = ImageIO.read(in);
-		raster = image.getData();
+		fillData();
 	}
 
 	public int getWidth() {

@@ -2,50 +2,50 @@ package p2p.visibility;
 
 class Sector {
 
-	private Angle start;
-	private Angle end;
-	private Angle elev;
+	private Heading start;
+	private Heading end;
+	private Elevation elev;
 
 	public Sector(double start, double end, double elev) {
 
-		this.start = new Angle(start);
-		this.end = new Angle(end);
-		this.elev = new Angle(elev);
+		this.start = new Heading(start);
+		this.end = new Heading(end);
+		this.elev = new Elevation(elev);
 	}
 
-	public Sector(Angle start, Angle end, Angle elev) {
+	public Sector(Heading start, Heading end, Elevation elev) {
 
 		this.start = start;
 		this.end = end;
 		this.elev = elev;
 	}
 
-	public Angle getStart() {
+	public Heading getStart() {
 
 		return start;
 	}
 
-	public void setStart(Angle start) {
+	public void setStart(Heading start) {
 
 		this.start = start;
 	}
 
-	public Angle getEnd() {
+	public Heading getEnd() {
 
 		return end;
 	}
 
-	public void setEnd(Angle end) {
+	public void setEnd(Heading end) {
 
 		this.end = end;
 	}
 
-	public Angle getElev() {
+	public Elevation getElev() {
 
 		return elev;
 	}
 
-	public void setElev(Angle elev) {
+	public void setElev(Elevation elev) {
 
 		this.elev = elev;
 	}
@@ -54,7 +54,7 @@ class Sector {
 	 * @param angle
 	 * @return if angle is in [start, end)
 	 */
-	public boolean contains(Angle angle, boolean isLeftClosed) {
+	public boolean contains(Heading angle, boolean isLeftClosed) {
 
 		if (end.gt(start)) {
 
@@ -70,11 +70,11 @@ class Sector {
 
 			if (isLeftClosed) {
 
-				return (angle.gte(start) && angle.lt(Angle.MAX)) || (angle.gte(Angle.MIN) && angle.lt(end));
+				return (angle.gte(start) && angle.lt(Heading.MAX)) || (angle.gte(Heading.MIN) && angle.lt(end));
 
 			} else {
 
-				return (angle.gt(start) && angle.lt(Angle.MAX)) || (angle.gt(Angle.MIN) && angle.lt(end));
+				return (angle.gt(start) && angle.lt(Heading.MAX)) || (angle.gt(Heading.MIN) && angle.lt(end));
 			}
 		}
 	}

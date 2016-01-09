@@ -24,7 +24,7 @@ public class PhanerosSample {
 
 		Logger.init(System.out, Logger.INFO);
 
-		World world = (World) Persist.load("data/world/random_range.world");
+		World world = (World) Persist.load("data/world/random_pvs.world");
 
 		Simulation simulation = new Simulation();
 
