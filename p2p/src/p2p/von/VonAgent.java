@@ -15,6 +15,7 @@ import p2p.common.messages.TileEnvelope;
 import p2p.common.messages.TileRequest;
 import p2p.timer.TimedAction;
 import p2p.visibility.Visibility;
+import p2p.visibility.VisibilityCell;
 import p2p.von.messages.ConnectSuggestion;
 import p2p.von.messages.Update;
 
@@ -168,6 +169,19 @@ public class VonAgent extends AbstractAgent<VonAgent> {
 			if (aoiAgents.contains(agent) == false) {
 
 				node.send(new Message(node, agent.node, new Update(this, x, y)));
+			}
+		}
+
+		VisibilityCell newCell = visibility.getCellForPos(x, y);
+		VisibilityCell oldCell = currentCell;
+
+		if (oldCell == null || oldCell != newCell) {
+
+			currentCell = newCell;
+
+			for (VisibilityCell cell : newCell.getPvs()) {
+
+				cache.getTile(cell.getRegion());
 			}
 		}
 	}
