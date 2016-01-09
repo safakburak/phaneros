@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Random;
 
+import actionsim.core.DefaultConfiguration;
 import actionsim.core.Simulation;
 import actionsim.log.Logger;
 import p2p.common.AbstractAgent;
@@ -14,6 +15,8 @@ import p2p.renderer.Renderer;
 import p2p.util.Persist;
 
 public class PhanerosSample {
+
+	private static MapServer server;
 
 	@SuppressWarnings("rawtypes")
 	public static void main(String[] args) throws IOException {
@@ -26,17 +29,18 @@ public class PhanerosSample {
 
 		World world = (World) Persist.load("data/world/random_pvs.world");
 
-		Simulation simulation = new Simulation();
+		Simulation simulation = new Simulation(new DefaultConfiguration() {
 
-		MapServer server = new MapServer(simulation.createNode("server"), world.getAtlas(),
-				world.getVisibility().getCellSize());
+		});
 
-		int agentCount = 1000;
+		server = new MapServer(simulation.createNode("server"), world.getAtlas(), world.getVisibility().getCellSize());
+
+		int agentCount = 1;
 
 		while (agentCount-- > 0) {
 
-			PhanerosAgent agent = new PhanerosAgent(simulation.createNode(), world.getVisibility(), 10,
-					server.getNode(), world.getWidth(), world.getHeight(), world.getAtlas());
+			PhanerosAgent agent = new PhanerosAgent(simulation.createNode(), world.getVisibility(), 50,
+					server.getNode(), world.getWidth(), world.getHeight(), server);
 
 			int x;
 			int y;
@@ -50,9 +54,16 @@ public class PhanerosSample {
 
 			agent.setPosition(x, y);
 			agents.add(agent);
+
+			if (agents.size() > 1) {
+
+				agent.fillCache(server);
+			}
 		}
 
 		agents.get(0).setPosition(502, 502);
+		agents.get(0).fillCache(server);
+
 		new Renderer(world, simulation, agents.get(0), agents, world.getAtlas());
 
 		server.getChordNode().createNetwork();

@@ -4,40 +4,41 @@ import java.util.ArrayDeque;
 import java.util.Collection;
 import java.util.HashMap;
 
-import p2p.map.Tile;
 import p2p.map.Region;
+import p2p.map.Tile;
 
-public class LimitedCache implements Cache {
+public class LruCache implements Cache {
 
 	private ArrayDeque<Tile> disposeQueue;
 	private HashMap<Region, Tile> tileMap = new HashMap<Region, Tile>();
+
 	private int cellSize;
 	private int capacity;
 
-	public LimitedCache(int capacity, int cellSize) {
+	public LruCache(int capacity, int cellSize) {
 
 		this.capacity = capacity;
 		this.cellSize = cellSize;
 
-		disposeQueue = new ArrayDeque<Tile>(cellSize);
+		disposeQueue = new ArrayDeque<Tile>();
 	}
 
 	public Tile getTile(Region region) {
 
 		Tile tile = tileMap.get(region);
-		
+
 		if (tile != null) {
 
 			disposeQueue.remove(tile);
-			disposeQueue.add(tile);
+			disposeQueue.addLast(tile);
 		}
-		
+
 		return tile;
 	}
 
 	public Collection<Tile> getTiles() {
 
-		return disposeQueue;
+		return tileMap.values();
 	}
 
 	public Tile getTile(int x, int y) {
@@ -47,32 +48,30 @@ public class LimitedCache implements Cache {
 
 	public void addTile(Tile tile) {
 
-		Region key = new Region((tile.getX() / cellSize) * cellSize, (tile.getY() / cellSize) * cellSize, cellSize);
+		if (tileMap.containsValue(tile)) {
 
-		tileMap.putIfAbsent(key, tile);
+			System.out.println();
+		}
 
 		if (disposeQueue.contains(tile)) {
 
 			disposeQueue.remove(tile);
-			disposeQueue.add(tile);
+			disposeQueue.addLast(tile);
 
 		} else {
 
-			disposeQueue.add(tile);
+			disposeQueue.addLast(tile);
+			tileMap.put(tile.getRegion(), tile);
 
-			if (disposeQueue.size() == capacity) {
+			while (tileMap.size() > capacity) {
 
-				Tile removeTile = disposeQueue.poll();
-				Region removeKey = new Region((removeTile.getX() / cellSize) * cellSize,
-						(removeTile.getY() / cellSize) * cellSize, cellSize);
-
-				tileMap.remove(removeKey);
+				tileMap.remove(disposeQueue.poll().getRegion());
 			}
 		}
 	}
-	
+
 	public int getCellSize() {
-		
+
 		return cellSize;
 	}
 }

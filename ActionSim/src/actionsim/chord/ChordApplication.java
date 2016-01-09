@@ -1,10 +1,10 @@
 package actionsim.chord;
 
-import actionsim.chord.internal.AbstractMessage;
+import actionsim.chord.internal.AbstractChordMessage;
 
 public interface ChordApplication {
 
-	public boolean beforeForward(AbstractMessage message, ChordId to);
+	public boolean beforeForward(AbstractChordMessage message, ChordId to);
 	
-	public void onChordMessage(AbstractMessage message);
+	public void onChordMessage(AbstractChordMessage message);
 }

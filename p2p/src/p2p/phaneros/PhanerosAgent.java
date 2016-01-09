@@ -18,10 +18,10 @@ import actionsim.core.Node;
 import actionsim.scribe.ScribeListener;
 import actionsim.scribe.ScribeNode;
 import p2p.common.AbstractAgent;
+import p2p.common.MapServer;
 import p2p.common.RandomWalker;
+import p2p.common.messages.TileEnvelope;
 import p2p.common.messages.TileRequest;
-import p2p.map.Atlas;
-import p2p.map.Tile;
 import p2p.phaneros.messages.CellEnter;
 import p2p.phaneros.messages.CellExit;
 import p2p.phaneros.messages.Update;
@@ -41,9 +41,9 @@ public class PhanerosAgent extends AbstractAgent<PhanerosAgent> {
 	private List<VisibilityCell> subscriptions = Collections.synchronizedList(new ArrayList<VisibilityCell>());
 
 	public PhanerosAgent(Node node, Visibility visibility, int cacheSize, Node mapServer, int worldWidth,
-			int worldHeight, Atlas atlas) {
+			int worldHeight, MapServer server) {
 
-		super(node, visibility, cacheSize, atlas);
+		super(node, visibility, cacheSize, server);
 
 		this.scribeNode = new ScribeNode(node);
 		this.chordNode = scribeNode.getChordNode();
@@ -61,7 +61,7 @@ public class PhanerosAgent extends AbstractAgent<PhanerosAgent> {
 
 				walker.walk();
 			}
-		}, 500);
+		}, 500, (float) (Math.random() * 500));
 
 		node.addNodeListener(new AbstractNodeListener() {
 
@@ -70,9 +70,9 @@ public class PhanerosAgent extends AbstractAgent<PhanerosAgent> {
 
 				Object payload = message.getPayload();
 
-				if (payload instanceof Tile) {
+				if (payload instanceof TileEnvelope) {
 
-					cache.addTile((Tile) payload);
+					cache.addTile(((TileEnvelope) payload).getTile());
 
 				} else if (payload instanceof Update) {
 
@@ -82,7 +82,6 @@ public class PhanerosAgent extends AbstractAgent<PhanerosAgent> {
 
 						knownAgents.put(update.getAgent(), new Point(update.getX(), update.getY()));
 					}
-
 				}
 			}
 		});
@@ -130,56 +129,80 @@ public class PhanerosAgent extends AbstractAgent<PhanerosAgent> {
 	@Override
 	public void onPositionChange() {
 
-		for (PhanerosAgent agent : connections.values().toArray(new PhanerosAgent[] {})) {
-
-			node.send(new Message(node, agent.node, new Update(this, x, y)));
-		}
+		emitUpdates();
 
 		VisibilityCell newCell = visibility.getCellForPos(x, y);
+		VisibilityCell oldCell = currentCell;
 
-		if (currentCell == null || currentCell != newCell) {
-
-			Set<VisibilityCell> newPvs = newCell.getPvs();
-
-			synchronized (subscriptions) {
-
-				Iterator<VisibilityCell> itr = subscriptions.iterator();
-
-				while (itr.hasNext()) {
-
-					VisibilityCell cell = itr.next();
-
-					if (newPvs.contains(cell) == false) {
-
-						scribeNode.unsubscribe(new ChordId(cell.toString()));
-
-						for (PhanerosAgent agent : connections.removeAll(cell)) {
-
-							knownAgents.remove(agent);
-						}
-
-						itr.remove();
-					}
-				}
-			}
-
-			for (VisibilityCell cell : newPvs) {
-
-				if (subscriptions.contains(cell) == false) {
-
-					scribeNode.subscribe(new ChordId(cell.getRegion().toString()));
-					subscriptions.add(cell);
-				}
-			}
-
-			if (currentCell != null) {
-
-				scribeNode.publish(new ChordId(currentCell.getRegion().toString()), new CellExit(currentCell, this));
-			}
+		if (oldCell == null || oldCell != newCell) {
 
 			currentCell = newCell;
 
-			scribeNode.publish(new ChordId(currentCell.getRegion().toString()), new CellEnter(currentCell, this, x, y));
+			updateSubscriptions(newCell);
+
+			emitEnterExit(oldCell, newCell);
+
+			for (VisibilityCell cell : newCell.getPvs()) {
+
+				if (cache.getTile(cell.getRegion()) == null) {
+
+					// TODO p2p iste
+				}
+			}
+		}
+	}
+
+	private void emitEnterExit(VisibilityCell oldCell, VisibilityCell newCell) {
+
+		if (oldCell != null) {
+
+			scribeNode.publish(new ChordId(oldCell.getRegion().toString()), new CellExit(oldCell, this));
+		}
+
+		scribeNode.publish(new ChordId(newCell.getRegion().toString()), new CellEnter(newCell, this, x, y));
+	}
+
+	private void updateSubscriptions(VisibilityCell newCell) {
+
+		Set<VisibilityCell> newPvs = newCell.getPvs();
+
+		synchronized (subscriptions) {
+
+			Iterator<VisibilityCell> itr = subscriptions.iterator();
+
+			while (itr.hasNext()) {
+
+				VisibilityCell cell = itr.next();
+
+				if (newPvs.contains(cell) == false) {
+
+					scribeNode.unsubscribe(new ChordId(cell.toString()));
+
+					for (PhanerosAgent agent : connections.removeAll(cell)) {
+
+						knownAgents.remove(agent);
+					}
+
+					itr.remove();
+				}
+			}
+		}
+
+		for (VisibilityCell cell : newPvs) {
+
+			if (subscriptions.contains(cell) == false) {
+
+				scribeNode.subscribe(new ChordId(cell.getRegion().toString()));
+				subscriptions.add(cell);
+			}
+		}
+	}
+
+	private void emitUpdates() {
+
+		for (PhanerosAgent agent : connections.values().toArray(new PhanerosAgent[] {})) {
+
+			node.send(new Message(node, agent.node, new Update(this, x, y)));
 		}
 	}
 }

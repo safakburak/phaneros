@@ -1,8 +1,8 @@
 package actionsim.chord;
 
-import actionsim.chord.internal.AbstractMessage;
+import actionsim.chord.internal.AbstractChordMessage;
 
-public class ChordMessage extends AbstractMessage {
+public class ChordMessage extends AbstractChordMessage {
 
 	private ChordId to;
 	

@@ -9,10 +9,10 @@ import actionsim.AbstractNodeListener;
 import actionsim.core.Message;
 import actionsim.core.Node;
 import p2p.common.AbstractAgent;
+import p2p.common.MapServer;
 import p2p.common.RandomWalker;
+import p2p.common.messages.TileEnvelope;
 import p2p.common.messages.TileRequest;
-import p2p.map.Atlas;
-import p2p.map.Tile;
 import p2p.timer.TimedAction;
 import p2p.visibility.Visibility;
 import p2p.von.messages.ConnectSuggestion;
@@ -30,9 +30,9 @@ public class VonAgent extends AbstractAgent<VonAgent> {
 	private Set<VonAgent> aoiAgents = new HashSet<VonAgent>();
 
 	public VonAgent(Node node, Visibility visibility, int cacheSize, Node mapServer, int worldWidth, int worldHeight,
-			Atlas atlas) {
+			MapServer server) {
 
-		super(node, visibility, cacheSize, atlas);
+		super(node, visibility, cacheSize, server);
 
 		this.mapServer = mapServer;
 
@@ -49,9 +49,9 @@ public class VonAgent extends AbstractAgent<VonAgent> {
 
 				Object payload = message.getPayload();
 
-				if (payload instanceof Tile) {
+				if (payload instanceof TileEnvelope) {
 
-					cache.addTile((Tile) payload);
+					cache.addTile(((TileEnvelope) payload).getTile());
 
 				} else if (payload instanceof Update) {
 

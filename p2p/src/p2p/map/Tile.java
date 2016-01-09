@@ -30,6 +30,11 @@ public class Tile {
 		return region.getSize();
 	}
 
+	public Region getRegion() {
+
+		return region;
+	}
+
 	public int getRelative(int x, int y) {
 
 		return atlas.get(x + region.getX(), y + region.getY());
@@ -45,16 +50,12 @@ public class Tile {
 		return atlas.getImage().getSubimage(getX(), getY(), getSize(), getSize());
 	}
 
-	// public boolean contains(int x, int y) {
-	//
-	// return x >= this.x && y >= this.y && x < (this.x + getWidth()) && y <
-	// (this.y + getHeight());
-	// }
-
 	@Override
 	public int hashCode() {
-
-		return region.hashCode();
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((region == null) ? 0 : region.hashCode());
+		return result;
 	}
 
 	@Override
@@ -66,10 +67,12 @@ public class Tile {
 		if (getClass() != obj.getClass())
 			return false;
 		Tile other = (Tile) obj;
-		if (getX() != other.getX())
-			return false;
-		if (getX() != other.getY())
+		if (region == null) {
+			if (other.region != null)
+				return false;
+		} else if (!region.equals(other.region))
 			return false;
 		return true;
 	}
+
 }

@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.concurrent.ConcurrentHashMap;
 
-import actionsim.chord.internal.AbstractMessage;
+import actionsim.chord.internal.AbstractChordMessage;
 import actionsim.chord.internal.InternalMessage;
 import actionsim.chord.internal.PredecessorNotification;
 import actionsim.chord.internal.PredecessorQuery;
@@ -78,9 +78,9 @@ public class ChordNode implements NodeListener, Policy {
 	@Override
 	public void onMessage(Message message) {
 
-		if(message.getPayload() instanceof AbstractMessage) {
+		if(message.getPayload() instanceof AbstractChordMessage) {
 			
-			AbstractMessage abstractMessage = (AbstractMessage) message.getPayload();
+			AbstractChordMessage abstractMessage = (AbstractChordMessage) message.getPayload();
 			
 			Logger.log(me, Logger.TRACE);
 			Logger.log(abstractMessage, Logger.TRACE);
@@ -146,7 +146,7 @@ public class ChordNode implements NodeListener, Policy {
 		}
 	}
 	
-	private void handleInternalMessage(AbstractMessage abstractMessage) {
+	private void handleInternalMessage(AbstractChordMessage abstractMessage) {
 		
 		if(abstractMessage instanceof SuccessorQuery) {
 
@@ -321,7 +321,7 @@ public class ChordNode implements NodeListener, Policy {
 		handleChordMessage(chordMessage, true);
 	}
 	
-	public void send(ChordId to, AbstractMessage chordMessage) {
+	public void send(ChordId to, AbstractChordMessage chordMessage) {
 		
 		if(chordMessage.getLastHop() != null && chordMessage.getLastHop().equals(me)) {
 			

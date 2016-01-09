@@ -1,44 +1,30 @@
 package p2p.common;
 
-import p2p.map.Atlas;
 import p2p.map.Region;
 import p2p.map.Tile;
 
-public class NeverMissCache extends LimitedCache {
+public class NeverMissCache extends LruCache {
 
-	private static Tile[][] patches;
+	private MapServer server;
 
-	public NeverMissCache(Atlas atlas, int capacity, int cellSize) {
+	public NeverMissCache(MapServer server, int capacity, int cellSize) {
 
 		super(capacity, cellSize);
 
-		if (patches == null) {
-
-			int colNum = atlas.getWidth() / cellSize;
-			int rowNum = atlas.getHeight() / cellSize;
-
-			patches = new Tile[colNum][rowNum];
-
-			for (int col = 0; col < colNum; col++) {
-				for (int row = 0; row < rowNum; row++) {
-
-					patches[col][row] = atlas.getTile(col * cellSize, row * cellSize, cellSize);
-				}
-			}
-		}
+		this.server = server;
 	}
 
-	public Tile getTile(Region cell) {
+	public Tile getTile(Region region) {
 
-		Tile patch = super.getTile(cell);
+		Tile tile = super.getTile(region);
 
-		if (patch == null) {
+		if (tile == null) {
 
-			patch = patches[cell.getX() / getCellSize()][cell.getY() / getCellSize()];
+			tile = server.getTile(region.getX(), region.getY());
 
-			addTile(patch);
+			addTile(tile);
 		}
 
-		return patch;
+		return tile;
 	}
 }

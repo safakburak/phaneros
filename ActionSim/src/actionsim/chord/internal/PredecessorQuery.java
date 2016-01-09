@@ -1,6 +1,6 @@
 package actionsim.chord.internal;
 
-public class PredecessorQuery extends AbstractMessage implements InternalMessage {
+public class PredecessorQuery extends AbstractChordMessage implements InternalMessage {
 
 	public PredecessorQuery() {
 		

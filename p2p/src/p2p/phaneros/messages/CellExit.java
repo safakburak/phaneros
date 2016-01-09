@@ -1,9 +1,10 @@
 package p2p.phaneros.messages;
 
+import actionsim.core.Payload;
 import p2p.phaneros.PhanerosAgent;
 import p2p.visibility.VisibilityCell;
 
-public class CellExit {
+public class CellExit implements Payload {
 
 	private VisibilityCell cell;
 	private PhanerosAgent agent;
@@ -20,5 +21,11 @@ public class CellExit {
 
 	public PhanerosAgent getAgent() {
 		return agent;
+	}
+
+	@Override
+	public float getSize() {
+
+		return 0.125f;
 	}
 }

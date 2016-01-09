@@ -7,8 +7,9 @@ import java.util.List;
 import actionsim.chord.ChordApplication;
 import actionsim.chord.ChordId;
 import actionsim.chord.ChordNode;
-import actionsim.chord.internal.AbstractMessage;
+import actionsim.chord.internal.AbstractChordMessage;
 import actionsim.core.Node;
+import actionsim.core.Payload;
 import actionsim.scribe.inner.Publish;
 import actionsim.scribe.inner.Subscribe;
 import actionsim.scribe.inner.Unsubscribe;
@@ -31,15 +32,13 @@ public class ScribeNode implements ChordApplication {
 	}
 
 	@Override
-	public void onChordMessage(AbstractMessage message) {
+	public void onChordMessage(AbstractChordMessage message) {
 
 		if (message instanceof Publish) {
 
 			Publish publish = (Publish) message;
 
 			if (subscriptions.contains(publish.getTopic())) {
-
-				System.out.println(publish.getHopCount());
 
 				for (ScribeListener listener : listeners) {
 
@@ -92,7 +91,7 @@ public class ScribeNode implements ChordApplication {
 	}
 
 	@Override
-	public boolean beforeForward(AbstractMessage message, ChordId to) {
+	public boolean beforeForward(AbstractChordMessage message, ChordId to) {
 
 		if (message instanceof Publish) {
 
@@ -162,9 +161,9 @@ public class ScribeNode implements ChordApplication {
 		chordNode.send(new Unsubscribe(topic));
 	}
 
-	public void publish(ChordId topic, Object value) {
+	public void publish(ChordId topic, Payload payload) {
 
-		Publish publish = new Publish(topic, value);
+		Publish publish = new Publish(topic, payload);
 
 		chordNode.send(publish);
 	}

@@ -5,6 +5,7 @@ import actionsim.chord.ChordNode;
 import actionsim.core.Message;
 import actionsim.core.Node;
 import actionsim.scribe.ScribeNode;
+import p2p.common.messages.TileEnvelope;
 import p2p.common.messages.TileRequest;
 import p2p.map.Atlas;
 import p2p.map.Tile;
@@ -15,17 +16,19 @@ public class MapServer {
 	private ScribeNode scribeNode;
 	private ChordNode chordNode;
 	private Tile[][] tiles;
+	private int tileSize;
 
 	public MapServer(Node node, Atlas atlas, int tileSize) {
 
 		this.node = node;
 		this.scribeNode = new ScribeNode(node);
 		this.chordNode = scribeNode.getChordNode();
+		this.tileSize = tileSize;
 
-		initialize(atlas, tileSize);
+		initialize(atlas);
 	}
 
-	private void initialize(Atlas atlas, final int tileSize) {
+	private void initialize(Atlas atlas) {
 
 		int colNum = atlas.getWidth() / tileSize;
 		int rowNum = atlas.getHeight() / tileSize;
@@ -50,10 +53,15 @@ public class MapServer {
 
 					TileRequest request = (TileRequest) payload;
 					node.send(new Message(message.getTo(), message.getFrom(),
-							tiles[request.getX() / tileSize][request.getY() / tileSize]));
+							new TileEnvelope(tiles[request.getX() / tileSize][request.getY() / tileSize])));
 				}
 			}
 		});
+	}
+
+	public Tile getTile(int x, int y) {
+
+		return tiles[x / tileSize][y / tileSize];
 	}
 
 	public Node getNode() {

@@ -4,23 +4,24 @@ import java.util.List;
 
 import actionsim.chord.ChordId;
 import actionsim.chord.ChordMessage;
+import actionsim.core.Payload;
 
 public class Publish extends ChordMessage {
 
 	private ChordId topic;
-	private Object value;
+	private Payload payload;
 
-	public Publish(ChordId topic, Object value) {
+	public Publish(ChordId topic, Payload payload) {
 
-		this(topic, topic, value, null);
+		this(topic, topic, payload, null);
 	}
 
-	public Publish(ChordId to, ChordId topic, Object value, List<ChordId> existingHistory) {
+	public Publish(ChordId to, ChordId topic, Payload payload, List<ChordId> existingHistory) {
 
 		super(to);
 
 		this.topic = topic;
-		this.value = value;
+		this.payload = payload;
 
 		if (existingHistory != null) {
 
@@ -33,8 +34,14 @@ public class Publish extends ChordMessage {
 		return topic;
 	}
 
-	public Object getValue() {
+	public Payload getValue() {
 
-		return value;
+		return payload;
+	}
+
+	@Override
+	public float getSize() {
+
+		return payload.getSize();
 	}
 }

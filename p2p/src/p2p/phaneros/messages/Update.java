@@ -1,8 +1,9 @@
 package p2p.phaneros.messages;
 
+import actionsim.core.Payload;
 import p2p.phaneros.PhanerosAgent;
 
-public class Update {
+public class Update implements Payload {
 
 	private PhanerosAgent agent;
 	private int x;
@@ -28,5 +29,11 @@ public class Update {
 	public int getY() {
 
 		return y;
+	}
+
+	@Override
+	public float getSize() {
+
+		return 0.125f;
 	}
 }

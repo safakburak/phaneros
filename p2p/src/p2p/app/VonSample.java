@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Random;
 
+import actionsim.core.DefaultConfiguration;
 import actionsim.core.Simulation;
 import actionsim.log.Logger;
 import p2p.common.AbstractAgent;
@@ -16,6 +17,8 @@ import p2p.von.VonGraph;
 
 public class VonSample {
 
+	private static MapServer server;
+
 	@SuppressWarnings("rawtypes")
 	public static void main(String[] args) throws IOException {
 
@@ -26,17 +29,18 @@ public class VonSample {
 
 		World world = (World) Persist.load("data/world/random_range.world");
 
-		Simulation simulation = new Simulation();
+		Simulation simulation = new Simulation(new DefaultConfiguration() {
 
-		MapServer server = new MapServer(simulation.createNode("server"), world.getAtlas(),
-				world.getVisibility().getCellSize());
+		});
+
+		server = new MapServer(simulation.createNode("server"), world.getAtlas(), world.getVisibility().getCellSize());
 
 		int agentCount = 1000;
 
 		while (agentCount-- > 0) {
 
-			VonAgent agent = new VonAgent(simulation.createNode(), world.getVisibility(), 10, server.getNode(),
-					world.getWidth(), world.getHeight(), world.getAtlas());
+			VonAgent agent = new VonAgent(simulation.createNode(), world.getVisibility(), 50, server.getNode(),
+					world.getWidth(), world.getHeight(), server);
 
 			int x;
 			int y;
@@ -50,9 +54,16 @@ public class VonSample {
 
 			agent.setPosition(x, y);
 			agents.add(agent);
+
+			if (agents.size() > 1) {
+
+				agent.fillCache(server);
+			}
 		}
 
 		agents.get(0).setPosition(502, 502);
+		agents.get(0).fillCache(server);
+
 		new Renderer(world, simulation, agents.get(0), agents, world.getAtlas());
 
 		VonGraph graph = new VonGraph(agents);

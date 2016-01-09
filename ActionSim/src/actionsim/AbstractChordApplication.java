@@ -2,18 +2,18 @@ package actionsim;
 
 import actionsim.chord.ChordApplication;
 import actionsim.chord.ChordId;
-import actionsim.chord.internal.AbstractMessage;
+import actionsim.chord.internal.AbstractChordMessage;
 
 public class AbstractChordApplication implements ChordApplication {
 
 	@Override
-	public boolean beforeForward(AbstractMessage message, ChordId to) {
+	public boolean beforeForward(AbstractChordMessage message, ChordId to) {
 		
 		return true;
 	}
 
 	@Override
-	public void onChordMessage(AbstractMessage message) {
+	public void onChordMessage(AbstractChordMessage message) {
 
 	}
 }

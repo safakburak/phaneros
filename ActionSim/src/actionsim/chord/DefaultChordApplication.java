@@ -1,6 +1,6 @@
 package actionsim.chord;
 
-import actionsim.chord.internal.AbstractMessage;
+import actionsim.chord.internal.AbstractChordMessage;
 import actionsim.log.Logger;
 
 public class DefaultChordApplication implements ChordApplication {
@@ -16,7 +16,7 @@ public class DefaultChordApplication implements ChordApplication {
 	public static float totalMessages = 0;
 	
 	@Override
-	public void onChordMessage(AbstractMessage message) {
+	public void onChordMessage(AbstractChordMessage message) {
 
 		Logger.log(id + " received: \n" + message, Logger.TRACE);
 		
@@ -25,7 +25,7 @@ public class DefaultChordApplication implements ChordApplication {
 	}
 	
 	@Override
-	public boolean beforeForward(AbstractMessage message, ChordId to) {
+	public boolean beforeForward(AbstractChordMessage message, ChordId to) {
 		
 		return true;
 	}

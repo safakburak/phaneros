@@ -5,8 +5,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import actionsim.chord.ChordId;
+import actionsim.core.Payload;
 
-public class AbstractMessage {
+public abstract class AbstractChordMessage implements Payload {
 
 	private ArrayList<ChordId> hopHistory = new ArrayList<ChordId>();
 
@@ -60,5 +61,11 @@ public class AbstractMessage {
 		}
 
 		return result;
+	}
+
+	@Override
+	public float getSize() {
+
+		return 0;
 	}
 }
