@@ -145,14 +145,6 @@ public class VonAgent extends AbstractAgent<VonAgent> {
 			public void act(float time) {
 
 				walker.walk();
-
-				if (node.getId().equals("N0001")) {
-
-					Set<VonAgent> connected = new HashSet<VonAgent>(enclosingAgents);
-					connected.addAll(aoiAgents);
-
-					System.out.println("kwn : " + connected.size());
-				}
 			}
 		}, 500);
 	}

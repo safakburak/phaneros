@@ -23,7 +23,6 @@ public class ScribeNode implements ChordApplication {
 
 	private ArrayList<ScribeListener> listeners = new ArrayList<>();
 
-	
 	public ScribeNode(Node node) {
 
 		chordNode = new ChordNode(node);
@@ -40,8 +39,10 @@ public class ScribeNode implements ChordApplication {
 
 			if (subscriptions.contains(publish.getTopic())) {
 
-				for(ScribeListener listener : listeners) {
-					
+				System.out.println(publish.getHopCount());
+
+				for (ScribeListener listener : listeners) {
+
 					listener.onScribeMessage(publish.getTopic(), ((Publish) message).getValue());
 				}
 			}
@@ -52,11 +53,11 @@ public class ScribeNode implements ChordApplication {
 
 				for (ChordId child : children) {
 
-					chordNode.send(child, new Publish(child, publish.getTopic(), publish.getValue()));
+					chordNode.send(child,
+							new Publish(child, publish.getTopic(), publish.getValue(), publish.getHopHistory()));
 				}
 			}
-		} 
-		else if (message instanceof Subscribe) {
+		} else if (message instanceof Subscribe) {
 
 			Subscribe subscribe = (Subscribe) message;
 
@@ -68,19 +69,17 @@ public class ScribeNode implements ChordApplication {
 				routes.put(subscribe.getTopic(), children);
 			}
 
-			if(subscribe.getLastHop() == null) {
-				//subscribing to topic owned by me
-			}
-			else {
-				
+			if (subscribe.getLastHop() == null) {
+				// subscribing to topic owned by me
+			} else {
+
 				if (children.contains(subscribe.getLastHop()) == false) {
-					
+
 					children.add(subscribe.getLastHop());
 				}
 			}
-			
-		} 
-		else if (message instanceof Unsubscribe) {
+
+		} else if (message instanceof Unsubscribe) {
 
 			Unsubscribe unsubscribe = (Unsubscribe) message;
 
@@ -88,8 +87,8 @@ public class ScribeNode implements ChordApplication {
 
 				routes.get(unsubscribe.getTopic()).remove(unsubscribe.getLastHop());
 			}
-			
-		} 
+
+		}
 	}
 
 	@Override
@@ -98,16 +97,15 @@ public class ScribeNode implements ChordApplication {
 		if (message instanceof Publish) {
 
 			return true;
-			
+
 		} else if (message instanceof Subscribe) {
 
 			Subscribe subscribe = (Subscribe) message;
 
-			
 			ArrayList<ChordId> children = routes.get(subscribe.getTopic());
-			
+
 			if (children == null) {
-				
+
 				children = new ArrayList<ChordId>();
 				routes.put(subscribe.getTopic(), children);
 			}
@@ -120,7 +118,7 @@ public class ScribeNode implements ChordApplication {
 			chordNode.send(new Subscribe(subscribe.getTopic()));
 
 			return false;
-			
+
 		} else if (message instanceof Unsubscribe) {
 
 			Unsubscribe unsubscribe = (Unsubscribe) message;
@@ -173,14 +171,14 @@ public class ScribeNode implements ChordApplication {
 
 	public void addScribeListener(ScribeListener listener) {
 
-		if(listeners.contains(listener) == false) {
-			
+		if (listeners.contains(listener) == false) {
+
 			listeners.add(listener);
 		}
 	}
-	
+
 	public List<ChordId> getSubscriptions() {
-		
+
 		return subscriptions;
 	}
 }
