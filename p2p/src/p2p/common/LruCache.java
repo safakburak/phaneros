@@ -54,11 +54,6 @@ public class LruCache implements Cache {
 
 	public void addTile(Tile tile) {
 
-		if (tileMap.containsValue(tile)) {
-
-			System.out.println();
-		}
-
 		if (disposeQueue.contains(tile)) {
 
 			disposeQueue.remove(tile);

@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Random;
 
 import actionsim.core.DefaultConfiguration;
+import actionsim.core.Node;
 import actionsim.core.Simulation;
 import actionsim.log.Logger;
 import p2p.common.AbstractAgent;
@@ -12,6 +13,7 @@ import p2p.common.MapServer;
 import p2p.map.World;
 import p2p.phaneros.PhanerosAgent;
 import p2p.renderer.Renderer;
+import p2p.stats.Stats;
 import p2p.util.Persist;
 
 public class PhanerosSample {
@@ -31,6 +33,18 @@ public class PhanerosSample {
 
 		Simulation simulation = new Simulation(new DefaultConfiguration() {
 
+			@Override
+			public float getBandwidth(Node node) {
+
+				if (node.getId().equals("server")) {
+
+					return 0;
+
+				} else {
+
+					return 256;
+				}
+			}
 		});
 
 		server = new MapServer(simulation.createNode("server"), world.getAtlas(), world.getVisibility().getCellSize());
@@ -84,9 +98,13 @@ public class PhanerosSample {
 			agent.start();
 		}
 
+		Stats.init(simulation);
+
 		while (true) {
 
 			simulation.iterate(10);
+
+			Stats.report();
 
 			try {
 

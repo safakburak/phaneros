@@ -12,230 +12,225 @@ public class Node {
 	private String id;
 
 	private ArrayList<Policy> policies = new ArrayList<>();
-	
+
 	private ArrayList<NodeListener> listeners = new ArrayList<>();
-	
+
 	private List<Node> connections = new LinkedList<Node>();
-	
+
 	private Queue<Message> inbox = new LinkedList<Message>();
-	
+
 	private Queue<Message> outbox = new LinkedList<Message>();
-	
-	
+
 	private Queue<Action> actions = new LinkedList<Action>();
-	
+
 	private Queue<Action> completedActions = new LinkedList<Action>();
-	
-	
+
 	private float bandwidth = 0; // kilobytes per second
-	
+
 	private float remainingKilobytes = 0;
-	
+
 	private float cpuBudget = 0; // milliseconds
-	
+
 	private float remainingCpuBudget = 0;
-	
-	
+
 	Node(String id) {
-		
+
 		this.id = id;
 	}
-	
+
 	final void deliverMessages(float deltaTime) {
-		
-		if(bandwidth > 0) {
-			
+
+		if (bandwidth > 0) {
+
 			remainingKilobytes += (bandwidth / 1000.0) * deltaTime;
 		}
-		
-		while(outbox.isEmpty() == false) {
-			
-			if(bandwidth <= NEAR_ZERO || outbox.peek().getSize() <= remainingKilobytes) {
-				
+
+		while (outbox.isEmpty() == false) {
+
+			if (bandwidth <= NEAR_ZERO || outbox.peek().getSize() <= remainingKilobytes) {
+
 				Message message = outbox.poll();
-				
+
 				remainingKilobytes -= message.getSize();
-				
+
 				Node receiver = message.getTo();
-				
+
 				receiver.inbox.add(message);
-			}
-			else {
-				
+			} else {
+
 				break;
 			}
 		}
 	}
-	
-	final void processMessages(float deltaTime) {
-		
-		while(inbox.isEmpty() == false) {
-			
-			Message message = inbox.poll();
-			
-			if(message.getTo() == this) {
 
-				for(NodeListener listener : listeners) {
-					
+	final void processMessages(float deltaTime) {
+
+		while (inbox.isEmpty() == false) {
+
+			Message message = inbox.poll();
+
+			if (message.getTo() == this) {
+
+				for (NodeListener listener : listeners) {
+
 					listener.onMessage(message);
 				}
 			}
 		}
 	}
-	
+
 	final void processActions(float deltaTime) {
-		
+
 		completedActions.clear();
-		
+
 		Action[] completedActionsArr;
-		
-		if(cpuBudget > 0) {
-			
+
+		if (cpuBudget > 0) {
+
 			remainingCpuBudget += cpuBudget;
 		}
-		
-		while(actions.isEmpty() == false) {
-			
-			if(cpuBudget <= NEAR_ZERO || actions.peek().getCpuCost() <= remainingCpuBudget) {
-				
+
+		while (actions.isEmpty() == false) {
+
+			if (cpuBudget <= NEAR_ZERO || actions.peek().getCpuCost() <= remainingCpuBudget) {
+
 				Action action = actions.poll();
-				
+
 				remainingCpuBudget -= action.getCpuCost();
-				
+
 				action.run();
-				
+
 				completedActions.add(action);
-			}
-			else {
-				
+			} else {
+
 				break;
 			}
 		}
-	
+
 		completedActionsArr = new Action[completedActions.size()];
-	
+
 		completedActionsArr = completedActions.toArray(completedActionsArr);
-		
-		for(NodeListener listener : listeners) {
-			
+
+		for (NodeListener listener : listeners) {
+
 			listener.onStep(completedActionsArr, deltaTime);
 		}
 	}
-	
+
 	private boolean canConnectTo(Node node) {
-		
+
 		boolean result = true;
-		
-		for(Policy policy : policies) {
-			
-			if(policy.canConnectTo(node) == false) {
-				
+
+		for (Policy policy : policies) {
+
+			if (policy.canConnectTo(node) == false) {
+
 				result = false;
 			}
 		}
-		
+
 		return result;
 	}
-	
+
 	private boolean canConnectFrom(Node node) {
-		
+
 		boolean result = true;
-		
-		for(Policy policy : policies) {
-			
-			if(policy.canConnectFrom(node) == false) {
-				
+
+		for (Policy policy : policies) {
+
+			if (policy.canConnectFrom(node) == false) {
+
 				result = false;
 			}
 		}
-		
+
 		return result;
 	}
-	
+
 	// public interface
 
 	public void addPolicy(Policy policy) {
 
-		if(policies.contains(policy) == false) {
-			
+		if (policies.contains(policy) == false) {
+
 			policies.add(policy);
 		}
 	}
-	
+
 	public void addNodeListener(NodeListener listener) {
 
-		if(listeners.contains(listener) == false) {
-			
+		if (listeners.contains(listener) == false) {
+
 			listeners.add(listener);
 		}
 	}
-	
+
 	public final String getId() {
-		
+
 		return id;
 	}
-	
+
 	public final void send(Message message) {
-		
+
 		outbox.add(message);
 	}
-	
+
 	public final boolean isConnectedTo(Node node) {
-		
+
 		return connections.contains(node);
 	}
-	
+
 	public final void connect(Node node) {
 
-		if(connections.contains(node) == false) {
-			
-			if(canConnectTo(node) && node.canConnectFrom(this)) {
-				
+		if (connections.contains(node) == false) {
+
+			if (canConnectTo(node) && node.canConnectFrom(this)) {
+
 				connections.add(node);
-				
-				for(NodeListener listener : listeners) {
-					
+
+				for (NodeListener listener : listeners) {
+
 					listener.onConnect(node);
 				}
-				
+
 				node.connect(this);
 			}
 		}
 	}
-	
+
 	public final void disconnect(Node node) {
-		
-		if(connections.contains(node)) {
-			
+
+		if (connections.contains(node)) {
+
 			connections.remove(node);
-			
-			for(NodeListener listener : listeners) {
-				
+
+			for (NodeListener listener : listeners) {
+
 				listener.onDisconnect(node);
 			}
-			
+
 			node.disconnect(this);
 		}
 	}
 
 	public final void setBandwidth(float bandwidth) {
-		
+
 		this.bandwidth = bandwidth;
 	}
-	
+
 	public final void setCpuBudget(float cpuBudget) {
-		
+
 		this.cpuBudget = cpuBudget;
 	}
-	
+
 	public final void act(Action action) {
-		
+
 		actions.add(action);
 	}
-	
+
 	@Override
 	public String toString() {
-		
+
 		return id;
 	}
 }

@@ -29,6 +29,7 @@ import p2p.map.Tile;
 import p2p.phaneros.messages.CellEnter;
 import p2p.phaneros.messages.CellExit;
 import p2p.phaneros.messages.Update;
+import p2p.stats.Stats;
 import p2p.timer.TimedAction;
 import p2p.visibility.Visibility;
 import p2p.visibility.VisibilityCell;
@@ -76,7 +77,17 @@ public class PhanerosAgent extends AbstractAgent<PhanerosAgent> {
 
 				if (payload instanceof TileEnvelope) {
 
-					cache.addTile(((TileEnvelope) payload).getTile());
+					TileEnvelope envelope = (TileEnvelope) payload;
+
+					if (envelope.getTile() == null) {
+
+						scribeNode.publish(new ChordId(envelope.getRegion()),
+								new TileQuery(node, envelope.getRegion()));
+
+					} else {
+
+						cache.addTile(((TileEnvelope) payload).getTile());
+					}
 
 				} else if (payload instanceof Update) {
 
@@ -102,7 +113,9 @@ public class PhanerosAgent extends AbstractAgent<PhanerosAgent> {
 
 					Tile tile = cache.getTile(request.getRegion());
 
-					node.send(new Message(node, request.getNode(), new TileEnvelope(tile)));
+					node.send(new Message(node, request.getNode(), new TileEnvelope(tile, request.getRegion())));
+
+					Stats.tilesFromAgents.sample();
 				}
 			}
 		});
@@ -167,13 +180,29 @@ public class PhanerosAgent extends AbstractAgent<PhanerosAgent> {
 
 			emitEnterExit(oldCell, newCell);
 
-			for (VisibilityCell cell : newCell.getPvs()) {
+			requestPvs(newCell, false);
+
+			timer.delay(new PvsCheckAction(this, newCell), 1000);
+		}
+	}
+
+	public void requestPvs(VisibilityCell visibilityCell, boolean fromServer) {
+
+		if (visibilityCell == currentCell) {
+
+			for (VisibilityCell cell : visibilityCell.getPvs()) {
 
 				if (cache.getTile(cell.getRegion()) == null) {
 
-					scribeNode.publish(new ChordId(cell.getRegion().toString()), new TileQuery(node, cell.getRegion()));
+					if (fromServer) {
 
-					node.send(new Message(node, mapServer, new TileQuery(node, cell.getRegion())));
+						node.send(new Message(node, mapServer, new TileRequest(node, cell.getRegion())));
+
+					} else {
+
+						scribeNode.publish(new ChordId(cell.getRegion().toString()),
+								new TileQuery(node, cell.getRegion()));
+					}
 				}
 			}
 		}
@@ -236,10 +265,12 @@ public class PhanerosAgent extends AbstractAgent<PhanerosAgent> {
 	@Override
 	public void onUrgentTileNeed(int x, int y) {
 
-		Region region = new Region(x, y, visibility.getCellSize());
+		int cellSize = visibility.getCellSize();
+		int col = x / cellSize * cellSize;
+		int row = y / cellSize * cellSize;
 
-		scribeNode.publish(new ChordId(region.toString()), new TileQuery(node, region));
+		Region region = new Region(col, row, visibility.getCellSize());
 
-		node.send(new Message(node, mapServer, new TileQuery(node, region)));
+		node.send(new Message(node, mapServer, new TileRequest(node, region)));
 	}
 }

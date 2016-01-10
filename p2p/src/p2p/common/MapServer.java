@@ -5,12 +5,11 @@ import actionsim.chord.ChordNode;
 import actionsim.core.Message;
 import actionsim.core.Node;
 import actionsim.scribe.ScribeNode;
-import p2p.common.messages.TileAvailable;
 import p2p.common.messages.TileEnvelope;
-import p2p.common.messages.TileQuery;
 import p2p.common.messages.TileRequest;
 import p2p.map.Atlas;
 import p2p.map.Tile;
+import p2p.stats.Stats;
 
 public class MapServer {
 
@@ -51,19 +50,19 @@ public class MapServer {
 
 				Object payload = message.getPayload();
 
-				if (payload instanceof TileQuery) {
-
-					TileQuery query = (TileQuery) payload;
-					node.send(new Message(node, query.getNode(), new TileAvailable(node, query.getRegion())));
-
-				} else if (payload instanceof TileRequest && false) {
+				if (payload instanceof TileRequest) {
 
 					TileRequest request = (TileRequest) payload;
-					node.send(new Message(message.getTo(), message.getFrom(), new TileEnvelope(
-							tiles[request.getRegion().getX() / tileSize][request.getRegion().getY() / tileSize])));
+					node.send(new Message(message.getTo(), message.getFrom(),
+							new TileEnvelope(
+									tiles[request.getRegion().getX() / tileSize][request.getRegion().getY() / tileSize],
+									request.getRegion())));
+
+					Stats.tilesFromServer.sample();
 				}
 			}
 		});
+
 	}
 
 	public Tile getTile(int x, int y) {

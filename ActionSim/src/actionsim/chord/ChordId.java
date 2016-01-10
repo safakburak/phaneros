@@ -8,93 +8,97 @@ public class ChordId implements Comparable<ChordId> {
 
 	public static final ChordId MAX = fill(0xFF);
 	public static final ChordId MIN = fill(0x00);
-	
+
 	private static ChordId fill(int byteVal) {
-		
+
 		byte[] fillBytes = new byte[ChordConfiguration.chordIdBytes];
-		
-		for(int i=0; i < fillBytes.length; i++) {
-			
+
+		for (int i = 0; i < fillBytes.length; i++) {
+
 			fillBytes[i] = (byte) byteVal;
 		}
-		
+
 		return new ChordId(fillBytes);
 	}
-	
+
 	private byte[] bytes;
-	
+
 	private String hexText = "";
-	
+
 	private String keyText;
-	
+
+	public ChordId(Object object) {
+
+		this(object.toString());
+	}
+
 	public ChordId(String keyText) {
 
 		this.keyText = keyText;
-		
-		byte[] allBytes = DigestUtils.sha1(keyText); //20 bytes
-		
+
+		byte[] allBytes = DigestUtils.sha1(keyText); // 20 bytes
+
 		bytes = new byte[ChordConfiguration.chordIdBytes];
 
 		System.arraycopy(allBytes, 0, bytes, 0, ChordConfiguration.chordIdBytes);
-		
+
 		this.hexText = Integer.toHexString(ByteBuffer.wrap(bytes).getInt());
-		
-		while(hexText.length() < 8) {
-			
+
+		while (hexText.length() < 8) {
+
 			hexText = "0" + hexText;
 		}
 	}
-	
+
 	private ChordId(byte[] bytes) {
-		
+
 		this.bytes = bytes;
-		
+
 		this.hexText = Integer.toHexString(ByteBuffer.wrap(bytes).getInt());
-		
-		while(hexText.length() < 8) {
-			
+
+		while (hexText.length() < 8) {
+
 			hexText = "0" + hexText;
 		}
 	}
-	
+
 	public boolean gt(ChordId otherId) {
-	
+
 		return compareTo(otherId) > 0;
 	}
-	
+
 	public boolean gte(ChordId otherId) {
-		
+
 		return compareTo(otherId) >= 0;
 	}
-	
+
 	public boolean lt(ChordId otherId) {
-		
+
 		return compareTo(otherId) < 0;
 	}
-	
+
 	public boolean lte(ChordId otherId) {
-		
+
 		return compareTo(otherId) <= 0;
 	}
 
 	@Override
 	public int compareTo(ChordId o) {
-		
+
 		for (int i = 0; i < this.bytes.length; i++) {
-			
-			if ((byte)(this.bytes[i] - 128) < (byte)(o.bytes[i] - 128)) {
-				
+
+			if ((byte) (this.bytes[i] - 128) < (byte) (o.bytes[i] - 128)) {
+
 				return -1; // this ID is smaller
-			} 
-			else if ((byte)(this.bytes[i] - 128) > (byte)(o.bytes[i] -128)) {
-				
+			} else if ((byte) (this.bytes[i] - 128) > (byte) (o.bytes[i] - 128)) {
+
 				return 1; // this ID is greater
 			}
 		}
-		
+
 		return 0;
 	}
-	
+
 	/**
 	 * Calculates the ID which is 2^powerOfTwo bits greater than the current ID
 	 * modulo the maximum ID and returns it.
@@ -106,16 +110,15 @@ public class ChordId implements Comparable<ChordId> {
 	 *         the maximum ID.
 	 */
 	public ChordId addPowerOfTwo(int powerOfTwo) {
-		
+
 		if (powerOfTwo < 0 || powerOfTwo >= (this.bytes.length * 8)) {
-			
+
 			throw new IllegalArgumentException(
-					"The power of two is out of range! It must be in the interval "
-							+ "[0, length-1]");
+					"The power of two is out of range! It must be in the interval " + "[0, length-1]");
 		}
-		
+
 		// copy ID
-		
+
 		byte[] copy = new byte[this.bytes.length];
 		System.arraycopy(this.bytes, 0, copy, 0, this.bytes.length);
 
@@ -141,7 +144,7 @@ public class ChordId implements Comparable<ChordId> {
 
 		return new ChordId(copy);
 	}
-	
+
 	/**
 	 * @param left
 	 * @param right
@@ -151,7 +154,7 @@ public class ChordId implements Comparable<ChordId> {
 
 		return isIn(left, right, false);
 	}
-	
+
 	/**
 	 * @param left
 	 * @param right
@@ -159,60 +162,57 @@ public class ChordId implements Comparable<ChordId> {
 	 * @return id ∈ (left, right] or id ∈ (left, right)
 	 */
 	public boolean isIn(ChordId left, ChordId right, boolean rightClosed) {
-		
-		if(rightClosed) {
-			
-			if((left.lt(right) && gt(left) && lte(right))) {
+
+		if (rightClosed) {
+
+			if ((left.lt(right) && gt(left) && lte(right))) {
+
+				return true;
+			} else if (left.gt(right) && ((gt(left) && lte(ChordId.MAX)) || (gt(ChordId.MIN) && lte(right)))) {
 
 				return true;
 			}
-			else if (left.gt(right) && ((gt(left) && lte(ChordId.MAX)) || (gt(ChordId.MIN) && lte(right)))) {
-				
+
+			return false;
+		} else {
+
+			if ((left.lt(right) && gt(left) && lt(right))) {
+
 				return true;
-			}
-			
-			return false; 
-		}
-		else {
-			
-			if((left.lt(right) && gt(left) && lt(right))) {
+			} else if (left.gt(right) && ((gt(left) && lte(ChordId.MAX)) || (gte(ChordId.MIN) && lt(right)))) {
 
 				return true;
 			}
-			else if (left.gt(right) && ((gt(left) && lte(ChordId.MAX)) || (gte(ChordId.MIN) && lt(right)))) {
-				
-				return true;
-			}
-			
+
 			return false;
 		}
 	}
-	
+
 	@Override
 	public boolean equals(Object obj) {
-		
-		return obj instanceof ChordId && ((ChordId)obj).compareTo(this) == 0;
+
+		return obj instanceof ChordId && ((ChordId) obj).compareTo(this) == 0;
 	}
-	
+
 	@Override
 	public int hashCode() {
-		
+
 		return hexText.hashCode();
 	}
-	
+
 	@Override
 	public String toString() {
-		
+
 		return keyText == null ? hexText : keyText;
 	}
-	
+
 	public String getKeyText() {
-		
+
 		return keyText;
 	}
-	
+
 	public String getHexText() {
-		
+
 		return hexText;
 	}
 }
