@@ -35,12 +35,12 @@ public class PhanerosSample {
 
 		server = new MapServer(simulation.createNode("server"), world.getAtlas(), world.getVisibility().getCellSize());
 
-		int agentCount = 1;
+		int agentCount = 1000;
 
 		while (agentCount-- > 0) {
 
 			PhanerosAgent agent = new PhanerosAgent(simulation.createNode(), world.getVisibility(), 50,
-					server.getNode(), world.getWidth(), world.getHeight(), server);
+					server.getNode(), world.getWidth(), world.getHeight(), null);
 
 			int x;
 			int y;

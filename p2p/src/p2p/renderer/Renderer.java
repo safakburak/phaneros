@@ -132,7 +132,7 @@ public class Renderer extends JPanel {
 			g2D.drawImage(tile.getImage(), tile.getX(), tile.getY(), null);
 		}
 
-		g2D.setColor(new Color(255, 255, 0, 50));
+		g2D.setColor(new Color(0, 0, 255, 100));
 		for (VisibilityCell cell : renderable.getPvs()) {
 
 			Region region = cell.getRegion();

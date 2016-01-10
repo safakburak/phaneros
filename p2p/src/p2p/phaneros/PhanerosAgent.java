@@ -20,8 +20,12 @@ import actionsim.scribe.ScribeNode;
 import p2p.common.AbstractAgent;
 import p2p.common.MapServer;
 import p2p.common.RandomWalker;
+import p2p.common.messages.TileAvailable;
 import p2p.common.messages.TileEnvelope;
+import p2p.common.messages.TileQuery;
 import p2p.common.messages.TileRequest;
+import p2p.map.Region;
+import p2p.map.Tile;
 import p2p.phaneros.messages.CellEnter;
 import p2p.phaneros.messages.CellExit;
 import p2p.phaneros.messages.Update;
@@ -82,6 +86,23 @@ public class PhanerosAgent extends AbstractAgent<PhanerosAgent> {
 
 						knownAgents.put(update.getAgent(), new Point(update.getX(), update.getY()));
 					}
+
+				} else if (payload instanceof TileAvailable) {
+
+					TileAvailable available = (TileAvailable) payload;
+
+					if (cache.contains(available.getRegion()) == false) {
+
+						node.send(new Message(node, available.getNode(), new TileRequest(node, available.getRegion())));
+					}
+
+				} else if (payload instanceof TileRequest) {
+
+					TileRequest request = (TileRequest) payload;
+
+					Tile tile = cache.getTile(request.getRegion());
+
+					node.send(new Message(node, request.getNode(), new TileEnvelope(tile)));
 				}
 			}
 		});
@@ -109,6 +130,16 @@ public class PhanerosAgent extends AbstractAgent<PhanerosAgent> {
 
 					connections.remove(cellExit.getCell(), cellExit.getAgent());
 					knownAgents.remove(cellExit.getAgent());
+
+				} else if (message instanceof TileQuery) {
+
+					TileQuery query = (TileQuery) message;
+
+					if (cache.getTile(query.getRegion()) != null) {
+
+						node.send(new Message(node, query.getNode(), new TileAvailable(node, query.getRegion())));
+					}
+
 				}
 			}
 		});
@@ -118,12 +149,6 @@ public class PhanerosAgent extends AbstractAgent<PhanerosAgent> {
 
 	public ChordNode getChordNode() {
 		return chordNode;
-	}
-
-	@Override
-	public void onCacheMissAt(int x, int y) {
-
-		mapServer.send(new Message(node, mapServer, new TileRequest(x, y)));
 	}
 
 	@Override
@@ -146,7 +171,9 @@ public class PhanerosAgent extends AbstractAgent<PhanerosAgent> {
 
 				if (cache.getTile(cell.getRegion()) == null) {
 
-					// TODO p2p iste
+					scribeNode.publish(new ChordId(cell.getRegion().toString()), new TileQuery(node, cell.getRegion()));
+
+					node.send(new Message(node, mapServer, new TileQuery(node, cell.getRegion())));
 				}
 			}
 		}
@@ -204,5 +231,15 @@ public class PhanerosAgent extends AbstractAgent<PhanerosAgent> {
 
 			node.send(new Message(node, agent.node, new Update(this, x, y)));
 		}
+	}
+
+	@Override
+	public void onUrgentTileNeed(int x, int y) {
+
+		Region region = new Region(x, y, visibility.getCellSize());
+
+		scribeNode.publish(new ChordId(region.toString()), new TileQuery(node, region));
+
+		node.send(new Message(node, mapServer, new TileQuery(node, region)));
 	}
 }

@@ -4,12 +4,13 @@ import actionsim.core.Node;
 import actionsim.core.Payload;
 import p2p.map.Region;
 
-public class TileAvailable implements Payload {
+public class TileQuery implements Payload {
 
 	private Node node;
+
 	private Region region;
 
-	public TileAvailable(Node node, Region region) {
+	public TileQuery(Node node, Region region) {
 
 		this.node = node;
 		this.region = region;
@@ -23,7 +24,7 @@ public class TileAvailable implements Payload {
 	public Region getRegion() {
 
 		return region;
-	}
+	};
 
 	@Override
 	public float getSize() {

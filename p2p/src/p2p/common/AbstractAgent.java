@@ -107,7 +107,7 @@ public abstract class AbstractAgent<T> implements IRenderable {
 
 	public abstract void start();
 
-	public abstract void onCacheMissAt(int x, int y);
+	public abstract void onUrgentTileNeed(int x, int y);
 
 	public abstract void onPositionChange();
 }

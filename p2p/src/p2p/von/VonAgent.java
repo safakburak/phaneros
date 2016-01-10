@@ -12,7 +12,6 @@ import p2p.common.AbstractAgent;
 import p2p.common.MapServer;
 import p2p.common.RandomWalker;
 import p2p.common.messages.TileEnvelope;
-import p2p.common.messages.TileRequest;
 import p2p.timer.TimedAction;
 import p2p.visibility.Visibility;
 import p2p.visibility.VisibilityCell;
@@ -151,12 +150,6 @@ public class VonAgent extends AbstractAgent<VonAgent> {
 	}
 
 	@Override
-	public void onCacheMissAt(int x, int y) {
-
-		mapServer.send(new Message(node, mapServer, new TileRequest(x, y)));
-	}
-
-	@Override
 	public void onPositionChange() {
 
 		for (VonAgent agent : aoiAgents) {
@@ -220,5 +213,10 @@ public class VonAgent extends AbstractAgent<VonAgent> {
 		}
 
 		return false;
+	}
+
+	@Override
+	public void onUrgentTileNeed(int x, int y) {
+
 	}
 }

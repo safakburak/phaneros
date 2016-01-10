@@ -23,6 +23,12 @@ public class LruCache implements Cache {
 		disposeQueue = new ArrayDeque<Tile>();
 	}
 
+	@Override
+	public boolean contains(Region region) {
+
+		return tileMap.containsKey(region);
+	}
+
 	public Tile getTile(Region region) {
 
 		Tile tile = tileMap.get(region);
