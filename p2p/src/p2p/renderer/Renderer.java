@@ -152,6 +152,8 @@ public class Renderer extends JPanel {
 			g2D.drawLine(col * cellSize, 0, col * cellSize, height);
 		}
 
+		g2D.setStroke(new BasicStroke(2f));
+
 		if (isDrawAllAgents) {
 
 			g2D.setColor(new Color(165, 42, 42));
