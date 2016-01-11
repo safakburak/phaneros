@@ -27,6 +27,6 @@ public class TileEnvelope implements Payload {
 	@Override
 	public float getSize() {
 
-		return 64;
+		return 512;
 	}
 }

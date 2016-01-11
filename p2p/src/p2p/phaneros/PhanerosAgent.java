@@ -81,8 +81,10 @@ public class PhanerosAgent extends AbstractAgent<PhanerosAgent> {
 
 					if (envelope.getTile() == null) {
 
-						scribeNode.publish(new ChordId(envelope.getRegion()),
-								new TileQuery(node, envelope.getRegion()));
+						// scribeNode.publish(new ChordId(envelope.getRegion()),
+						// new TileQuery(node, envelope.getRegion()));
+
+						node.send(new Message(node, mapServer, new TileRequest(node, envelope.getRegion())));
 
 					} else {
 
