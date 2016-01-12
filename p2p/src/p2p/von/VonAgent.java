@@ -12,6 +12,7 @@ import p2p.common.AbstractAgent;
 import p2p.common.MapServer;
 import p2p.common.RandomWalker;
 import p2p.common.messages.TileEnvelope;
+import p2p.stats.Stats;
 import p2p.timer.TimedAction;
 import p2p.visibility.Visibility;
 import p2p.visibility.VisibilityCell;
@@ -22,21 +23,21 @@ public class VonAgent extends AbstractAgent<VonAgent> {
 
 	private RandomWalker walker;
 
-	private Node mapServer;
-
 	private VonGraph graph = new VonGraph(this);
 
 	private Set<VonAgent> enclosingAgents = new HashSet<VonAgent>();
 	private Set<VonAgent> aoiAgents = new HashSet<VonAgent>();
 
-	public VonAgent(Node node, Visibility visibility, int cacheSize, Node mapServer, int worldWidth, int worldHeight,
+	private int extendedrange;
+
+	public VonAgent(Node node, Visibility visibility, int cacheSize, int worldWidth, int worldHeight,
 			MapServer server) {
 
 		super(node, visibility, cacheSize, server);
 
-		this.mapServer = mapServer;
-
 		walker = new RandomWalker(this, worldWidth, worldHeight);
+
+		extendedrange = visibility.getMaxRange() + 2 * visibility.getCellSize();
 	}
 
 	@Override
@@ -67,9 +68,7 @@ public class VonAgent extends AbstractAgent<VonAgent> {
 
 						enclosingAgents = graph.getEnclosing();
 
-						int range = visibility.getMaxRange();
-
-						if (distSquare(x, y, update.getX(), update.getY()) > range * range) {
+						if (distSquare(x, y, update.getX(), update.getY()) > extendedrange * extendedrange) {
 
 							aoiAgents.remove(update.getAgent());
 
@@ -78,6 +77,8 @@ public class VonAgent extends AbstractAgent<VonAgent> {
 								knownAgents.remove(update.getAgent());
 
 								node.send(new Message(node, update.getAgent().node, new Update(VonAgent.this, x, y)));
+
+								Stats.updatesSend.sample();
 							}
 
 						} else {
@@ -97,8 +98,8 @@ public class VonAgent extends AbstractAgent<VonAgent> {
 
 								if (p != null) {
 
-									if (distSquare(update.getX(), update.getY(), p.getX(), p.getY()) <= range * range
-											|| enclosingOfUpdater.contains(agent)) {
+									if (distSquare(update.getX(), update.getY(), p.getX(), p.getY()) <= extendedrange
+											* extendedrange || enclosingOfUpdater.contains(agent)) {
 
 										suggestionList.add(agent);
 									}
@@ -109,6 +110,8 @@ public class VonAgent extends AbstractAgent<VonAgent> {
 
 								node.send(new Message(node, update.getAgent().node,
 										new ConnectSuggestion(suggestionList)));
+
+								Stats.suggestions.sample(suggestionList.size());
 							}
 						}
 					}
@@ -116,8 +119,6 @@ public class VonAgent extends AbstractAgent<VonAgent> {
 				} else if (payload instanceof ConnectSuggestion) {
 
 					ConnectSuggestion suggestion = (ConnectSuggestion) payload;
-
-					int range = visibility.getMaxRange();
 
 					for (VonAgent agent : suggestion.getAgents()) {
 
@@ -129,7 +130,7 @@ public class VonAgent extends AbstractAgent<VonAgent> {
 
 							enclosingAgents = graph.getEnclosing();
 
-							if (distSquare(x, y, agent.getX(), agent.getY()) <= range * range) {
+							if (distSquare(x, y, agent.getX(), agent.getY()) <= extendedrange * extendedrange) {
 
 								aoiAgents.add(agent);
 							}
@@ -152,9 +153,15 @@ public class VonAgent extends AbstractAgent<VonAgent> {
 	@Override
 	public void onPositionChange() {
 
+		int updatesSend = 0;
+
 		for (VonAgent agent : aoiAgents) {
 
 			node.send(new Message(node, agent.node, new Update(this, x, y)));
+
+			Stats.updatesSend.sample();
+
+			updatesSend++;
 		}
 
 		for (VonAgent agent : enclosingAgents) {
@@ -162,8 +169,15 @@ public class VonAgent extends AbstractAgent<VonAgent> {
 			if (aoiAgents.contains(agent) == false) {
 
 				node.send(new Message(node, agent.node, new Update(this, x, y)));
+
+				Stats.updatesSend.sample();
+
+				updatesSend++;
 			}
 		}
+
+		Stats.aoiNeighbors.sample(aoiAgents.size());
+		Stats.simultaneousConnections.sample(updatesSend);
 
 		VisibilityCell newCell = visibility.getCellForPos(x, y);
 		VisibilityCell oldCell = currentCell;
@@ -176,17 +190,26 @@ public class VonAgent extends AbstractAgent<VonAgent> {
 
 				cache.getTile(cell.getRegion());
 			}
+
+			Stats.pvsSize.sample(newCell.getPvs().size());
+
+			if (oldCell != null) {
+
+				Stats.cellStay.sampleTime(VonAgent.this);
+			}
+
+			Stats.cellStay.markTime(VonAgent.this);
+
+			Stats.cellChange.sample();
 		}
 	}
 
 	@SuppressWarnings("rawtypes")
 	public void init(ArrayList<AbstractAgent> agents, VonGraph graph) {
 
-		int range = visibility.getMaxRange();
-
 		for (AbstractAgent agent : agents) {
 
-			if (distSquare(x, y, agent.getX(), agent.getY()) <= range * range) {
+			if (distSquare(x, y, agent.getX(), agent.getY()) <= extendedrange * extendedrange) {
 
 				aoiAgents.add((VonAgent) agent);
 			}
@@ -202,11 +225,9 @@ public class VonAgent extends AbstractAgent<VonAgent> {
 
 	private boolean isBoundaryFor(VonAgent agent) {
 
-		int range = visibility.getMaxRange();
-
 		for (VonAgent enclosing : enclosingAgents) {
 
-			if (distSquare(enclosing.x, enclosing.y, agent.x, agent.y) > range * range) {
+			if (distSquare(enclosing.x, enclosing.y, agent.x, agent.y) > extendedrange * extendedrange) {
 
 				return true;
 			}

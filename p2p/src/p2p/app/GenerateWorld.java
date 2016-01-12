@@ -20,7 +20,16 @@ public class GenerateWorld {
 			Visibility visibility = Visibility.calculateDummy(atlas, 16, 50);
 			World world = new World(atlas, visibility);
 
-			Persist.save(world, "data/world/random_range.world");
+			String outputPath = "data/world/random_range.world";
+
+			File file = new File(outputPath);
+
+			if (file.exists()) {
+
+				file.delete();
+			}
+
+			Persist.save(world, outputPath);
 
 		} catch (IOException e) {
 

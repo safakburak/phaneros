@@ -269,7 +269,6 @@ public class Delaunay_Triangulation {
 			Point_dt p3 = triangle.p3();
 
 			double d3 = p3.distance(pointToDelete);
-			Point_dt p;
 			if (d1 <= d2 && d1 <= d3) {
 				return p1;
 			} else if (d2 <= d1 && d2 <= d3) {
@@ -642,11 +641,11 @@ public class Delaunay_Triangulation {
 		Point_dt p2 = triangle.p2();
 		Point_dt p3 = triangle.p3();
 
-		if ((p1.pointLineTest(point, p3) == point.LEFT) && (p2.pointLineTest(point, p3) == point.RIGHT))
+		if ((p1.pointLineTest(point, p3) == Point_dt.LEFT) && (p2.pointLineTest(point, p3) == Point_dt.RIGHT))
 			return p3;
-		if ((p3.pointLineTest(point, p2) == point.LEFT) && (p1.pointLineTest(point, p2) == point.RIGHT))
+		if ((p3.pointLineTest(point, p2) == Point_dt.LEFT) && (p1.pointLineTest(point, p2) == Point_dt.RIGHT))
 			return p2;
-		if ((p2.pointLineTest(point, p1) == point.LEFT) && (p3.pointLineTest(point, p1) == point.RIGHT))
+		if ((p2.pointLineTest(point, p1) == Point_dt.LEFT) && (p3.pointLineTest(point, p1) == Point_dt.RIGHT))
 			return p1;
 		return null;
 	}
@@ -1068,6 +1067,7 @@ public class Delaunay_Triangulation {
 	 *            - file name
 	 * @throws Exception
 	 */
+	@SuppressWarnings("resource")
 	public void write_smf(String smfFile) throws Exception {
 		int len = this._vertices.size();
 		Point_dt[] ans = new Point_dt[len];
@@ -1086,10 +1086,11 @@ public class Delaunay_Triangulation {
 		for (int i = 0; i < len; i++) {
 			os.println("v " + ans[i].toFile());
 		}
-		int t = 0, i1 = -1, i2 = -1, i3 = -1;
+
+		int i1 = -1, i2 = -1, i3 = -1;
+
 		for (Iterator<Triangle_dt> dt = this.trianglesIterator(); dt.hasNext();) {
 			Triangle_dt curr = dt.next();
-			t++;
 			if (!curr.halfplane) {
 				i1 = Arrays.binarySearch(ans, curr.a, comp);
 				i2 = Arrays.binarySearch(ans, curr.b, comp);
@@ -1099,6 +1100,7 @@ public class Delaunay_Triangulation {
 				os.println("f " + (i1 + 1) + " " + (i2 + 1) + " " + (i3 + 1));
 			}
 		}
+
 		os.println("end");
 		os.close();
 		fw.close();
@@ -1162,6 +1164,9 @@ public class Delaunay_Triangulation {
 			double d3 = new Double(st.nextToken()).doubleValue();
 			ans[i] = new Point_dt((int) d1, (int) d2, d3);
 		}
+
+		is.close();
+
 		return ans;
 	}
 
@@ -1197,6 +1202,9 @@ public class Delaunay_Triangulation {
 		ans = new Point_dt[vec.size()];
 		for (int i = 0; i < vec.size(); i++)
 			ans[i] = (Point_dt) vec.elementAt(i);
+
+		is.close();
+
 		return ans;
 	}
 
@@ -1301,6 +1309,7 @@ public class Delaunay_Triangulation {
 	 * 
 	 * By Doron Ganel & Eyal Roth
 	 */
+	@SuppressWarnings("unused")
 	private Vector<Point_dt> findConnectedVertices(Point_dt point) {
 		return findConnectedVertices(point, false);
 	}
@@ -1362,6 +1371,7 @@ public class Delaunay_Triangulation {
 		return pointsVec;
 	}
 
+	@SuppressWarnings("unused")
 	private boolean onPerimeter(Vector<Triangle_dt> triangles) {
 		for (Triangle_dt t : triangles) {
 			if (t.isHalfplane())

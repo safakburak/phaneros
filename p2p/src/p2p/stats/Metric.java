@@ -1,10 +1,29 @@
 package p2p.stats;
 
+import java.util.HashMap;
+
+import actionsim.log.Logger;
+
 public class Metric {
 
 	private String name;
 
 	private long sampleCount;
+	private double sampleSum;
+	private double sampleMax = Long.MIN_VALUE;
+	private double sampleMin = Long.MAX_VALUE;
+
+	private HashMap<Object, Long> timeMark = new HashMap<Object, Long>();
+
+	public void markTime(Object owner) {
+
+		timeMark.put(owner, Stats.getTime());
+	}
+
+	public void sampleTime(Object owner) {
+
+		sample(Stats.getTime() - timeMark.get(owner));
+	}
 
 	public Metric(String name) {
 
@@ -13,11 +32,42 @@ public class Metric {
 
 	public void sample() {
 
+		sample(1);
+	}
+
+	public void sample(double amount) {
+
 		sampleCount++;
+		sampleSum += amount;
+
+		if (amount < sampleMin) {
+
+			sampleMin = amount;
+		}
+
+		if (amount > sampleMax) {
+
+			sampleMax = amount;
+		}
 	}
 
 	public void report() {
 
-		System.out.println(name + ": " + sampleCount);
+		if (sampleCount > 0) {
+
+			Logger.log(name + " COUNT: " + sampleCount);
+
+			if (sampleCount != sampleSum || sampleMin != sampleMax) {
+
+				Logger.log(name + " SUM: " + sampleSum);
+				Logger.log(name + " AVG: " + sampleSum / sampleCount);
+				Logger.log(name + " MIN: " + sampleMin);
+				Logger.log(name + " MAX: " + sampleMax);
+			}
+		} else {
+
+			Logger.log(name + " NOT AVAILABLE");
+		}
+
 	}
 }

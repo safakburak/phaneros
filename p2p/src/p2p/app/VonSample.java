@@ -11,6 +11,7 @@ import p2p.common.AbstractAgent;
 import p2p.common.MapServer;
 import p2p.map.World;
 import p2p.renderer.Renderer;
+import p2p.stats.Stats;
 import p2p.util.Persist;
 import p2p.von.VonAgent;
 import p2p.von.VonGraph;
@@ -39,8 +40,8 @@ public class VonSample {
 
 		while (agentCount-- > 0) {
 
-			VonAgent agent = new VonAgent(simulation.createNode(), world.getVisibility(), 50, server.getNode(),
-					world.getWidth(), world.getHeight(), server);
+			VonAgent agent = new VonAgent(simulation.createNode(), world.getVisibility(), 77, world.getWidth(),
+					world.getHeight(), server);
 
 			int x;
 			int y;
@@ -78,9 +79,13 @@ public class VonSample {
 			agent.start();
 		}
 
+		Stats.init(simulation);
+
 		while (true) {
 
 			simulation.iterate(10);
+
+			Stats.report();
 
 			try {
 

@@ -42,7 +42,7 @@ public class ScribeNode implements ChordApplication {
 
 				for (ScribeListener listener : listeners) {
 
-					listener.onScribeMessage(publish.getTopic(), ((Publish) message).getValue());
+					listener.onScribeMessage(publish.getTopic(), ((Publish) message).getValue(), publish.getHopCount());
 				}
 			}
 

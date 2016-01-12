@@ -204,21 +204,19 @@ public class Visibility implements Serializable {
 			}
 		}
 
-		int range = (int) Math.round(visibilityRange / ((double) cellSize) + 0.5);
+		int range = (int) ((visibilityRange / (double) cellSize) + 1.5);
 
-		for (int col = 0; col < colNum; col++) {
-			for (int row = 0; row < rowNum; row++) {
+		for (int sCol = 0; sCol < colNum; sCol++) {
+			for (int sRow = 0; sRow < rowNum; sRow++) {
 
-				for (int tCol = col - range; tCol <= col + range; tCol++) {
-					for (int tRow = row - range; tRow <= row + range; tRow++) {
+				for (int tCol = sCol - range; tCol <= sCol + range; tCol++) {
+					for (int tRow = sRow - range; tRow <= sRow + range; tRow++) {
 
 						if (tCol >= 0 && tCol < colNum && tRow >= 0 && tRow < rowNum) {
 
-							double dist = Math.sqrt((tRow - row) * (tRow - row) + (tCol - col) * (tCol - col));
+							if (nearestDist(sCol, sRow, tCol, tRow) < range) {
 
-							if (dist <= range) {
-
-								visibility.cells[col][row].addToPvs(visibility.cells[tCol][tRow]);
+								visibility.cells[sCol][sRow].addToPvs(visibility.cells[tCol][tRow]);
 							}
 						}
 					}
@@ -227,6 +225,38 @@ public class Visibility implements Serializable {
 		}
 
 		return visibility;
+	}
+
+	private static double nearestDist(double x1, double y1, double x2, double y2) {
+
+		double result = Double.MAX_VALUE;
+
+		result = Math.min(result, dist(x1, y1, x2, y2));
+		result = Math.min(result, dist(x1, y1, x2 + 1, y2));
+		result = Math.min(result, dist(x1, y1, x2 + 1, y2 + 1));
+		result = Math.min(result, dist(x1, y1, x2, y2 + 1));
+
+		result = Math.min(result, dist(x1 + 1, y1, x2, y2));
+		result = Math.min(result, dist(x1 + 1, y1, x2 + 1, y2));
+		result = Math.min(result, dist(x1 + 1, y1, x2 + 1, y2 + 1));
+		result = Math.min(result, dist(x1 + 1, y1, x2, y2 + 1));
+
+		result = Math.min(result, dist(x1 + 1, y1 + 1, x2, y2));
+		result = Math.min(result, dist(x1 + 1, y1 + 1, x2 + 1, y2));
+		result = Math.min(result, dist(x1 + 1, y1 + 1, x2 + 1, y2 + 1));
+		result = Math.min(result, dist(x1 + 1, y1 + 1, x2, y2 + 1));
+
+		result = Math.min(result, dist(x1, y1 + 1, x2, y2));
+		result = Math.min(result, dist(x1, y1 + 1, x2 + 1, y2));
+		result = Math.min(result, dist(x1, y1 + 1, x2 + 1, y2 + 1));
+		result = Math.min(result, dist(x1, y1 + 1, x2, y2 + 1));
+
+		return result;
+	}
+
+	private static double dist(double x1, double y1, double x2, double y2) {
+
+		return Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
 	}
 
 	public static Visibility calculatePvs(Atlas atlas, int cellSize, int visibilityRange) {

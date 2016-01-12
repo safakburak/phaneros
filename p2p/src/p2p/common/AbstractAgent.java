@@ -34,13 +34,13 @@ public abstract class AbstractAgent<T> implements IRenderable {
 		this.node = node;
 		this.visibility = visibility;
 
-		if (server != null) {
+		if (server == null) {
 
-			this.cache = new NeverMissCache(server, cacheSize, visibility.getCellSize());
+			this.cache = new LruCache(cacheSize, visibility.getCellSize());
 
 		} else {
 
-			this.cache = new LruCache(cacheSize, visibility.getCellSize());
+			this.cache = new NeverMissCache(server, cacheSize, visibility.getCellSize());
 		}
 
 		timer = new Timer(node);
