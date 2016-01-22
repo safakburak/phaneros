@@ -20,6 +20,9 @@ public class PhanerosSample {
 
 	private static MapServer server;
 
+	private static float bandwidth = 1024;
+	private static int numberOfAgents = 1000;
+
 	@SuppressWarnings("rawtypes")
 	public static void main(String[] args) throws IOException {
 
@@ -42,14 +45,14 @@ public class PhanerosSample {
 
 				} else {
 
-					return 1024;
+					return bandwidth;
 				}
 			}
 		});
 
 		server = new MapServer(simulation.createNode("server"), world.getAtlas(), world.getVisibility().getCellSize());
 
-		int agentCount = 1000;
+		int agentCount = numberOfAgents;
 
 		while (agentCount-- > 0) {
 

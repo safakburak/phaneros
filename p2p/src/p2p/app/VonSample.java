@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Random;
 
 import actionsim.core.DefaultConfiguration;
+import actionsim.core.Node;
 import actionsim.core.Simulation;
 import actionsim.log.Logger;
 import p2p.common.AbstractAgent;
@@ -20,6 +21,9 @@ public class VonSample {
 
 	private static MapServer server;
 
+	private static float bandwidth = 1024;
+	private static int numberOfAgents = 1000;
+
 	@SuppressWarnings("rawtypes")
 	public static void main(String[] args) throws IOException {
 
@@ -32,11 +36,23 @@ public class VonSample {
 
 		Simulation simulation = new Simulation(new DefaultConfiguration() {
 
+			@Override
+			public float getBandwidth(Node node) {
+
+				if (node.getId().equals("server")) {
+
+					return 0;
+
+				} else {
+
+					return bandwidth;
+				}
+			}
 		});
 
 		server = new MapServer(simulation.createNode("server"), world.getAtlas(), world.getVisibility().getCellSize());
 
-		int agentCount = 1000;
+		int agentCount = numberOfAgents;
 
 		while (agentCount-- > 0) {
 
