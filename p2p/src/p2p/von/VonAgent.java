@@ -37,7 +37,7 @@ public class VonAgent extends AbstractAgent<VonAgent> {
 
 		walker = new RandomWalker(this, worldWidth, worldHeight);
 
-		extendedrange = visibility.getMaxRange() + 2 * visibility.getCellSize();
+		extendedrange = visibility.getMaxRange() + visibility.getCellSize();
 	}
 
 	@Override

@@ -38,6 +38,6 @@ public class CellEnter implements Payload {
 	@Override
 	public float getSize() {
 
-		return 0.125f;
+		return 1;
 	}
 }

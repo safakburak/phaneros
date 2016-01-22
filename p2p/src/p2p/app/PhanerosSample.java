@@ -54,7 +54,7 @@ public class PhanerosSample {
 		while (agentCount-- > 0) {
 
 			PhanerosAgent agent = new PhanerosAgent(simulation.createNode(), world.getVisibility(), 60,
-					server.getNode(), world.getWidth(), world.getHeight(), server);
+					server.getNode(), world.getWidth(), world.getHeight(), null);
 
 			int x;
 			int y;
