@@ -55,18 +55,18 @@ public class Metric {
 
 		if (sampleCount > 0) {
 
-			Logger.log(name + " COUNT: " + sampleCount);
+			Logger.log(name + " COUNT: \t" + sampleCount);
 
 			if (sampleCount != sampleSum || sampleMin != sampleMax) {
 
-				Logger.log(name + " SUM: " + sampleSum);
-				Logger.log(name + " AVG: " + sampleSum / sampleCount);
-				Logger.log(name + " MIN: " + sampleMin);
-				Logger.log(name + " MAX: " + sampleMax);
+				Logger.log(name + " SUM: \t" + sampleSum);
+				Logger.log(name + " AVG: \t" + sampleSum / sampleCount);
+				Logger.log(name + " MIN: \t" + sampleMin);
+				Logger.log(name + " MAX: \t" + sampleMax);
 			}
 		} else {
 
-			Logger.log(name + " NOT AVAILABLE");
+			Logger.log(name + ": \t NOT AVAILABLE");
 		}
 
 	}
