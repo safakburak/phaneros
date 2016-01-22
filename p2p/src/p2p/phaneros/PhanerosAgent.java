@@ -202,6 +202,7 @@ public class PhanerosAgent extends AbstractAgent<PhanerosAgent> {
 		Stats.simultaneousConnections.sample(connections.size());
 	}
 
+	@Override
 	public void requestPvs(VisibilityCell visibilityCell, boolean fromServer) {
 
 		if (visibilityCell == currentCell) {

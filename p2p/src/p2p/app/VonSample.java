@@ -40,8 +40,8 @@ public class VonSample {
 
 		while (agentCount-- > 0) {
 
-			VonAgent agent = new VonAgent(simulation.createNode(), world.getVisibility(), 77, world.getWidth(),
-					world.getHeight(), server);
+			VonAgent agent = new VonAgent(simulation.createNode(), world.getVisibility(), 77, server.getNode(),
+					world.getWidth(), world.getHeight(), null);
 
 			int x;
 			int y;
