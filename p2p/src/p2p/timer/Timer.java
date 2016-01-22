@@ -82,13 +82,17 @@ public class Timer extends AbstractNodeListener {
 
 			this.time += time;
 
+			boolean acted = false;
+
 			if (this.time >= this.period) {
 
 				this.time -= this.period;
 				action.act(period);
+
+				acted = true;
 			}
 
-			return period == 0;
+			return period == 0 && acted;
 		}
 	}
 }

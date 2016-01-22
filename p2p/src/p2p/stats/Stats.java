@@ -1,6 +1,10 @@
 package p2p.stats;
 
 import java.lang.reflect.Field;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 
 import actionsim.core.Simulation;
 
@@ -14,7 +18,7 @@ public class Stats {
 	public static Metric tilesFromServer = new Metric("Tiles From Server");
 	public static Metric tilesFromAgents = new Metric("Tiles From Agents");
 	public static Metric queryHops = new Metric("Query Hops");
-	public static Metric tilesMissingAfterSecond = new Metric("Missing Tiles After Second");
+	public static Metric missingTilesAfterSecond = new Metric("Missing Tiles After Second");
 	public static Metric fetchDelay = new Metric("Fetch Delay");
 
 	// update dissemination
@@ -48,7 +52,19 @@ public class Stats {
 
 			System.out.println("Simulation time: " + (simulation.getCurrentTime() - startOffset) / 1000.0);
 
-			for (Field field : Stats.class.getDeclaredFields()) {
+			Field[] fields = Stats.class.getDeclaredFields();
+			List<Field> sortedFields = Arrays.asList(fields);
+
+			Collections.sort(sortedFields, new Comparator<Field>() {
+
+				@Override
+				public int compare(Field o1, Field o2) {
+
+					return o1.getName().compareTo(o2.getName());
+				}
+			});
+
+			for (Field field : sortedFields) {
 
 				if (field.getType() == Metric.class) {
 

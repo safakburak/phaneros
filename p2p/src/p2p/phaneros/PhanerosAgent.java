@@ -184,7 +184,7 @@ public class PhanerosAgent extends AbstractAgent<PhanerosAgent> {
 
 			requestPvs(newCell, false);
 
-			timer.delay(new PvsCheckAction(this, newCell), 1000);
+			timer.delay(new PvsCheckAction(this, newCell), 2000);
 
 			Stats.pvsSize.sample(newCell.getPvs().size());
 
@@ -230,7 +230,7 @@ public class PhanerosAgent extends AbstractAgent<PhanerosAgent> {
 
 			if (fromServer) {
 
-				Stats.tilesMissingAfterSecond.sample(missingCount);
+				Stats.missingTilesAfterSecond.sample(missingCount);
 
 			} else {
 
