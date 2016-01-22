@@ -13,6 +13,9 @@ public class Stats {
 	// common
 	public static Metric pvsSize = new Metric("PVS Size");
 	public static Metric deltaPvs = new Metric("Delta PVS");
+	public static Metric serverFetchesOfUrgent = new Metric("Server Fetch Because Of Urgent");
+	public static Metric serverFetchesOfNullEnvelope = new Metric("Server Fetch Because Of NULL Envelope");
+	public static Metric serverFetchesOfTimeout = new Metric("Server Fetch Because Of Timeout");
 
 	// content streaming
 	public static Metric tilesFromServer = new Metric("Tiles From Server");

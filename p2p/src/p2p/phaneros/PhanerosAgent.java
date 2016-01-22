@@ -83,6 +83,8 @@ public class PhanerosAgent extends AbstractAgent<PhanerosAgent> {
 
 						node.send(new Message(node, mapServer, new TileRequest(node, envelope.getRegion())));
 
+						Stats.serverFetchesOfNullEnvelope.sample();
+
 					} else {
 
 						cache.addTile(((TileEnvelope) payload).getTile());
@@ -219,6 +221,8 @@ public class PhanerosAgent extends AbstractAgent<PhanerosAgent> {
 
 						node.send(new Message(node, mapServer, new TileRequest(node, cell.getRegion())));
 
+						Stats.serverFetchesOfTimeout.sample();
+
 					} else {
 
 						scribeNode.publish(new ChordId(cell.getRegion().toString()),
@@ -308,5 +312,7 @@ public class PhanerosAgent extends AbstractAgent<PhanerosAgent> {
 		Region region = new Region(col, row, visibility.getCellSize());
 
 		node.send(new Message(node, mapServer, new TileRequest(node, region)));
+
+		Stats.serverFetchesOfUrgent.sample();
 	}
 }

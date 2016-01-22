@@ -68,6 +68,8 @@ public class VonAgent extends AbstractAgent<VonAgent> {
 
 						node.send(new Message(node, mapServer, new TileRequest(node, envelope.getRegion())));
 
+						Stats.serverFetchesOfNullEnvelope.sample();
+
 					} else {
 
 						cache.addTile(((TileEnvelope) payload).getTile());
@@ -211,7 +213,7 @@ public class VonAgent extends AbstractAgent<VonAgent> {
 
 			requestPvs(newCell, false);
 
-			timer.delay(new PvsCheckAction(this, newCell), 1000);
+			timer.delay(new PvsCheckAction(this, newCell), 2000);
 
 			Stats.pvsSize.sample(newCell.getPvs().size());
 
@@ -271,6 +273,8 @@ public class VonAgent extends AbstractAgent<VonAgent> {
 
 						node.send(new Message(node, mapServer, new TileRequest(node, cell.getRegion())));
 
+						Stats.serverFetchesOfTimeout.sample();
+
 					} else {
 
 						for (VonAgent agent : aoiAgents) {
@@ -293,7 +297,7 @@ public class VonAgent extends AbstractAgent<VonAgent> {
 
 			if (fromServer) {
 
-				Stats.tilesMissingAfterSecond.sample(missingCount);
+				Stats.missingTilesAfterSecond.sample(missingCount);
 
 			} else {
 
@@ -344,5 +348,7 @@ public class VonAgent extends AbstractAgent<VonAgent> {
 		Region region = new Region(col, row, visibility.getCellSize());
 
 		node.send(new Message(node, mapServer, new TileRequest(node, region)));
+
+		Stats.serverFetchesOfUrgent.sample();
 	}
 }
