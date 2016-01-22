@@ -11,7 +11,13 @@ import actionsim.core.Node;
 import p2p.common.AbstractAgent;
 import p2p.common.MapServer;
 import p2p.common.RandomWalker;
+import p2p.common.messages.TileAvailable;
 import p2p.common.messages.TileEnvelope;
+import p2p.common.messages.TileQuery;
+import p2p.common.messages.TileRequest;
+import p2p.map.Region;
+import p2p.map.Tile;
+import p2p.phaneros.PvsCheckAction;
 import p2p.stats.Stats;
 import p2p.timer.TimedAction;
 import p2p.visibility.Visibility;
@@ -30,10 +36,14 @@ public class VonAgent extends AbstractAgent<VonAgent> {
 
 	private int extendedrange;
 
-	public VonAgent(Node node, Visibility visibility, int cacheSize, int worldWidth, int worldHeight,
+	private Node mapServer;
+
+	public VonAgent(Node node, Visibility visibility, int cacheSize, Node mapServer, int worldWidth, int worldHeight,
 			MapServer server) {
 
 		super(node, visibility, cacheSize, server);
+
+		this.mapServer = mapServer;
 
 		walker = new RandomWalker(this, worldWidth, worldHeight);
 
@@ -52,7 +62,18 @@ public class VonAgent extends AbstractAgent<VonAgent> {
 
 				if (payload instanceof TileEnvelope) {
 
-					cache.addTile(((TileEnvelope) payload).getTile());
+					TileEnvelope envelope = (TileEnvelope) payload;
+
+					if (envelope.getTile() == null) {
+
+						node.send(new Message(node, mapServer, new TileRequest(node, envelope.getRegion())));
+
+					} else {
+
+						cache.addTile(((TileEnvelope) payload).getTile());
+					}
+
+					Stats.fetchDelay.sampleTime(VonAgent.this);
 
 				} else if (payload instanceof Update) {
 
@@ -136,6 +157,32 @@ public class VonAgent extends AbstractAgent<VonAgent> {
 							}
 						}
 					}
+				} else if (payload instanceof TileQuery) {
+
+					TileQuery query = (TileQuery) payload;
+
+					if (cache.getTile(query.getRegion()) != null) {
+
+						node.send(new Message(node, query.getNode(), new TileAvailable(node, query.getRegion())));
+					}
+				} else if (payload instanceof TileAvailable) {
+
+					TileAvailable available = (TileAvailable) payload;
+
+					if (cache.contains(available.getRegion()) == false) {
+
+						node.send(new Message(node, available.getNode(), new TileRequest(node, available.getRegion())));
+					}
+
+				} else if (payload instanceof TileRequest) {
+
+					TileRequest request = (TileRequest) payload;
+
+					Tile tile = cache.getTile(request.getRegion());
+
+					node.send(new Message(node, request.getNode(), new TileEnvelope(tile, request.getRegion())));
+
+					Stats.tilesFromAgents.sample();
 				}
 			}
 		});
@@ -153,31 +200,7 @@ public class VonAgent extends AbstractAgent<VonAgent> {
 	@Override
 	public void onPositionChange() {
 
-		int updatesSend = 0;
-
-		for (VonAgent agent : aoiAgents) {
-
-			node.send(new Message(node, agent.node, new Update(this, x, y)));
-
-			Stats.updatesSend.sample();
-
-			updatesSend++;
-		}
-
-		for (VonAgent agent : enclosingAgents) {
-
-			if (aoiAgents.contains(agent) == false) {
-
-				node.send(new Message(node, agent.node, new Update(this, x, y)));
-
-				Stats.updatesSend.sample();
-
-				updatesSend++;
-			}
-		}
-
-		Stats.aoiNeighbors.sample(aoiAgents.size());
-		Stats.simultaneousConnections.sample(updatesSend);
+		emitUpdates();
 
 		VisibilityCell newCell = visibility.getCellForPos(x, y);
 		VisibilityCell oldCell = currentCell;
@@ -186,10 +209,9 @@ public class VonAgent extends AbstractAgent<VonAgent> {
 
 			currentCell = newCell;
 
-			for (VisibilityCell cell : newCell.getPvs()) {
+			requestPvs(newCell, false);
 
-				cache.getTile(cell.getRegion());
-			}
+			timer.delay(new PvsCheckAction(this, newCell), 1000);
 
 			Stats.pvsSize.sample(newCell.getPvs().size());
 
@@ -201,6 +223,82 @@ public class VonAgent extends AbstractAgent<VonAgent> {
 			Stats.cellStay.markTime(VonAgent.this);
 
 			Stats.cellChange.sample();
+		}
+
+		Stats.aoiNeighbors.sample(aoiAgents.size());
+	}
+
+	private void emitUpdates() {
+
+		int connectionCount = 0;
+
+		for (VonAgent agent : aoiAgents) {
+
+			node.send(new Message(node, agent.node, new Update(this, x, y)));
+
+			Stats.updatesSend.sample();
+			connectionCount++;
+		}
+
+		for (VonAgent agent : enclosingAgents) {
+
+			if (aoiAgents.contains(agent) == false) {
+
+				node.send(new Message(node, agent.node, new Update(this, x, y)));
+
+				Stats.updatesSend.sample();
+				connectionCount++;
+			}
+		}
+
+		Stats.simultaneousConnections.sample(connectionCount);
+	}
+
+	@Override
+	public void requestPvs(VisibilityCell visibilityCell, boolean fromServer) {
+
+		if (visibilityCell == currentCell) {
+
+			int missingCount = 0;
+
+			for (VisibilityCell cell : visibilityCell.getPvs()) {
+
+				if (cache.getTile(cell.getRegion()) == null) {
+
+					missingCount++;
+
+					if (fromServer) {
+
+						node.send(new Message(node, mapServer, new TileRequest(node, cell.getRegion())));
+
+					} else {
+
+						for (VonAgent agent : aoiAgents) {
+
+							node.send(new Message(node, agent.node, new TileRequest(node, cell.getRegion())));
+						}
+
+						for (VonAgent agent : enclosingAgents) {
+
+							if (aoiAgents.contains(agent) == false) {
+
+								node.send(new Message(node, agent.node, new TileRequest(node, cell.getRegion())));
+							}
+						}
+
+						Stats.fetchDelay.markTime(VonAgent.this);
+					}
+				}
+			}
+
+			if (fromServer) {
+
+				Stats.tilesMissingAfterSecond.sample(missingCount);
+
+			} else {
+
+				Stats.deltaPvs.sample(missingCount);
+			}
 		}
 	}
 
@@ -239,5 +337,12 @@ public class VonAgent extends AbstractAgent<VonAgent> {
 	@Override
 	public void onUrgentTileNeed(int x, int y) {
 
+		int cellSize = visibility.getCellSize();
+		int col = x / cellSize * cellSize;
+		int row = y / cellSize * cellSize;
+
+		Region region = new Region(col, row, visibility.getCellSize());
+
+		node.send(new Message(node, mapServer, new TileRequest(node, region)));
 	}
 }

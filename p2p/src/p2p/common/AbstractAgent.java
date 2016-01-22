@@ -110,4 +110,6 @@ public abstract class AbstractAgent<T> implements IRenderable {
 	public abstract void onUrgentTileNeed(int x, int y);
 
 	public abstract void onPositionChange();
+
+	public abstract void requestPvs(VisibilityCell forCell, boolean b);
 }
