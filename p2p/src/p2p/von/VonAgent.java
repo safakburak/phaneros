@@ -2,6 +2,7 @@ package p2p.von;
 
 import java.awt.Point;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -53,6 +54,15 @@ public class VonAgent extends AbstractAgent<VonAgent> {
 	@Override
 	public void start() {
 
+		timer.repeat(new TimedAction() {
+
+			@Override
+			public void act(float time) {
+
+				walker.walk();
+			}
+		}, 500, (float) (Math.random() * 500));
+
 		node.addNodeListener(new AbstractNodeListener() {
 
 			@Override
@@ -99,7 +109,11 @@ public class VonAgent extends AbstractAgent<VonAgent> {
 
 								knownAgents.remove(update.getAgent());
 
-								node.send(new Message(node, update.getAgent().node, new Update(VonAgent.this, x, y)));
+								if (update.isFinal() == false) {
+
+									node.send(new Message(node, update.getAgent().node,
+											new Update(VonAgent.this, x, y, true)));
+								}
 
 								Stats.updatesSend.sample();
 							}
@@ -188,15 +202,6 @@ public class VonAgent extends AbstractAgent<VonAgent> {
 				}
 			}
 		});
-
-		timer.repeat(new TimedAction() {
-
-			@Override
-			public void act(float time) {
-
-				walker.walk();
-			}
-		}, 500);
 	}
 
 	@Override
@@ -236,7 +241,7 @@ public class VonAgent extends AbstractAgent<VonAgent> {
 
 		for (VonAgent agent : aoiAgents) {
 
-			node.send(new Message(node, agent.node, new Update(this, x, y)));
+			node.send(new Message(node, agent.node, new Update(this, x, y, false)));
 
 			Stats.updatesSend.sample();
 			connectionCount++;
@@ -246,7 +251,7 @@ public class VonAgent extends AbstractAgent<VonAgent> {
 
 			if (aoiAgents.contains(agent) == false) {
 
-				node.send(new Message(node, agent.node, new Update(this, x, y)));
+				node.send(new Message(node, agent.node, new Update(this, x, y, false)));
 
 				Stats.updatesSend.sample();
 				connectionCount++;
@@ -350,5 +355,32 @@ public class VonAgent extends AbstractAgent<VonAgent> {
 		node.send(new Message(node, mapServer, new TileRequest(node, region)));
 
 		Stats.serverFetchesOfUrgent.sample();
+	}
+
+	@Override
+	public Collection<Point> getAgents() {
+
+		Set<Point> points = new HashSet<Point>();
+
+		for (VonAgent agent : aoiAgents) {
+
+			points.add(new Point(agent.getX(), agent.getY()));
+		}
+
+		for (VonAgent agent : enclosingAgents) {
+
+			if (aoiAgents.contains(agent) == false) {
+
+				points.add(new Point(agent.getX(), agent.getY()));
+			}
+		}
+
+		return points;
+	}
+
+	@Override
+	public boolean isKnown(AbstractAgent agent) {
+
+		return aoiAgents.contains(agent) || enclosingAgents.contains(agent);
 	}
 }
