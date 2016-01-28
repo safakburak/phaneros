@@ -279,14 +279,14 @@ public class VonAgent extends AbstractAgent<VonAgent> {
 
 						for (VonAgent agent : aoiAgents) {
 
-							node.send(new Message(node, agent.node, new TileRequest(node, cell.getRegion())));
+							node.send(new Message(node, agent.node, new TileQuery(node, cell.getRegion())));
 						}
 
 						for (VonAgent agent : enclosingAgents) {
 
 							if (aoiAgents.contains(agent) == false) {
 
-								node.send(new Message(node, agent.node, new TileRequest(node, cell.getRegion())));
+								node.send(new Message(node, agent.node, new TileQuery(node, cell.getRegion())));
 							}
 						}
 

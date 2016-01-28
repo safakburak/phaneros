@@ -21,8 +21,9 @@ public class VonSample {
 
 	private static MapServer server;
 
-	private static float bandwidth = 1024;
-	private static int numberOfAgents = 1000;
+	private static float bandwidth = 4096;
+	private static int numberOfAgents = 250;
+	private static int outboxCapacity = 100;
 
 	@SuppressWarnings("rawtypes")
 	public static void main(String[] args) throws IOException {
@@ -46,6 +47,19 @@ public class VonSample {
 				} else {
 
 					return bandwidth;
+				}
+			}
+
+			@Override
+			public int getOutboxCapacity(Node node) {
+
+				if (node.getId().equals("server")) {
+
+					return 0;
+
+				} else {
+
+					return outboxCapacity;
 				}
 			}
 		});

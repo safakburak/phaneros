@@ -51,9 +51,11 @@ public class Stats {
 
 	public static synchronized void report() {
 
-		if (reportRequested) {
+		double timePassed = (simulation.getCurrentTime() - startOffset) / 1000.0;
 
-			System.out.println("Simulation time: " + (simulation.getCurrentTime() - startOffset) / 1000.0);
+		if (reportRequested || timePassed == 300) {
+
+			System.out.println("Simulation time: " + timePassed);
 
 			Field[] fields = Stats.class.getDeclaredFields();
 			List<Field> sortedFields = Arrays.asList(fields);
