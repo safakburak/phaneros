@@ -13,11 +13,18 @@ import com.google.common.collect.Multimap;
 
 import actionsim.AbstractNodeListener;
 import actionsim.chord.ChordId;
+import actionsim.chord.ChordLowLevelListener;
+import actionsim.chord.ChordMessage;
 import actionsim.chord.ChordNode;
+import actionsim.chord.internal.InternalMessage;
 import actionsim.core.Message;
 import actionsim.core.Node;
+import actionsim.core.Payload;
 import actionsim.scribe.ScribeListener;
 import actionsim.scribe.ScribeNode;
+import actionsim.scribe.inner.Publish;
+import actionsim.scribe.inner.Subscribe;
+import actionsim.scribe.inner.Unsubscribe;
 import p2p.common.AbstractAgent;
 import p2p.common.MapServer;
 import p2p.common.RandomWalker;
@@ -56,6 +63,39 @@ public class PhanerosAgent extends AbstractAgent<PhanerosAgent> {
 		this.mapServer = mapServer;
 
 		walker = new RandomWalker(this, worldWidth, worldHeight);
+
+		chordNode.setLowLevelListener(new ChordLowLevelListener() {
+
+			@Override
+			public void onInternalMessage(InternalMessage message) {
+
+			}
+
+			@Override
+			public void onExternalMessage(ChordMessage message) {
+
+				if (message instanceof Publish) {
+
+					Payload payload = ((Publish) message).getValue();
+
+					if (payload instanceof CellEnter || payload instanceof CellExit) {
+
+						Stats.scribeCellMessagesReceived.sample();
+
+					} else if (payload instanceof TileQuery || payload instanceof TileRequest
+							|| payload instanceof TileAvailable) {
+
+						Stats.scribeTileMessagesReceived.sample();
+					}
+
+				} else if (message instanceof Subscribe || message instanceof Unsubscribe) {
+
+					Stats.scribeSubscriptionMessagesReceived.sample();
+				}
+
+				Stats.scribeAllMessagesReceived.sample();
+			}
+		});
 	}
 
 	public void start() {

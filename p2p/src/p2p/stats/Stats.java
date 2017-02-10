@@ -10,6 +10,15 @@ import actionsim.core.Simulation;
 
 public class Stats {
 
+	// CHORD
+	public static Metric internalMessagesReceived = new Metric("CHORD Internal messages received");
+
+	// SCRIBE
+	public static Metric scribeAllMessagesReceived = new Metric("SCRIBE all messages received");
+	public static Metric scribeTileMessagesReceived = new Metric("SCRIBE tile messages received");
+	public static Metric scribeCellMessagesReceived = new Metric("SCRIBE cell messages received");
+	public static Metric scribeSubscriptionMessagesReceived = new Metric("SCRIBE subscription messages received");
+
 	// common
 	public static Metric pvsSize = new Metric("PVS Size");
 	public static Metric deltaPvs = new Metric("Delta PVS");
