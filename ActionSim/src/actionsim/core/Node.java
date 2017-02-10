@@ -33,8 +33,6 @@ public class Node {
 
 	private float remainingCpuBudget = 0;
 
-	private int outboxCapacity = 0;
-
 	Node(String id) {
 
 		this.id = id;
@@ -175,11 +173,6 @@ public class Node {
 	public final void send(Message message) {
 
 		outbox.add(message);
-
-		while (outboxCapacity > 0 && outbox.size() > outboxCapacity) {
-
-			outbox.remove();
-		}
 	}
 
 	public final boolean isConnectedTo(Node node) {
@@ -239,10 +232,5 @@ public class Node {
 	public String toString() {
 
 		return id;
-	}
-
-	public void setOutboxCapacity(int outboxCapacity) {
-
-		this.outboxCapacity = outboxCapacity;
 	}
 }

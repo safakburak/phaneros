@@ -22,6 +22,6 @@ public class ConnectSuggestion implements Payload {
 	@Override
 	public float getSize() {
 
-		return 0.125f * agents.size();
+		return 1 * agents.size();
 	}
 }

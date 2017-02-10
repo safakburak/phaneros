@@ -11,6 +11,4 @@ public interface Configuration {
 	public float getBandwidth(Node node);
 
 	public float getCpuBudget(Node node);
-
-	public int getOutboxCapacity(Node result);
 }

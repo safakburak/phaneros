@@ -2,6 +2,7 @@ package p2p.phaneros;
 
 import java.awt.Point;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -119,6 +120,16 @@ public class PhanerosAgent extends AbstractAgent<PhanerosAgent> {
 					node.send(new Message(node, request.getNode(), new TileEnvelope(tile, request.getRegion())));
 
 					Stats.tilesFromAgents.sample();
+
+				} else if (payload instanceof CellEnter) {
+
+					CellEnter cellEnter = (CellEnter) payload;
+
+					if (currentCell.getPvs().contains(cellEnter.getCell())) {
+
+						connections.put(cellEnter.getCell(), cellEnter.getAgent());
+						knownAgents.put(cellEnter.getAgent(), new Point(cellEnter.getX(), cellEnter.getY()));
+					}
 				}
 			}
 		});
@@ -314,5 +325,26 @@ public class PhanerosAgent extends AbstractAgent<PhanerosAgent> {
 		node.send(new Message(node, mapServer, new TileRequest(node, region)));
 
 		Stats.serverFetchesOfUrgent.sample();
+	}
+
+	@Override
+	public Collection<Point> getAgents() {
+
+		Collection<PhanerosAgent> agents = connections.values();
+
+		List<Point> points = new ArrayList<Point>(agents.size());
+
+		for (PhanerosAgent agent : agents) {
+
+			points.add(new Point(agent.getX(), agent.getY()));
+		}
+
+		return points;
+	}
+
+	@Override
+	public boolean isKnown(AbstractAgent agent) {
+
+		return connections.values().contains(agent);
 	}
 }

@@ -8,12 +8,14 @@ public class Update implements Payload {
 	private VonAgent agent;
 	private int x;
 	private int y;
+	private boolean isFinal;
 
-	public Update(VonAgent agent, int x, int y) {
+	public Update(VonAgent agent, int x, int y, boolean isFinal) {
 
 		this.agent = agent;
 		this.x = x;
 		this.y = y;
+		this.isFinal = isFinal;
 	}
 
 	public VonAgent getAgent() {
@@ -31,9 +33,14 @@ public class Update implements Payload {
 		return y;
 	}
 
+	public boolean isFinal() {
+
+		return isFinal;
+	}
+
 	@Override
 	public float getSize() {
 
-		return 0.125f;
+		return 1;
 	}
 }

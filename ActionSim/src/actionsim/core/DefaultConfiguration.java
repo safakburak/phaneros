@@ -31,10 +31,4 @@ public class DefaultConfiguration implements Configuration {
 
 		return 0;
 	}
-
-	@Override
-	public int getOutboxCapacity(Node result) {
-
-		return 0;
-	}
 }

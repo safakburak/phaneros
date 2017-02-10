@@ -41,7 +41,6 @@ public class Simulation {
 		Node result = new Node(id);
 		result.setBandwidth(configuration.getBandwidth(result));
 		result.setCpuBudget(configuration.getCpuBudget(result));
-		result.setOutboxCapacity(configuration.getOutboxCapacity(result));
 		nodes.add(result);
 
 		return result;
