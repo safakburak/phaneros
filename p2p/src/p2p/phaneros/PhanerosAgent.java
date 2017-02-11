@@ -28,6 +28,7 @@ import actionsim.scribe.inner.Unsubscribe;
 import p2p.common.AbstractAgent;
 import p2p.common.MapServer;
 import p2p.common.RandomWalker;
+import p2p.common.Walker;
 import p2p.common.messages.TileAvailable;
 import p2p.common.messages.TileEnvelope;
 import p2p.common.messages.TileQuery;
@@ -47,7 +48,7 @@ public class PhanerosAgent extends AbstractAgent<PhanerosAgent> {
 	private ScribeNode scribeNode;
 	private ChordNode chordNode;
 	private Node mapServer;
-	private RandomWalker walker;
+	private Walker walker;
 
 	private Multimap<VisibilityCell, PhanerosAgent> connections = HashMultimap.create();
 
@@ -354,7 +355,7 @@ public class PhanerosAgent extends AbstractAgent<PhanerosAgent> {
 	}
 
 	@Override
-	public void onUrgentTileNeed(int x, int y) {
+	public void onCacheMiss(int x, int y) {
 
 		int cellSize = visibility.getCellSize();
 		int col = x / cellSize * cellSize;

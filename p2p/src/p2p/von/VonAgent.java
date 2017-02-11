@@ -12,6 +12,7 @@ import actionsim.core.Node;
 import p2p.common.AbstractAgent;
 import p2p.common.MapServer;
 import p2p.common.RandomWalker;
+import p2p.common.Walker;
 import p2p.common.messages.TileAvailable;
 import p2p.common.messages.TileEnvelope;
 import p2p.common.messages.TileQuery;
@@ -28,7 +29,7 @@ import p2p.von.messages.Update;
 
 public class VonAgent extends AbstractAgent<VonAgent> {
 
-	private RandomWalker walker;
+	private Walker walker;
 
 	private VonGraph graph = new VonGraph(this);
 
@@ -344,7 +345,7 @@ public class VonAgent extends AbstractAgent<VonAgent> {
 	}
 
 	@Override
-	public void onUrgentTileNeed(int x, int y) {
+	public void onCacheMiss(int x, int y) {
 
 		int cellSize = visibility.getCellSize();
 		int col = x / cellSize * cellSize;
