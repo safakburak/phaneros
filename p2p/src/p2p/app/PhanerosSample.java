@@ -20,7 +20,7 @@ public class PhanerosSample {
 
 	private static MapServer server;
 
-	private static int numberOfAgents = 1000;
+	private static int numberOfAgents = 2;
 	private static float bandwidth = 2048;
 
 	@SuppressWarnings("rawtypes")

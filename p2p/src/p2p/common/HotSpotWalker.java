@@ -56,9 +56,9 @@ public class HotSpotWalker extends Walker {
 
 	private int searchDir = 1;
 
-	private int prevX;
+	private float prevX;
 
-	private int prevY;
+	private float prevY;
 
 	public HotSpotWalker(AbstractAgent<?> agent, int worldWidth, int worldHeight) {
 
@@ -70,7 +70,7 @@ public class HotSpotWalker extends Walker {
 
 				searchDir *= -1;
 			}
-		}, 1000 * (random.nextInt(8) + 5));
+		}, 2000 * (random.nextInt(8) + 5));
 	}
 
 	private int getNextDirection(int x, int y, int start) {
@@ -105,8 +105,8 @@ public class HotSpotWalker extends Walker {
 	@Override
 	public boolean updateDirection() {
 
-		int x = agent.getX();
-		int y = agent.getY();
+		float x = agent.getX();
+		float y = agent.getY();
 
 		if (activeHotSpotVersion != validHotSpotVersion || target == null) {
 
@@ -146,8 +146,8 @@ public class HotSpotWalker extends Walker {
 			dY = 0;
 		}
 
-		int nX;
-		int nY;
+		float nX;
+		float nY;
 		int searchStart = 0;
 
 		while (true) {
@@ -186,8 +186,8 @@ public class HotSpotWalker extends Walker {
 
 			searchStart = getNextDirection(dX, dY, searchStart);
 
-			dX = dirCW[searchStart].x;
-			dY = dirCW[searchStart].y;
+			dX = (int) dirCW[searchStart].x;
+			dY = (int) dirCW[searchStart].y;
 		}
 	}
 }

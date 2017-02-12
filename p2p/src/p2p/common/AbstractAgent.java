@@ -14,8 +14,8 @@ import p2p.visibility.VisibilityCell;
 
 public abstract class AbstractAgent<T> implements IRenderable {
 
-	protected int x;
-	protected int y;
+	protected float x;
+	protected float y;
 
 	protected Cache cache;
 
@@ -58,15 +58,15 @@ public abstract class AbstractAgent<T> implements IRenderable {
 
 	public Collection<VisibilityCell> getPvs() {
 
-		return visibility.getCellForPos(x, y).getPvs();
+		return visibility.getCellForPos((int) x, (int) y).getPvs();
 	}
 
-	public int getX() {
+	public float getX() {
 
 		return x;
 	}
 
-	public int getY() {
+	public float getY() {
 
 		return y;
 	}
@@ -99,7 +99,7 @@ public abstract class AbstractAgent<T> implements IRenderable {
 		return cache;
 	}
 
-	public void setPosition(int x, int y) {
+	public void setPosition(float x, float y) {
 
 		this.x = x;
 		this.y = y;
@@ -107,7 +107,7 @@ public abstract class AbstractAgent<T> implements IRenderable {
 
 	public abstract void start();
 
-	public abstract void onCacheMiss(int x, int y);
+	public abstract void onCacheMiss(float x, float y);
 
 	public abstract void onPositionChange();
 

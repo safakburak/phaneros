@@ -47,9 +47,9 @@ public class LruCache implements Cache {
 		return tileMap.values();
 	}
 
-	public Tile getTile(int x, int y) {
+	public Tile getTile(float x, float y) {
 
-		return getTile(new Region(x / cellSize * cellSize, y / cellSize * cellSize, cellSize));
+		return getTile(new Region(((int) (x / cellSize)) * cellSize, ((int) (y / cellSize)) * cellSize, cellSize));
 	}
 
 	public void addTile(Tile tile) {

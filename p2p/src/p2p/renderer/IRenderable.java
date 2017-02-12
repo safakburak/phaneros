@@ -20,7 +20,7 @@ public interface IRenderable {
 
 	public String getId();
 
-	public int getX();
+	public float getX();
 
-	public int getY();
+	public float getY();
 }

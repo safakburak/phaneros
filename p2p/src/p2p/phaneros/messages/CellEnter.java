@@ -6,12 +6,12 @@ import p2p.visibility.VisibilityCell;
 
 public class CellEnter implements Payload {
 
-	private int x;
-	private int y;
+	private float x;
+	private float y;
 	private VisibilityCell cell;
 	private PhanerosAgent agent;
 
-	public CellEnter(VisibilityCell cell, PhanerosAgent agent, int x, int y) {
+	public CellEnter(VisibilityCell cell, PhanerosAgent agent, float x, float y) {
 
 		this.cell = cell;
 		this.agent = agent;
@@ -27,11 +27,11 @@ public class CellEnter implements Payload {
 		return agent;
 	}
 
-	public int getX() {
+	public float getX() {
 		return x;
 	}
 
-	public int getY() {
+	public float getY() {
 		return y;
 	}
 

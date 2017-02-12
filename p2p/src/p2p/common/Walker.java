@@ -19,20 +19,22 @@ public abstract class Walker {
 
 	public abstract boolean updateDirection();
 
-	public void walk() {
+	public void walk(float time) {
+
+		float t = time / 1000; // to seconds
 
 		if (updateDirection()) {
 
-			agent.setPosition(agent.getX() + dX, agent.getY() + dY);
+			agent.setPosition(agent.getX() + dX * t, agent.getY() + dY * t);
 			agent.onPositionChange();
 
 		} else {
 
-			agent.onCacheMiss(agent.getX() + dX, agent.getY() + dY);
+			agent.onCacheMiss(agent.getX() + dX * t, agent.getY() + dY * t);
 		}
 	}
 
-	protected boolean isInBounds(int x, int y) {
+	protected boolean isInBounds(float x, float y) {
 
 		return x >= 0 && y >= 0 && x < worldWidth && y < worldHeight;
 	}

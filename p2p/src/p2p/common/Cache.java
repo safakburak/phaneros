@@ -13,7 +13,7 @@ public interface Cache {
 
 	public Collection<Tile> getTiles();
 
-	public Tile getTile(int x, int y);
+	public Tile getTile(float x, float y);
 
 	public void addTile(Tile tile);
 }

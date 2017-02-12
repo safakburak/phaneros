@@ -40,9 +40,9 @@ public class Tile {
 		return atlas.get(x + region.getX(), y + region.getY());
 	}
 
-	public int getAbsolute(int x, int y) {
+	public int getAbsolute(float x, float y) {
 
-		return atlas.get(x, y);
+		return atlas.get((int) x, (int) y);
 	}
 
 	public Image getImage() {

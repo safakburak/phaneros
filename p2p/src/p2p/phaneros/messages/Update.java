@@ -6,10 +6,10 @@ import p2p.phaneros.PhanerosAgent;
 public class Update implements Payload {
 
 	private PhanerosAgent agent;
-	private int x;
-	private int y;
+	private float x;
+	private float y;
 
-	public Update(PhanerosAgent agent, int x, int y) {
+	public Update(PhanerosAgent agent, float x, float y) {
 
 		this.agent = agent;
 		this.x = x;
@@ -21,12 +21,12 @@ public class Update implements Payload {
 		return agent;
 	}
 
-	public int getX() {
+	public float getX() {
 
 		return x;
 	}
 
-	public int getY() {
+	public float getY() {
 
 		return y;
 	}

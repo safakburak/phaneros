@@ -174,7 +174,7 @@ public class Renderer extends JPanel {
 		}
 
 		g2D.setColor(Color.red);
-		drawAgent(renderable.getX(), renderable.getY(), g2D);
+		drawAgent(((int) (renderable.getX() + 0.5)), ((int) (renderable.getY() + 0.5)), g2D);
 
 		double r = world.getVisibility().getMaxRange() + world.getVisibility().getCellSize();
 		g2D.drawOval((int) (renderable.getX() - r), (int) (renderable.getY() - r), (int) (r * 2), (int) (r * 2));

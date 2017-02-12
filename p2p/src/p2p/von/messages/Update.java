@@ -6,11 +6,11 @@ import p2p.von.VonAgent;
 public class Update implements Payload {
 
 	private VonAgent agent;
-	private int x;
-	private int y;
+	private float x;
+	private float y;
 	private boolean isFinal;
 
-	public Update(VonAgent agent, int x, int y, boolean isFinal) {
+	public Update(VonAgent agent, float x, float y, boolean isFinal) {
 
 		this.agent = agent;
 		this.x = x;
@@ -23,12 +23,12 @@ public class Update implements Payload {
 		return agent;
 	}
 
-	public int getX() {
+	public float getX() {
 
 		return x;
 	}
 
-	public int getY() {
+	public float getY() {
 
 		return y;
 	}

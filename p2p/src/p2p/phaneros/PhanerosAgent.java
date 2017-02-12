@@ -106,7 +106,7 @@ public class PhanerosAgent extends AbstractAgent<PhanerosAgent> {
 			@Override
 			public void act(float time) {
 
-				walker.walk();
+				walker.walk(time);
 			}
 		}, 500, (float) (Math.random() * 500));
 
@@ -225,7 +225,7 @@ public class PhanerosAgent extends AbstractAgent<PhanerosAgent> {
 
 		emitUpdates();
 
-		VisibilityCell newCell = visibility.getCellForPos(x, y);
+		VisibilityCell newCell = visibility.getCellForPos((int) x, (int) y);
 		VisibilityCell oldCell = currentCell;
 
 		if (oldCell == null || oldCell != newCell) {
@@ -355,11 +355,11 @@ public class PhanerosAgent extends AbstractAgent<PhanerosAgent> {
 	}
 
 	@Override
-	public void onCacheMiss(int x, int y) {
+	public void onCacheMiss(float x, float y) {
 
 		int cellSize = visibility.getCellSize();
-		int col = x / cellSize * cellSize;
-		int row = y / cellSize * cellSize;
+		int col = ((int) x) / cellSize * cellSize;
+		int row = ((int) y) / cellSize * cellSize;
 
 		Region region = new Region(col, row, visibility.getCellSize());
 

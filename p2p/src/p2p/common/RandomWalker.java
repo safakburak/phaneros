@@ -16,10 +16,10 @@ public class RandomWalker extends Walker {
 	@Override
 	public boolean updateDirection() {
 
-		int x = agent.getX();
-		int y = agent.getY();
-		int nX;
-		int nY;
+		float x = agent.getX();
+		float y = agent.getY();
+		float nX;
+		float nY;
 
 		while (true) {
 
