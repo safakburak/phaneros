@@ -3,7 +3,11 @@ package actionsim.core;
 import java.util.ArrayList;
 import java.util.List;
 
+import actionsim.Point;
+
 public class Simulation {
+
+	public static Simulation instance = null;
 
 	private Configuration configuration = new DefaultConfiguration();
 
@@ -15,11 +19,23 @@ public class Simulation {
 
 	private List<SimulationListener> listeners = new ArrayList<>();
 
+	private List<Point> hotSpots;
+
 	public Simulation() {
 
+		if (instance == null) {
+
+			instance = this;
+
+		} else {
+
+			throw new RuntimeException("Another simulation instance is running.");
+		}
 	}
 
 	public Simulation(Configuration configuration) {
+
+		this();
 
 		this.configuration = configuration;
 	}
@@ -128,5 +144,13 @@ public class Simulation {
 
 			listeners.add(listener);
 		}
+	}
+
+	public void setHotSpots(List<Point> hotSpots) {
+		this.hotSpots = hotSpots;
+	}
+
+	public List<Point> getHotSpots() {
+		return hotSpots;
 	}
 }

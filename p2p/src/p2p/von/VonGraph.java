@@ -1,6 +1,5 @@
 package p2p.von;
 
-import java.awt.Point;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -9,6 +8,7 @@ import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import actionsim.Point;
 import p2p.common.AbstractAgent;
 import p2p.geometry.delaunay.Delaunay_Triangulation;
 import p2p.geometry.delaunay.Point_dt;
@@ -42,7 +42,7 @@ public class VonGraph {
 
 			if (entry.getKey() != agent) {
 
-				points[pIndex] = new Point_dt(entry.getValue().getX(), entry.getValue().getY());
+				points[pIndex] = new Point_dt(entry.getValue().x, entry.getValue().y);
 				points[pIndex].marker = entry.getKey();
 				pIndex++;
 			}

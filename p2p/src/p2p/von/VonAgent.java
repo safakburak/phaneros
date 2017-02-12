@@ -1,12 +1,12 @@
 package p2p.von;
 
-import java.awt.Point;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
 import actionsim.AbstractNodeListener;
+import actionsim.Point;
 import actionsim.core.Message;
 import actionsim.core.Node;
 import p2p.common.AbstractAgent;
@@ -136,7 +136,7 @@ public class VonAgent extends AbstractAgent<VonAgent> {
 
 								if (p != null) {
 
-									if (distSquare(update.getX(), update.getY(), p.getX(), p.getY()) <= extendedrange
+									if (distSquare(update.getX(), update.getY(), p.x, p.y) <= extendedrange
 											* extendedrange || enclosingOfUpdater.contains(agent)) {
 
 										suggestionList.add(agent);

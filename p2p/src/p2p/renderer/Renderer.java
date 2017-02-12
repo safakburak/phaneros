@@ -6,15 +6,16 @@ import java.awt.Color;
 import java.awt.Composite;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.Point;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
+import actionsim.Point;
 import actionsim.core.Simulation;
 import actionsim.core.SimulationListener;
 import p2p.common.AbstractAgent;
@@ -109,7 +110,7 @@ public class Renderer extends JPanel {
 		g2D.translate(getWidth() / 2, getHeight() / 2);
 		g2D.scale(zoom, zoom);
 		g2D.translate(-getWidth() / 2, -getHeight() / 2);
-		g2D.translate(pan.getX(), pan.getY());
+		g2D.translate(pan.x, pan.y);
 
 		int cellSize = world.getVisibility().getCellSize();
 		int rowCount = world.getVisibility().getRowCount();
@@ -169,7 +170,7 @@ public class Renderer extends JPanel {
 		g2D.setColor(Color.green);
 		for (Point p : renderable.getAgents()) {
 
-			drawAgent((int) p.getX(), (int) p.getY(), g2D);
+			drawAgent((int) p.x, (int) p.y, g2D);
 		}
 
 		g2D.setColor(Color.red);
@@ -177,6 +178,19 @@ public class Renderer extends JPanel {
 
 		double r = world.getVisibility().getMaxRange() + world.getVisibility().getCellSize();
 		g2D.drawOval((int) (renderable.getX() - r), (int) (renderable.getY() - r), (int) (r * 2), (int) (r * 2));
+
+		g2D.setColor(Color.orange);
+		r = world.getVisibility().getCellSize();
+
+		List<Point> hotSpots = simulation.getHotSpots();
+
+		if (hotSpots != null) {
+
+			for (Point p : simulation.getHotSpots()) {
+
+				g2D.fillOval((int) (p.x - r * 0.5), (int) (p.y - r * 0.5), (int) r, (int) r);
+			}
+		}
 
 		g2D.setTransform(transform);
 
@@ -217,7 +231,8 @@ public class Renderer extends JPanel {
 
 	public void pan(int dX, int dY) {
 
-		pan.translate(dX, dY);
+		pan.x += dX;
+		pan.y += dY;
 
 		render();
 	}
@@ -225,7 +240,8 @@ public class Renderer extends JPanel {
 	public void reset() {
 
 		zoom = 1;
-		pan.setLocation(0, 0);
+		pan.x = 0;
+		pan.y = 0;
 
 		render();
 	}

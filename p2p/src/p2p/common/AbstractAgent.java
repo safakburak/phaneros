@@ -1,9 +1,9 @@
 package p2p.common;
 
-import java.awt.Point;
 import java.util.Collection;
 import java.util.HashMap;
 
+import actionsim.Point;
 import actionsim.core.Node;
 import p2p.map.Region;
 import p2p.map.Tile;
@@ -43,7 +43,7 @@ public abstract class AbstractAgent<T> implements IRenderable {
 			this.cache = new NeverMissCache(server, cacheSize, visibility.getCellSize());
 		}
 
-		timer = new Timer(node);
+		timer = new Timer();
 	}
 
 	public void fillCache(MapServer server) {

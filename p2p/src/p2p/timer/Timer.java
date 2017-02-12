@@ -5,16 +5,24 @@ import java.util.Iterator;
 
 import actionsim.AbstractNodeListener;
 import actionsim.core.Action;
-import actionsim.core.Node;
+import actionsim.core.Simulation;
+import actionsim.core.SimulationListener;
 
 public class Timer extends AbstractNodeListener {
 
 	private ArrayList<Task> tasks = new ArrayList<Task>();
 	private ArrayList<Task> newTasks = new ArrayList<Task>();
 
-	public Timer(Node node) {
+	public Timer() {
 
-		node.addNodeListener(this);
+		Simulation.instance.addListener(new SimulationListener() {
+
+			@Override
+			public void onStep(float deltaTime, long step) {
+
+				Timer.this.onStep((Action[]) null, deltaTime);
+			}
+		});
 	}
 
 	public void delay(TimedAction action, float delay) {

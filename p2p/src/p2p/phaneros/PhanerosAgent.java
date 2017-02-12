@@ -1,6 +1,5 @@
 package p2p.phaneros;
 
-import java.awt.Point;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -12,6 +11,7 @@ import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 
 import actionsim.AbstractNodeListener;
+import actionsim.Point;
 import actionsim.chord.ChordId;
 import actionsim.chord.ChordLowLevelListener;
 import actionsim.chord.ChordMessage;
@@ -26,8 +26,8 @@ import actionsim.scribe.inner.Publish;
 import actionsim.scribe.inner.Subscribe;
 import actionsim.scribe.inner.Unsubscribe;
 import p2p.common.AbstractAgent;
+import p2p.common.HotSpotWalker;
 import p2p.common.MapServer;
-import p2p.common.RandomWalker;
 import p2p.common.Walker;
 import p2p.common.messages.TileAvailable;
 import p2p.common.messages.TileEnvelope;
@@ -63,7 +63,7 @@ public class PhanerosAgent extends AbstractAgent<PhanerosAgent> {
 		this.chordNode = scribeNode.getChordNode();
 		this.mapServer = mapServer;
 
-		walker = new RandomWalker(this, worldWidth, worldHeight);
+		walker = new HotSpotWalker(this, worldWidth, worldHeight);
 
 		chordNode.setLowLevelListener(new ChordLowLevelListener() {
 

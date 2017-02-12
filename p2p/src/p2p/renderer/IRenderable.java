@@ -1,8 +1,8 @@
 package p2p.renderer;
 
-import java.awt.Point;
 import java.util.Collection;
 
+import actionsim.Point;
 import p2p.common.AbstractAgent;
 import p2p.map.Tile;
 import p2p.visibility.VisibilityCell;
