@@ -2,11 +2,15 @@ package p2p.common;
 
 import java.util.Random;
 
+import actionsim.Point;
 import p2p.map.Tile;
 
 public class RandomWalker extends Walker {
 
 	private Random random = new Random();
+
+	private float dX;
+	private float dY;
 
 	public RandomWalker(AbstractAgent<?> agent, int worldWidth, int worldHeight) {
 
@@ -14,7 +18,7 @@ public class RandomWalker extends Walker {
 	}
 
 	@Override
-	public boolean updateDirection() {
+	public boolean updateDirection(Point move) {
 
 		float x = agent.getX();
 		float y = agent.getY();
@@ -29,6 +33,9 @@ public class RandomWalker extends Walker {
 			if ((dX != 0 || dY != 0) && isInBounds(nX, nY)) {
 
 				Tile tile = agent.cache.getTile(nX, nY);
+
+				move.x = dX;
+				move.y = dY;
 
 				if (tile == null) {
 

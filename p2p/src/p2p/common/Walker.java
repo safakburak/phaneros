@@ -1,14 +1,13 @@
 package p2p.common;
 
+import actionsim.Point;
+
 public abstract class Walker {
 
 	@SuppressWarnings("rawtypes")
 	protected AbstractAgent agent;
 	protected int worldWidth;
 	protected int worldHeight;
-
-	protected int dX = 0;
-	protected int dY = 0;
 
 	public Walker(AbstractAgent<?> agent, int worldWidth, int worldHeight) {
 
@@ -17,20 +16,24 @@ public abstract class Walker {
 		this.worldHeight = worldHeight;
 	}
 
-	public abstract boolean updateDirection();
+	public abstract boolean updateDirection(Point move);
 
 	public void walk(float time) {
 
 		float t = time / 1000; // to seconds
 
-		if (updateDirection()) {
+		t = 1;
 
-			agent.setPosition(agent.getX() + dX * t, agent.getY() + dY * t);
+		Point move = new Point();
+
+		if (updateDirection(move)) {
+
+			agent.setPosition(agent.getX() + move.x * t, agent.getY() + move.y * t);
 			agent.onPositionChange();
 
 		} else {
 
-			agent.onCacheMiss(agent.getX() + dX * t, agent.getY() + dY * t);
+			agent.onCacheMiss(agent.getX() + move.x * t, agent.getY() + move.y * t);
 		}
 	}
 

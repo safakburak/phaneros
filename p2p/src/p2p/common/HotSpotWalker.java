@@ -45,7 +45,7 @@ public class HotSpotWalker extends Walker {
 
 				Simulation.instance.setHotSpots(hotSpots);
 			}
-		}, 300000, 0);
+		}, 30000, 0);
 	}
 
 	private int activeHotSpotVersion = 0;
@@ -54,59 +54,25 @@ public class HotSpotWalker extends Walker {
 
 	private Random random = new Random();
 
-	private int searchDir = 1;
-
-	private float prevX;
-
-	private float prevY;
-
 	public HotSpotWalker(AbstractAgent<?> agent, int worldWidth, int worldHeight) {
 
 		super(agent, worldWidth, worldHeight);
-
-		timer.repeat(new TimedAction() {
-			@Override
-			public void act(float time) {
-
-				searchDir *= -1;
-			}
-		}, 2000 * (random.nextInt(8) + 5));
 	}
 
-	private int getNextDirection(int x, int y, int start) {
+	private Point getNextDirection(Point dir) {
 
 		for (int i = 0; i < dirCW.length; i++) {
 
-			int index = (start + (i * searchDir)) % dirCW.length;
+			if (dirCW[i].x == dir.x && dirCW[i].y == dir.y) {
 
-			while (index < 0) {
-
-				index += dirCW.length;
-			}
-
-			Point ref = dirCW[index];
-
-			if (ref.x == x && ref.y == y) {
-
-				index = (index + searchDir) % dirCW.length;
-
-				while (index < 0) {
-
-					index += dirCW.length;
-				}
-
-				return index;
+				return dirCW[(i + 1) % dirCW.length];
 			}
 		}
 
-		return -1;
+		return null;
 	}
 
-	@Override
-	public boolean updateDirection() {
-
-		float x = agent.getX();
-		float y = agent.getY();
+	private void updateTarget() {
 
 		if (activeHotSpotVersion != validHotSpotVersion || target == null) {
 
@@ -115,79 +81,128 @@ public class HotSpotWalker extends Walker {
 
 			target.x += random.nextInt(40) - 20;
 			target.y += random.nextInt(40) - 20;
-
-			prevX = 0;
-			prevY = 0;
 		}
+	}
+
+	private Point getMoveTowardTarget() {
+
+		Point result = new Point(0, 0);
+
+		float x = agent.getX();
+		float y = agent.getY();
 
 		if (target.x > x) {
 
-			dX = 1;
+			result.x = 1;
 
 		} else if (target.x < x) {
 
-			dX = -1;
+			result.x = -1;
 
 		} else {
 
-			dX = 0;
+			result.x = 0;
 		}
 
 		if (target.y > y) {
 
-			dY = 1;
+			result.y = 1;
 
 		} else if (target.y < y) {
 
-			dY = -1;
+			result.y = -1;
 
 		} else {
 
-			dY = 0;
+			result.y = 0;
 		}
 
-		float nX;
-		float nY;
-		int searchStart = 0;
+		return result;
+	}
 
-		while (true) {
+	@Override
+	public boolean updateDirection(Point move) {
 
-			nX = x + dX;
-			nY = y + dY;
+		updateTarget();
 
-			if (dX == 0 && dY == 0) {
+		Point toTarget = getMoveTowardTarget();
 
-				// geldik balam
-				return true;
+		Boolean isMoveOk = checkMove(toTarget);
 
-			} else if (isInBounds(nX, nY)) {
+		if (isMoveOk == null) { // bilgi yok harita iste
 
-				Tile tile = agent.cache.getTile(nX, nY);
+			move.x = toTarget.x;
+			move.y = toTarget.y;
 
-				if (tile == null) {
+			return false;
+
+		} else if (isMoveOk == true) {
+
+			move.x = toTarget.x;
+			move.y = toTarget.y;
+
+			return true;
+
+		} else {
+
+			Point dir = getNextDirection(toTarget);
+
+			while (true) {
+
+				isMoveOk = checkMove(dir);
+
+				if (isMoveOk == null) {
+
+					move.x = dir.x;
+					move.y = dir.y;
 
 					return false;
 
-				} else if (tile.getAbsolute(nX, nY) == 0) {
+				} else if (isMoveOk == true) {
 
-					if (nX == prevX && nY == prevY) {
+					move.x = dir.x;
+					move.y = dir.y;
 
-						searchDir *= -1;
+					return true;
 
-					} else {
+				} else {
 
-						prevX = x;
-						prevY = y;
-
-						return true;
-					}
+					dir = getNextDirection(dir);
 				}
 			}
+		}
+	}
 
-			searchStart = getNextDirection(dX, dY, searchStart);
+	private Boolean checkMove(Point move) {
 
-			dX = (int) dirCW[searchStart].x;
-			dY = (int) dirCW[searchStart].y;
+		float nX = agent.getX() + move.x;
+		float nY = agent.getY() + move.y;
+
+		if (move.x == 0 && move.y == 0) {
+
+			// geldik balam
+			return true;
+
+		} else if (isInBounds(nX, nY)) {
+
+			Tile tile = agent.cache.getTile(nX, nY);
+
+			if (tile == null) {
+
+				return null;
+
+			} else if (tile.getAbsolute(nX, nY) == 0) {
+
+				return true;
+
+			} else {
+
+				return false;
+			}
+
+		} else {
+
+			return false;
 		}
 	}
 }
