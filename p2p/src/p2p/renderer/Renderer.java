@@ -162,7 +162,7 @@ public class Renderer extends JPanel {
 
 				if (renderable != agent && renderable.isKnown(agent) == false) {
 
-					drawAgent((int) agent.getX(), (int) agent.getY(), g2D);
+					drawAgent((int) (agent.getX() + 0.5), (int) (agent.getY() + 0.5), g2D);
 				}
 			}
 		}
@@ -170,7 +170,7 @@ public class Renderer extends JPanel {
 		g2D.setColor(Color.green);
 		for (Point p : renderable.getAgents()) {
 
-			drawAgent((int) p.x, (int) p.y, g2D);
+			drawAgent((int) (p.x + 0.5), (int) (p.y + 0.5), g2D);
 		}
 
 		g2D.setColor(Color.red);
