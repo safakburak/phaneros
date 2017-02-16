@@ -11,7 +11,7 @@ public abstract class Walker {
 
 	private Point lastMove;
 
-	private float speed = 4;
+	private float speed = 2;
 
 	public Walker(AbstractAgent<?> agent, int worldWidth, int worldHeight) {
 

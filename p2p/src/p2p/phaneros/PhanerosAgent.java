@@ -26,8 +26,8 @@ import actionsim.scribe.inner.Publish;
 import actionsim.scribe.inner.Subscribe;
 import actionsim.scribe.inner.Unsubscribe;
 import p2p.common.AbstractAgent;
-import p2p.common.HotSpotWalker;
 import p2p.common.MapServer;
+import p2p.common.RandomWalker;
 import p2p.common.Walker;
 import p2p.common.messages.TileAvailable;
 import p2p.common.messages.TileEnvelope;
@@ -63,7 +63,7 @@ public class PhanerosAgent extends AbstractAgent<PhanerosAgent> {
 		this.chordNode = scribeNode.getChordNode();
 		this.mapServer = mapServer;
 
-		walker = new HotSpotWalker(this, worldWidth, worldHeight);
+		walker = new RandomWalker(this, worldWidth, worldHeight);
 
 		chordNode.setLowLevelListener(new ChordLowLevelListener() {
 
