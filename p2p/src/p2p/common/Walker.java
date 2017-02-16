@@ -1,8 +1,13 @@
 package p2p.common;
 
+import java.util.Random;
+
 import actionsim.Point;
 
 public abstract class Walker {
+
+	private static Random random = new Random();
+	private static int[] speeds = new int[] { 1, 2, 4 };
 
 	@SuppressWarnings("rawtypes")
 	protected AbstractAgent agent;
@@ -11,7 +16,7 @@ public abstract class Walker {
 
 	private Point lastMove;
 
-	private float speed = 2;
+	private float speed = speeds[random.nextInt(speeds.length)]; // normal hız 2
 
 	public Walker(AbstractAgent<?> agent, int worldWidth, int worldHeight) {
 

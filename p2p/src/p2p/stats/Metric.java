@@ -59,15 +59,20 @@ public class Metric {
 
 			if (sampleCount != sampleSum || sampleMin != sampleMax) {
 
-				Logger.log(name + " SUM: \t" + sampleSum);
-				Logger.log(name + " AVG: \t" + sampleSum / sampleCount);
-				Logger.log(name + " MIN: \t" + sampleMin);
-				Logger.log(name + " MAX: \t" + sampleMax);
+				Logger.log(name + " SUM: \t" + format(sampleSum));
+				Logger.log(name + " AVG: \t" + format(sampleSum / sampleCount));
+				Logger.log(name + " MIN: \t" + format(sampleMin));
+				Logger.log(name + " MAX: \t" + format(sampleMax));
 			}
 		} else {
 
 			Logger.log(name + ": \t NOT AVAILABLE");
 		}
 
+	}
+
+	private String format(double value) {
+
+		return String.format("%.2f", value).replace('.', ',');
 	}
 }
