@@ -29,23 +29,20 @@ public class HotSpotWalker extends Walker {
 
 				Random random = new Random();
 
-				hotSpots.clear();
-
 				List<Point> spots = new ArrayList<Point>();
 
 				for (int i = 0; i < 4; i++) {
 
-					Point p = new Point(random.nextInt(1024), random.nextInt(1024));
-
-					hotSpots.add(p);
-					spots.add(p);
+					spots.add(new Point(random.nextInt(1024), random.nextInt(1024)));
 				}
+
+				hotSpots = spots;
 
 				validHotSpotVersion++;
 
 				Simulation.instance.setHotSpots(hotSpots);
 			}
-		}, 30000, 0);
+		}, 60000, 0);
 	}
 
 	private int activeHotSpotVersion = 0;
@@ -77,7 +74,7 @@ public class HotSpotWalker extends Walker {
 		if (activeHotSpotVersion != validHotSpotVersion || target == null) {
 
 			activeHotSpotVersion = validHotSpotVersion;
-			target = hotSpots.get(random.nextInt(hotSpots.size()));
+			target = new Point(hotSpots.get(random.nextInt(hotSpots.size())));
 
 			target.x += random.nextInt(40) - 20;
 			target.y += random.nextInt(40) - 20;

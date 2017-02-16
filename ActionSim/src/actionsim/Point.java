@@ -18,4 +18,9 @@ public class Point {
 		this.y = y;
 	}
 
+	public Point(Point p) {
+
+		this(p.x, p.y);
+	}
+
 }

@@ -179,7 +179,7 @@ public class Renderer extends JPanel {
 		double r = world.getVisibility().getMaxRange() + world.getVisibility().getCellSize();
 		g2D.drawOval((int) (renderable.getX() - r), (int) (renderable.getY() - r), (int) (r * 2), (int) (r * 2));
 
-		g2D.setColor(Color.orange);
+		g2D.setColor(Color.magenta);
 		r = world.getVisibility().getCellSize();
 
 		List<Point> hotSpots = simulation.getHotSpots();
