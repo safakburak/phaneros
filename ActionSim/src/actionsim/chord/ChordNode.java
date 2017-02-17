@@ -138,6 +138,13 @@ public class ChordNode implements NodeListener, Policy {
 
 				application.onChordMessage(chordMessage);
 			}
+
+			// mesaj bana
+			if (lowLevelListener != null) {
+
+				lowLevelListener.onExternalMessageArrive(chordMessage);
+			}
+
 		} else if (successor != null && chordMessage.getTo().isIn(me, successor, true)) {
 
 			if (noCheck || beforeForward(chordMessage, successor)) {

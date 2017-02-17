@@ -16,7 +16,8 @@ public abstract class Walker {
 
 	private Point lastMove;
 
-	private float speed = speeds[random.nextInt(speeds.length)]; // normal hız 2
+	private float speed = 2; // speeds[random.nextInt(speeds.length)]; // normal
+								// hız 2
 
 	public Walker(AbstractAgent<?> agent, int worldWidth, int worldHeight) {
 

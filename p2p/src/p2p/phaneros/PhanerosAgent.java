@@ -96,6 +96,31 @@ public class PhanerosAgent extends AbstractAgent<PhanerosAgent> {
 
 				Stats.scribeAllMessagesReceived.sample();
 			}
+
+			@Override
+			public void onExternalMessageArrive(ChordMessage message) {
+
+				if (message instanceof Publish) {
+
+					Payload payload = ((Publish) message).getValue();
+
+					if (payload instanceof CellEnter || payload instanceof CellExit) {
+
+						Stats.scribeCellMessagesArrived.sample();
+
+					} else if (payload instanceof TileQuery || payload instanceof TileRequest
+							|| payload instanceof TileAvailable) {
+
+						Stats.scribeTileMessagesArrived.sample();
+					}
+
+				} else if (message instanceof Subscribe || message instanceof Unsubscribe) {
+
+					Stats.scribeSubscriptionMessagesArrived.sample();
+				}
+
+				Stats.scribeAllMessagesArrived.sample();
+			}
 		});
 	}
 

@@ -14,10 +14,15 @@ public class Stats {
 	public static Metric internalMessagesReceived = new Metric("CHORD Internal messages received");
 
 	// SCRIBE
-	public static Metric scribeAllMessagesReceived = new Metric("SCRIBE all messages received");
 	public static Metric scribeTileMessagesReceived = new Metric("SCRIBE tile messages received");
 	public static Metric scribeCellMessagesReceived = new Metric("SCRIBE cell messages received");
 	public static Metric scribeSubscriptionMessagesReceived = new Metric("SCRIBE subscription messages received");
+	public static Metric scribeAllMessagesReceived = new Metric("SCRIBE all messages received");
+
+	public static Metric scribeTileMessagesArrived = new Metric("SCRIBE tile messages arrived");
+	public static Metric scribeCellMessagesArrived = new Metric("SCRIBE cell messages arrived");
+	public static Metric scribeSubscriptionMessagesArrived = new Metric("SCRIBE subscription messages arrived");
+	public static Metric scribeAllMessagesArrived = new Metric("SCRIBE all messages arrived");
 
 	// common
 	public static Metric pvsSize = new Metric("PVS Size");
@@ -62,7 +67,7 @@ public class Stats {
 
 		double timePassed = (simulation.getCurrentTime() - startOffset) / 1000.0;
 
-		if (reportRequested || timePassed == 300) {
+		if (reportRequested || timePassed == 300 || timePassed == 200) {
 
 			System.out.println("Simulation time: " + timePassed);
 
