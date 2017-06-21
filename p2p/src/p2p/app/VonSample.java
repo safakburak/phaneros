@@ -7,7 +7,7 @@ import java.util.Random;
 import actionsim.core.DefaultConfiguration;
 import actionsim.core.Node;
 import actionsim.core.Simulation;
-import actionsim.log.Logger;
+import actionsim.logging.Logger;
 import p2p.common.AbstractAgent;
 import p2p.common.MapServer;
 import p2p.map.World;
