@@ -55,7 +55,8 @@ public class Simulation {
 	public Node createNode(String id) {
 
 		Node result = new Node(id);
-		result.setBandwidth(configuration.getBandwidth(result));
+		result.setUploadBandwidth(configuration.getUploadBandwidth(result));
+		result.setDownloadBandwidth(configuration.getDownloadBandwidth(result));
 		result.setCpuBudget(configuration.getCpuBudget(result));
 		nodes.add(result);
 
@@ -92,6 +93,11 @@ public class Simulation {
 			for (Node node : nodes) {
 
 				node.processActions(configuration.getStepLength());
+			}
+
+			for (Node node : nodes) {
+
+				node.refreshBudgets(configuration.getStepLength());
 			}
 
 			for (Node node : nodes) {

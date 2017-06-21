@@ -2,13 +2,15 @@ package actionsim.core;
 
 public interface Configuration {
 
-	public float getStepLength();
+	public Float getStepLength();
 
-	public float getConnectionCost();
+	public Float getConnectionCost();
 
-	public float getDisconnectionCost();
+	public Float getDisconnectionCost();
 
-	public float getBandwidth(Node node);
+	public Float getUploadBandwidth(Node node);
 
-	public float getCpuBudget(Node node);
+	public Float getDownloadBandwidth(Node node);
+
+	public Float getCpuBudget(Node node);
 }

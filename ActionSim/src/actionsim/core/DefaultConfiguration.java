@@ -3,32 +3,38 @@ package actionsim.core;
 public class DefaultConfiguration implements Configuration {
 
 	@Override
-	public float getStepLength() {
+	public Float getStepLength() {
 
-		return 100;
+		return 100f;
 	}
 
 	@Override
-	public float getConnectionCost() {
+	public Float getConnectionCost() {
 
-		return 0;
+		return 0f;
 	}
 
 	@Override
-	public float getDisconnectionCost() {
+	public Float getDisconnectionCost() {
 
-		return 0;
+		return 0f;
 	}
 
 	@Override
-	public float getBandwidth(Node node) {
+	public Float getUploadBandwidth(Node node) {
 
-		return 0;
+		return null;
 	}
 
 	@Override
-	public float getCpuBudget(Node node) {
+	public Float getDownloadBandwidth(Node node) {
 
-		return 0;
+		return null;
+	}
+
+	@Override
+	public Float getCpuBudget(Node node) {
+
+		return null;
 	}
 }

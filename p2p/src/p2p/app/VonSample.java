@@ -22,7 +22,8 @@ public class VonSample {
 	private static MapServer server;
 
 	private static int numberOfAgents = 1000;
-	private static float bandwidth = 2048;
+	private static float uploadBandwidth = 2048;
+	private static float downloadBandwidth = 8192;
 
 	@SuppressWarnings("rawtypes")
 	public static void main(String[] args) throws IOException {
@@ -37,15 +38,28 @@ public class VonSample {
 		Simulation simulation = new Simulation(new DefaultConfiguration() {
 
 			@Override
-			public float getBandwidth(Node node) {
+			public Float getUploadBandwidth(Node node) {
 
 				if (node.getId().equals("server")) {
 
-					return 0;
+					return null;
 
 				} else {
 
-					return bandwidth;
+					return uploadBandwidth;
+				}
+			}
+
+			@Override
+			public Float getDownloadBandwidth(Node node) {
+
+				if (node.getId().equals("server")) {
+
+					return null;
+
+				} else {
+
+					return downloadBandwidth;
 				}
 			}
 		});

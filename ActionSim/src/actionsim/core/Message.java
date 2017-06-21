@@ -8,6 +8,8 @@ public class Message {
 
 	private Payload payload;
 
+	public int retries = 0;
+
 	public Message(Node from, Node to, Payload payload) {
 
 		this.from = from;

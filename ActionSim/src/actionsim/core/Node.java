@@ -7,8 +7,6 @@ import java.util.Queue;
 
 public class Node {
 
-	private final float NEAR_ZERO = 0.0000001f;
-
 	private String id;
 
 	private ArrayList<Policy> policies = new ArrayList<>();
@@ -19,17 +17,21 @@ public class Node {
 
 	private Queue<Message> inbox = new LinkedList<Message>();
 
-	private Queue<Message> outbox = new LinkedList<Message>();
+	private LinkedList<Message> outbox = new LinkedList<Message>();
 
 	private Queue<Action> actions = new LinkedList<Action>();
 
 	private Queue<Action> completedActions = new LinkedList<Action>();
 
-	private float bandwidth = 0; // kilobytes per second
+	private Float uploadBandwidth = null; // kilobytes per second
 
-	private float remainingKilobytes = 0;
+	private float remainingUploadKilobytes = 0;
 
-	private float cpuBudget = 0; // milliseconds
+	private Float downloadBandwidth = null; // kilobytes per second
+
+	private float remainingDownloadKilobytes = 0;
+
+	private Float cpuBudget = null; // milliseconds
 
 	private float remainingCpuBudget = 0;
 
@@ -38,27 +40,55 @@ public class Node {
 		this.id = id;
 	}
 
-	final void deliverMessages(float deltaTime) {
+	final void refreshBudgets(float deltaTime) {
 
-		if (bandwidth > 0) {
+		if (uploadBandwidth != null && remainingUploadKilobytes <= 0) {
 
-			remainingKilobytes += (bandwidth / 1000.0) * deltaTime;
+			remainingUploadKilobytes += (uploadBandwidth / 1000.0) * deltaTime;
 		}
 
-		while (outbox.isEmpty() == false) {
+		if (downloadBandwidth != null && remainingDownloadKilobytes <= 0) {
 
-			if (bandwidth <= NEAR_ZERO || outbox.peek().getSize() <= remainingKilobytes) {
+			remainingDownloadKilobytes += (downloadBandwidth / 1000.0) * deltaTime;
+		}
+	}
 
-				Message message = outbox.poll();
+	final void deliverMessages(float deltaTime) {
 
-				remainingKilobytes -= message.getSize();
+		for (int i = 0; i < outbox.size(); i++) {
 
-				Node receiver = message.getTo();
+			Message message = outbox.get(i);
 
-				receiver.inbox.add(message);
+			message.retries++;
+
+			if (message.retries == 10) {
+
+				outbox.remove(message);
+				i--;
+
 			} else {
 
-				break;
+				if (remainingUploadKilobytes > 0 || uploadBandwidth == null) {
+
+					Node receiver = message.getTo();
+
+					if (receiver.remainingDownloadKilobytes > 0 || receiver.downloadBandwidth == null) {
+
+						remainingUploadKilobytes -= message.getSize();
+						receiver.remainingDownloadKilobytes -= message.getSize();
+
+						outbox.remove(i);
+						receiver.inbox.add(message);
+
+						i--;
+
+						message.retries = 0;
+					}
+
+				} else {
+
+					break;
+				}
 			}
 		}
 	}
@@ -85,14 +115,14 @@ public class Node {
 
 		Action[] completedActionsArr;
 
-		if (cpuBudget > 0) {
+		if (cpuBudget != null) {
 
 			remainingCpuBudget += cpuBudget;
 		}
 
 		while (actions.isEmpty() == false) {
 
-			if (cpuBudget <= NEAR_ZERO || actions.peek().getCpuCost() <= remainingCpuBudget) {
+			if (remainingCpuBudget >= 0 || cpuBudget == null) {
 
 				Action action = actions.poll();
 
@@ -101,6 +131,7 @@ public class Node {
 				action.run();
 
 				completedActions.add(action);
+
 			} else {
 
 				break;
@@ -213,12 +244,17 @@ public class Node {
 		}
 	}
 
-	public final void setBandwidth(float bandwidth) {
+	public final void setUploadBandwidth(Float bandwidth) {
 
-		this.bandwidth = bandwidth;
+		this.uploadBandwidth = bandwidth;
 	}
 
-	public final void setCpuBudget(float cpuBudget) {
+	public void setDownloadBandwidth(Float downloadBandwidth) {
+
+		this.downloadBandwidth = downloadBandwidth;
+	}
+
+	public final void setCpuBudget(Float cpuBudget) {
 
 		this.cpuBudget = cpuBudget;
 	}
