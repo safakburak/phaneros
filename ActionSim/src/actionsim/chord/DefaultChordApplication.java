@@ -1,7 +1,7 @@
 package actionsim.chord;
 
 import actionsim.chord.internal.AbstractChordMessage;
-import actionsim.log.Logger;
+import actionsim.logging.Logger;
 
 public class DefaultChordApplication implements ChordApplication {
 

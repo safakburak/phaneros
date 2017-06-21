@@ -2,7 +2,7 @@ package p2p.stats;
 
 import java.util.HashMap;
 
-import actionsim.log.Logger;
+import actionsim.logging.Logger;
 
 public class Metric {
 

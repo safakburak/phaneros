@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import actionsim.chord.ChordId;
 import actionsim.core.Payload;
 import actionsim.core.Simulation;
-import actionsim.log.Logger;
+import actionsim.logging.Logger;
 
 public class SampleScribeSimulation {
 

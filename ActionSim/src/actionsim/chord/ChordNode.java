@@ -16,7 +16,7 @@ import actionsim.core.Message;
 import actionsim.core.Node;
 import actionsim.core.NodeListener;
 import actionsim.core.Policy;
-import actionsim.log.Logger;
+import actionsim.logging.Logger;
 
 public class ChordNode implements NodeListener, Policy {
 
